@@ -1,0 +1,203 @@
+/* --- CONFIGURACIÓN BASE --- */
+:root {
+    --bg-main: #f8f9fd;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --accent-blue: #3b82f6;
+    --border-color: #e2e8f0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --- NAV DOCK --- */
+.nav-dock {
+    position: fixed; left: 20px; top: 50%; transform: translateY(-50%);
+    background: white; padding: 10px; border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid var(--border-color);
+    display: flex; flex-direction: column; gap: 15px; z-index: 1000;
+}
+.nav-item {
+    width: 50px; height: 50px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; color: var(--text-secondary);
+    font-size: 1.6rem;
+}
+.nav-item:hover, .nav-item.active { background: var(--text-primary); color: white; transform: scale(1.1); }
+
+/* --- HERO --- */
+.hero {
+    position: relative; min-height: 70vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding: 0 20px; background: #fff;
+}
+
+.card-wall-bg {
+    position: absolute; top: -20%; left: -20%; width: 140%; height: 140%;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px;
+    transform: rotate(-10deg); z-index: 0; opacity: 0.15; /* Más sutil */
+    mask-image: radial-gradient(circle, transparent 20%, black 100%);
+    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 70%);
+}
+
+.wall-column { display: flex; flex-direction: column; gap: 20px; }
+.col-up { animation: scrollUp 40s linear infinite; }
+.col-down { animation: scrollDown 45s linear infinite; }
+
+.wall-img {
+    width: 100%; height: 300px; border-radius: 10px;
+    background-size: cover; background-position: center;
+    filter: grayscale(100%); 
+}
+
+.hero-content {
+    position: relative; z-index: 2; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 30px;
+}
+
+.hero-text h1 { font-size: 4rem; line-height: 1; margin-bottom: 20px; color: #0f172a; letter-spacing: -2px; }
+.hero-text span { color: var(--accent-blue); }
+
+.btn-main {
+    display: inline-block; padding: 16px 40px;
+    background: #0f172a; color: white; font-weight: 700;
+    border-radius: 50px; text-decoration: none; transition: 0.3s; border: none; cursor: pointer;
+}
+.btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.full-width { width: 100%; margin-top: 20px; }
+
+/* --- GRID --- */
+.category-section { padding: 60px 40px; max-width: 1400px; margin: 0 auto 0 80px; }
+.section-head { margin-bottom: 40px; }
+.section-head h2 { font-size: 2.5rem; margin-bottom: 10px; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
+.mini-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+
+.load-more-container { text-align: center; margin-top: 50px; width: 100%; display: flex; justify-content: center; }
+.btn-load {
+    background: white; border: 1px solid var(--border-color); color: var(--text-primary);
+    padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s;
+}
+.btn-load:hover { background: var(--bg-main); border-color: var(--text-primary); }
+
+/* --- TCG CARD --- */
+.tcg-item {
+    position: relative; aspect-ratio: 2.5 / 3.5; border-radius: 16px;
+    overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.tcg-item:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); z-index: 10; }
+
+.tcg-bg img { transition: transform 0.5s; width: 100%; height: 100%; object-fit: cover; }
+.tcg-item:hover .tcg-bg img { transform: scale(1.05); }
+
+/* CRISTAL AETHERIA */
+.scan-line {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(125deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%);
+    transform: translateY(100%); pointer-events: none; z-index: 5; opacity: 0;
+}
+.tcg-item:hover .scan-line { opacity: 1; transform: translateY(0); animation: holoSweep 1.5s linear infinite; animation-delay: 0.2s; }
+
+@keyframes holoSweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* Info */
+.tcg-info {
+    position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+    color: white; transform: translateY(100%); transition: transform 0.3s ease; z-index: 6;
+}
+.tcg-item:hover .tcg-info { transform: translateY(0); }
+
+.card-badge { font-size: 0.65rem; padding: 4px 8px; background: var(--accent-blue); border-radius: 6px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: inline-block; color: white; }
+.card-name { font-size: 1rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
+.card-price { font-size: 1.1rem; color: #fbbf24; font-weight: 700; }
+
+/* --- MODAL (DETALLE DE CARTA) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+    z-index: 2000; display: none; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s;
+}
+.modal-overlay.open { display: flex; opacity: 1; }
+
+.modal-content {
+    background: white; width: 90%; max-width: 1000px; height: 85vh;
+    border-radius: 24px; padding: 40px; position: relative;
+    overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.close-modal {
+    position: absolute; top: 20px; right: 20px;
+    background: #f1f5f9; border: none; width: 40px; height: 40px;
+    border-radius: 50%; font-size: 1.5rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.close-modal:hover { background: #e2e8f0; }
+
+.modal-grid { display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
+
+.modal-card-wrapper {
+    border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    position: sticky; top: 0;
+}
+.modal-img { width: 100%; display: block; }
+
+.price-big { font-size: 2.5rem; color: var(--text-primary); font-weight: 800; margin: 10px 0 20px; }
+
+/* Histórico de Precios */
+.price-history-box {
+    background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;
+}
+.fake-chart {
+    display: flex; align-items: flex-end; gap: 8px; height: 60px; margin-top: 15px;
+}
+.bar {
+    flex: 1; background: #cbd5e1; border-radius: 4px;
+}
+.bar.active { background: var(--accent-blue); }
+
+/* Tabla de Mercado */
+.market-table-container { margin-top: 20px; }
+.market-table { width: 100%; border-collapse: collapse; }
+.market-table th { text-align: left; padding: 10px; color: var(--text-secondary); font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+.market-table td { padding: 15px 10px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
+.tag-condition {
+    padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;
+}
+.cond-mint { background: #dcfce7; color: #166534; }
+.cond-near { background: #e0f2fe; color: #075985; }
+.cond-played { background: #fef9c3; color: #854d0e; }
+
+.btn-buy-small {
+    padding: 6px 15px; background: var(--text-primary); color: white;
+    border-radius: 6px; font-size: 0.8rem; cursor: pointer; border: none;
+}
+
+@keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+@keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
+
+@media(max-width: 900px) {
+    .modal-grid { grid-template-columns: 1fr; }
+    .modal-card-wrapper { max-width: 300px; margin: 0 auto; }
+    .category-section { margin-left: 0; padding: 40px 20px; }
+    .nav-dock { display: none; }
+}
+
+.game-section {
+    display: none;
+}
+
+.game-section.active {
+    display: block;
+}
