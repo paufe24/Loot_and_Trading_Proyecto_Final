@@ -1,4 +1,3 @@
-/* --- CONFIGURACIÓN BASE --- */
 :root {
     --bg-main: #f8f9fd;
     --text-primary: #1e293b;
@@ -17,90 +16,120 @@ body {
     overflow-x: hidden;
 }
 
-/* --- NAV DOCK --- */
 .nav-dock {
     position: fixed; left: 20px; top: 50%; transform: translateY(-50%);
     background: white; padding: 10px; border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 1px solid var(--border-color);
     display: flex; flex-direction: column; gap: 15px; z-index: 1000;
 }
+
 .nav-item {
     width: 50px; height: 50px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; transition: 0.2s; color: var(--text-secondary);
-    font-size: 1.6rem;
+    font-size: 1.6rem; text-decoration: none;
 }
-.nav-item:hover, .nav-item.active { background: var(--text-primary); color: white; transform: scale(1.1); }
 
-/* --- HERO --- */
+.nav-item:hover { background: var(--text-primary); color: white; transform: scale(1.1); }
+.spacer { flex-grow: 1; }
+.user-active { color: var(--accent-blue); font-size: 1.2rem; }
+.user-active span { font-size: 0.6rem; font-weight: 700; margin-top: 4px; }
+.logout-btn { color: #ef4444; }
+
+.main-wrapper {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
 .hero {
     position: relative; min-height: 70vh;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden; padding: 0 20px; background: #fff;
+    overflow: hidden; background: #fff;
+    margin-left: -90px; /* Para que el fondo pase por debajo del menu izquierdo */
+    padding-left: 90px; /* Para que el cuadro central siga centrado */
 }
 
+/* AJUSTE PARA SCROLL INFINITO FLUIDO */
 .card-wall-bg {
-    position: absolute; top: -20%; left: -20%; width: 140%; height: 140%;
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px;
-    transform: rotate(-10deg); z-index: 0; opacity: 0.15; /* Más sutil */
-    mask-image: radial-gradient(circle, transparent 20%, black 100%);
-    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 10%, rgba(0,0,0,1) 70%);
+    position: absolute; top: -50%; left: -10%; width: 120%; height: 250%; /* Más alto para cubrir bien */
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 20px;
+    transform: rotate(-10deg); z-index: 0; opacity: 1; 
+    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 70%);
 }
 
 .wall-column { display: flex; flex-direction: column; gap: 20px; }
+/* Las matemáticas del bucle infinito perfecto */
 .col-up { animation: scrollUp 40s linear infinite; }
-.col-down { animation: scrollDown 45s linear infinite; }
+.col-down { animation: scrollDown 40s linear infinite; }
 
 .wall-img {
-    width: 100%; height: 300px; border-radius: 10px;
+    width: 100%; height: 350px; border-radius: 12px;
     background-size: cover; background-position: center;
-    filter: grayscale(100%); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    flex-shrink: 0;
 }
 
 .hero-content {
     position: relative; z-index: 2; text-align: center;
     display: flex; flex-direction: column; align-items: center; gap: 30px;
+    background: rgba(255,255,255,0.95); padding: 50px 80px; border-radius: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
 }
 
-.hero-text h1 { font-size: 4rem; line-height: 1; margin-bottom: 20px; color: #0f172a; letter-spacing: -2px; }
+.hero-text h1 { font-size: 4.5rem; line-height: 1; margin-bottom: 20px; color: #0f172a; letter-spacing: -2px; }
 .hero-text span { color: var(--accent-blue); }
+.welcome-text { color: var(--accent-blue); font-weight: bold; margin-bottom: 10px; font-size: 1.2rem; }
 
 .btn-main {
-    display: inline-block; padding: 16px 40px;
+    display: inline-block; padding: 16px 40px; margin-top: 20px;
     background: #0f172a; color: white; font-weight: 700;
     border-radius: 50px; text-decoration: none; transition: 0.3s; border: none; cursor: pointer;
 }
+
 .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-.full-width { width: 100%; margin-top: 20px; }
+.full-width { width: 100%; margin-top: 20px; text-align: center; }
 
-/* --- GRID --- */
-.category-section { padding: 60px 40px; max-width: 1400px; margin: 0 auto 0 80px; }
-.section-head { margin-bottom: 40px; }
-.section-head h2 { font-size: 2.5rem; margin-bottom: 10px; }
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
-.mini-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+.category-section {
+    max-width: 1400px; margin: 0 auto; padding: 80px 20px;
+    border-bottom: 1px solid var(--border-color); text-align: center;
+}
 
-.load-more-container { text-align: center; margin-top: 50px; width: 100%; display: flex; justify-content: center; }
+.section-head { margin-bottom: 40px; text-align: center; }
+.section-head h2 { font-size: 2.8rem; margin-bottom: 10px; justify-content: center; display: flex; align-items: center; gap: 10px; }
+.section-head p { color: var(--text-secondary); font-size: 1.1rem; }
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    justify-items: center;
+}
+
+.mini-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+
+.load-more-container { text-align: center; margin-top: 50px; width: 100%; }
+
 .btn-load {
-    background: white; border: 1px solid var(--border-color); color: var(--text-primary);
-    padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s;
+    display: inline-block; background: white; border: 2px solid var(--text-primary); 
+    color: var(--text-primary); padding: 14px 35px; border-radius: 30px; 
+    font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none;
 }
-.btn-load:hover { background: var(--bg-main); border-color: var(--text-primary); }
 
-/* --- TCG CARD --- */
+.btn-load:hover { background: var(--text-primary); color: white; }
+
 .tcg-item {
-    position: relative; aspect-ratio: 2.5 / 3.5; border-radius: 16px;
+    position: relative; width: 100%; max-width: 250px; aspect-ratio: 2.5 / 3.5; border-radius: 16px;
     overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #fff;
-    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); background: #111;
+    border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column;
 }
 
-.tcg-item:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); z-index: 10; }
+.tcg-item:hover { transform: translateY(-10px); box-shadow: 0 20px 30px -5px rgba(0,0,0,0.2); z-index: 10; }
 
-.tcg-bg img { transition: transform 0.5s; width: 100%; height: 100%; object-fit: cover; }
+.tcg-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+.tcg-bg img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
 .tcg-item:hover .tcg-bg img { transform: scale(1.05); }
 
-/* CRISTAL AETHERIA */
 .scan-line {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(125deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 70%);
@@ -110,22 +139,20 @@ body {
 
 @keyframes holoSweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-/* Info */
 .tcg-info {
-    position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+    position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px 15px 15px; text-align: left;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
     color: white; transform: translateY(100%); transition: transform 0.3s ease; z-index: 6;
 }
 .tcg-item:hover .tcg-info { transform: translateY(0); }
 
-.card-badge { font-size: 0.65rem; padding: 4px 8px; background: var(--accent-blue); border-radius: 6px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: inline-block; color: white; }
-.card-name { font-size: 1rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
-.card-price { font-size: 1.1rem; color: #fbbf24; font-weight: 700; }
+.card-badge { font-size: 0.7rem; padding: 5px 10px; border-radius: 6px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; display: inline-block; color: white; }
+.card-name { font-size: 1.1rem; font-weight: 700; line-height: 1.2; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.card-price { font-size: 1.2rem; color: #4ade80; font-weight: 800; }
 
-/* --- MODAL (DETALLE DE CARTA) --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
     z-index: 2000; display: none; align-items: center; justify-content: center;
     opacity: 0; transition: opacity 0.3s;
 }
@@ -134,70 +161,75 @@ body {
 .modal-content {
     background: white; width: 90%; max-width: 1000px; height: 85vh;
     border-radius: 24px; padding: 40px; position: relative;
-    overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
 }
 
 .close-modal {
     position: absolute; top: 20px; right: 20px;
-    background: #f1f5f9; border: none; width: 40px; height: 40px;
-    border-radius: 50%; font-size: 1.5rem; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    background: #f1f5f9; border: none; width: 45px; height: 45px;
+    border-radius: 50%; font-size: 1.8rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--text-primary);
 }
 .close-modal:hover { background: #e2e8f0; }
 
-.modal-grid { display: grid; grid-template-columns: 350px 1fr; gap: 40px; }
+.modal-grid { display: grid; grid-template-columns: 350px 1fr; gap: 50px; text-align: left; }
 
 .modal-card-wrapper {
-    border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
     position: sticky; top: 0;
 }
 .modal-img { width: 100%; display: block; }
 
-.price-big { font-size: 2.5rem; color: var(--text-primary); font-weight: 800; margin: 10px 0 20px; }
+.price-big { font-size: 3rem; color: #16a34a; font-weight: 900; margin: 10px 0 25px; }
 
-/* Histórico de Precios */
 .price-history-box {
-    background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;
+    background: #f8fafc; padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 25px;
 }
-.fake-chart {
-    display: flex; align-items: flex-end; gap: 8px; height: 60px; margin-top: 15px;
-}
-.bar {
-    flex: 1; background: #cbd5e1; border-radius: 4px;
-}
+.fake-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; margin-top: 15px; }
+.bar { flex: 1; background: #cbd5e1; border-radius: 6px 6px 0 0; }
 .bar.active { background: var(--accent-blue); }
 
-/* Tabla de Mercado */
-.market-table-container { margin-top: 20px; }
+.market-table-container { margin-top: 25px; }
 .market-table { width: 100%; border-collapse: collapse; }
-.market-table th { text-align: left; padding: 10px; color: var(--text-secondary); font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
-.market-table td { padding: 15px 10px; border-bottom: 1px solid var(--border-color); font-weight: 600; }
-.tag-condition {
-    padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;
-}
+.market-table th { text-align: left; padding: 12px; color: var(--text-secondary); font-size: 0.95rem; border-bottom: 2px solid var(--border-color); }
+.market-table td { padding: 18px 12px; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 1.1rem; }
+
+.tag-condition { padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
 .cond-mint { background: #dcfce7; color: #166534; }
 .cond-near { background: #e0f2fe; color: #075985; }
 .cond-played { background: #fef9c3; color: #854d0e; }
 
 .btn-buy-small {
-    padding: 6px 15px; background: var(--text-primary); color: white;
-    border-radius: 6px; font-size: 0.8rem; cursor: pointer; border: none;
+    padding: 10px 20px; background: var(--text-primary); color: white;
+    border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; border: none; transition: 0.2s;
 }
+.btn-buy-small:hover { background: var(--accent-blue); transform: scale(1.05); }
 
+.mercado-page { padding-top: 40px; }
+.mercado-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 40px; padding: 0 20px; }
+.filters-sidebar { width: 280px; background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 20px; text-align: left; }
+.filters-sidebar h3 { font-size: 1.5rem; margin-bottom: 20px; }
+.filter-group { margin-bottom: 25px; }
+.filter-group label { display: block; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); }
+.filter-group input[type="text"] { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Outfit'; }
+.filter-group div { margin-bottom: 8px; font-size: 0.95rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+.mercado-content { flex: 1; text-align: center; }
+
+/* ANIMACIONES */
 @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
 @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
 
-@media(max-width: 900px) {
+@media(max-width: 1024px) {
+    .main-wrapper { padding-left: 0; padding-bottom: 80px; }
+    .hero { margin-left: 0; padding-left: 0; }
+    .nav-dock { 
+        top: auto; bottom: 20px; left: 50%; transform: translateX(-50%); 
+        flex-direction: row; width: 90%; justify-content: space-between;
+    }
+    .hero-content { padding: 40px 20px; width: 90%; }
+    .hero-text h1 { font-size: 3rem; }
     .modal-grid { grid-template-columns: 1fr; }
     .modal-card-wrapper { max-width: 300px; margin: 0 auto; }
-    .category-section { margin-left: 0; padding: 40px 20px; }
-    .nav-dock { display: none; }
-}
-
-.game-section {
-    display: none;
-}
-
-.game-section.active {
-    display: block;
+    .mercado-layout { flex-direction: column; }
+    .filters-sidebar { width: 100%; position: static; }
 }
