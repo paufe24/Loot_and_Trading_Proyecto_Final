@@ -24,10 +24,10 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         <div class="spacer"></div>
 
         <?php if ($nombre_usuario): ?>
-            <div class="nav-item user-active">
-                👤<span><?php echo htmlspecialchars($nombre_usuario); ?></span>
-            </div>
-            <a href="logout.php" class="nav-item logout-btn">🚪</a>
+            <a href="profile.php" class="nav-item" title="Ver Perfil" style="color: var(--accent-blue); text-decoration:none;">
+                👤<br><span style="font-size:0.6rem;">Perfil</span>
+            </a>
+            <a href="logout.php" class="nav-item" title="Cerrar Sesión" style="color:#ef4444; text-decoration:none;">🚪</a>
         <?php else: ?>
             <a href="auth.php" class="nav-item">👤</a>
         <?php endif; ?>
