@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "loot_and_trading"; // ← tenía "lootandtrading" sin guiones
+$dbname = "loot_and_trading";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
