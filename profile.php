@@ -52,7 +52,7 @@ $conn->close();
             z-index: 10;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px 60px 80px;
+            padding: 40px 20px 60px 20px;
         }
 
         .profile-header {
@@ -411,21 +411,48 @@ $conn->close();
                 padding: 30px 20px;
             }
         }
+        /* Dark mode overrides for profile */
+        body.dark .profile-hero { background: #0f172a; }
+        body.dark .profile-header { background: rgba(30,41,59,0.95); border-color: rgba(51,65,85,0.3); }
+        body.dark .profile-name { color: #e2e8f0; }
+        body.dark .section-title { color: #e2e8f0; }
+        body.dark .profile-section { background: rgba(30,41,59,0.95); border-color: rgba(51,65,85,0.3); }
+        body.dark .modal h2 { color: #e2e8f0; }
+        body.dark .modal .modal-content { background: rgba(30,41,59,0.98); border-color: rgba(51,65,85,0.3); }
+        body.dark .close-button { background: #334155; color: #e2e8f0; }
+        body.dark .close-button:hover { background: #475569; }
+        body.dark .form-group input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        body.dark .form-group input:focus { background: #1e293b; }
+        body.dark .btn-edit { background: #e2e8f0; color: #0f172a; }
     </style>
 </head>
 <body>
+    <script>(function(){ if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark'); })();</script>
 
     <nav class="nav-dock">
-        <div class="nav-item" onclick="window.location.href='index.php'" title="Inicio">🏠</div>
-        <div class="nav-item" onclick="switchGame('pokemon')" title="Pokémon">⚡</div>
-        <div class="nav-item" onclick="switchGame('yugioh')" title="Yu-Gi-Oh!">👁️</div>
-        <div class="nav-item" onclick="switchGame('magic')" title="Magic">🔥</div>
-        <div class="nav-item" onclick="switchGame('onepiece')" title="One Piece">☠️</div>
-        
-        <div style="flex-grow: 1;"></div>
-        
-        <div class="nav-item active" title="Perfil">👤</div>
-        <a href="logout.php" class="nav-item" title="Cerrar Sesión" style="color:#ef4444; text-decoration:none;">🚪</a>
+        <div class="spacer"></div>
+        <a href="index.php" class="nav-item" title="Inicio">
+            <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        </a>
+        <a href="mercado.php?game=pokemon" class="nav-item" title="Pokémon"><img src="img/pokemon.png" alt="Pokémon" class="nav-logo"></a>
+        <a href="mercado.php?game=yugioh" class="nav-item" title="Yu-Gi-Oh!"><img src="img/yugioh.png" alt="Yu-Gi-Oh!" class="nav-logo"></a>
+        <a href="mercado.php?game=magic" class="nav-item" title="Magic: The Gathering"><img src="img/magic.png" alt="Magic" class="nav-logo"></a>
+        <a href="mercado.php?game=onepiece" class="nav-item" title="One Piece"><img src="img/onepiece.png" alt="One Piece" class="nav-logo"></a>
+
+        <div class="spacer"></div>
+
+        <button class="nav-item dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
+            <svg class="nav-icon icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="nav-icon icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
+        <a href="profile.php" class="nav-item user-active" title="Mi Perfil">
+            <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+            Perfil
+        </a>
+        <a href="logout.php" class="nav-item logout-btn" title="Cerrar Sesión">
+            <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+        </a>
     </nav>
 
     <div class="profile-container">
