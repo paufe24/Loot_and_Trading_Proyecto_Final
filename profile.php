@@ -17,6 +17,67 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
+// Actividad reciente
+$conn->query("CREATE TABLE IF NOT EXISTS user_activity (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    activity_type VARCHAR(30) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description VARCHAR(500) NOT NULL,
+    ref_id INT NULL,
+    amount DECIMAL(10,2) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_created (user_id, created_at),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)");
+
+$recentActivity = [];
+$activityStmt = $conn->prepare("SELECT activity_type, title, description, ref_id, created_at FROM user_activity WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$activityStmt->bind_param("i", $_SESSION['user_id']);
+$activityStmt->execute();
+$activityRes = $activityStmt->get_result();
+while ($row = $activityRes->fetch_assoc()) {
+    $recentActivity[] = $row;
+}
+$activityStmt->close();
+
+$orderPreviewById = [];
+$orderIds = [];
+foreach ($recentActivity as $act) {
+    if (($act['activity_type'] ?? '') === 'order' && !empty($act['ref_id'])) {
+        $orderIds[] = (int)$act['ref_id'];
+    }
+}
+
+$orderIds = array_values(array_unique($orderIds));
+if (count($orderIds) > 0) {
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    $types = str_repeat('i', count($orderIds));
+
+    $sql = "SELECT i.order_id, i.card_name, i.card_image
+            FROM cart_order_items i
+            JOIN (
+                SELECT order_id, MIN(id) AS min_id
+                FROM cart_order_items
+                WHERE order_id IN ($placeholders)
+                GROUP BY order_id
+            ) x ON x.min_id = i.id";
+
+    $stmtPrev = $conn->prepare($sql);
+    if ($stmtPrev) {
+        $stmtPrev->bind_param($types, ...$orderIds);
+        $stmtPrev->execute();
+        $resPrev = $stmtPrev->get_result();
+        while ($row = $resPrev->fetch_assoc()) {
+            $orderPreviewById[(int)$row['order_id']] = [
+                'card_name' => (string)$row['card_name'],
+                'card_image' => (string)$row['card_image']
+            ];
+        }
+        $stmtPrev->close();
+    }
+}
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -53,6 +114,62 @@ $conn->close();
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px 60px 20px;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .activity-item {
+            background: rgba(255,255,255,0.75);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px 16px;
+            text-align: left;
+            display: grid;
+            grid-template-columns: 48px 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        body.dark .activity-item {
+            background: rgba(30,41,59,0.75);
+            border-color: #334155;
+        }
+
+        .activity-title {
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .activity-thumb {
+            width: 48px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.06);
+            background: #fff;
+        }
+
+        body.dark .activity-thumb {
+            border-color: rgba(255,255,255,0.12);
+            background: #0f172a;
+        }
+
+        .activity-desc {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .activity-date {
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.85rem;
         }
 
         .profile-header {
@@ -531,11 +648,44 @@ $conn->close();
 
                 <div class="profile-section">
                     <h3 class="section-title">🎯 Actividad Reciente</h3>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📚</div>
-                        <p>Aún no tienes actividad</p>
-                        <small>Comienza explorando el catálogo de cartas</small>
-                    </div>
+                    <?php if (count($recentActivity) === 0): ?>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <p>Aún no tienes actividad</p>
+                            <small>Comienza explorando el catálogo de cartas</small>
+                        </div>
+                    <?php else: ?>
+                        <div class="activity-list">
+                            <?php foreach ($recentActivity as $act): ?>
+                                <?php
+                                    $thumb = null;
+                                    $cardName = null;
+                                    if (($act['activity_type'] ?? '') === 'order' && !empty($act['ref_id'])) {
+                                        $oid = (int)$act['ref_id'];
+                                        if (isset($orderPreviewById[$oid])) {
+                                            $thumb = $orderPreviewById[$oid]['card_image'] ?? null;
+                                            $cardName = $orderPreviewById[$oid]['card_name'] ?? null;
+                                        }
+                                    }
+                                ?>
+                                <div class="activity-item">
+                                    <?php if ($thumb): ?>
+                                        <img class="activity-thumb" src="<?php echo htmlspecialchars($thumb); ?>" alt="">
+                                    <?php else: ?>
+                                        <div></div>
+                                    <?php endif; ?>
+                                    <div>
+                                        <div class="activity-title"><?php echo htmlspecialchars($act['title']); ?></div>
+                                        <?php if ($cardName): ?>
+                                            <div class="activity-desc"><?php echo htmlspecialchars($cardName); ?></div>
+                                        <?php endif; ?>
+                                        <div class="activity-desc"><?php echo htmlspecialchars($act['description']); ?></div>
+                                        <div class="activity-date"><?php echo date('d/m/Y H:i', strtotime($act['created_at'])); ?></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="profile-section">
