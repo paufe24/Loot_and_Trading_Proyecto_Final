@@ -124,6 +124,25 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
             </div>
         </header>
 
+        <section class="featured-section">
+            <h2 class="featured-title">Carta del Día</h2>
+            <p class="featured-subtitle">Selección aleatoria en tiempo real de cada juego</p>
+            <div class="featured-grid" id="featured-grid">
+                <div class="featured-card" id="featured-pokemon">
+                    <div class="featured-loader">Cargando...</div>
+                </div>
+                <div class="featured-card" id="featured-yugioh">
+                    <div class="featured-loader">Cargando...</div>
+                </div>
+                <div class="featured-card" id="featured-magic">
+                    <div class="featured-loader">Cargando...</div>
+                </div>
+                <div class="featured-card" id="featured-onepiece">
+                    <div class="featured-loader">Cargando...</div>
+                </div>
+            </div>
+        </section>
+
         <main id="main-content">
             <div id="section-pokemon" class="category-section">
                 <div class="section-head">

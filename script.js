@@ -187,6 +187,84 @@ async function loadOnePieceCards(gridId) {
     STATE.onepiece.loading = false;
 }
 
+// ===== CARTA DEL DÍA =====
+async function fetchRandomPokemon() {
+    const randomPage = Math.floor(Math.random() * 100) + 1;
+    const res = await fetch(`https://api.tcgdex.net/v2/en/cards?pagination:page=${randomPage}&pagination:itemsPerPage=20`);
+    const cards = await res.json();
+    const withImg = cards.filter(c => c.image);
+    if (withImg.length === 0) return null;
+    const pick = withImg[Math.floor(Math.random() * withImg.length)];
+    const detail = await fetch(`https://api.tcgdex.net/v2/en/cards/${pick.id}`).then(r => r.json());
+    const price = detail.pricing?.cardmarket?.trend || detail.pricing?.tcgplayer?.holofoil?.marketPrice;
+    return { badge: 'Pokémon', color: '#eab308', name: detail.name, img: detail.image + '/high.png', price: price ? parseFloat(price).toFixed(2) : null };
+}
+
+async function fetchRandomYugioh() {
+    const randomOffset = Math.floor(Math.random() * 5000);
+    const res = await fetch(`https://db.ygoprodeck.com/api/v7/cardinfo.php?num=1&offset=${randomOffset}`);
+    const json = await res.json();
+    const card = json.data[0];
+    const price = card.card_prices?.[0]?.tcgplayer_price;
+    return { badge: 'Yu-Gi-Oh!', color: '#a855f7', name: card.name, img: card.card_images?.[0]?.image_url, price: price ? parseFloat(price).toFixed(2) : null };
+}
+
+async function fetchRandomMagic() {
+    const randomPage = Math.floor(Math.random() * 50) + 1;
+    const res = await fetch(`https://api.scryfall.com/cards/random`);
+    const card = await res.json();
+    const img = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal;
+    if (!img) return null;
+    const price = card.prices?.usd || card.prices?.usd_foil;
+    return { badge: 'Magic', color: '#ef4444', name: card.name, img: img, price: price ? parseFloat(price).toFixed(2) : null };
+}
+
+async function fetchRandomOnePiece() {
+    if (!ONEPIECE_CACHE) {
+        const res = await fetch('https://www.optcgapi.com/api/allSetCards/');
+        if (!res.ok) return null;
+        const all = await res.json();
+        ONEPIECE_CACHE = all.filter(c => c.card_image);
+    }
+    const pick = ONEPIECE_CACHE[Math.floor(Math.random() * ONEPIECE_CACHE.length)];
+    return { badge: 'One Piece', color: '#f97316', name: pick.card_name, img: pick.card_image, price: pick.market_price ? parseFloat(pick.market_price).toFixed(2) : null };
+}
+
+function renderFeaturedCard(containerId, data) {
+    const container = document.getElementById(containerId);
+    if (!container || !data) return;
+    container.classList.add('fade-out');
+    setTimeout(() => {
+        container.innerHTML = `
+            <img class="featured-card-img" src="${data.img}" alt="${data.name}" onerror="this.style.display='none'">
+            <div class="featured-card-body">
+                <span class="featured-card-badge" style="background:${data.color}">${data.badge}</span>
+                <div class="featured-card-name">${data.name}</div>
+                <div class="featured-card-price">${data.price ? '$' + data.price : 'Sin stock'}</div>
+            </div>
+        `;
+        container.style.cursor = 'pointer';
+        container.onclick = () => openModal(data);
+        container.classList.remove('fade-out');
+        container.classList.add('fade-in');
+    }, 400);
+}
+
+async function loadFeaturedCards() {
+    const fetchers = [
+        { id: 'featured-pokemon', fn: fetchRandomPokemon },
+        { id: 'featured-yugioh', fn: fetchRandomYugioh },
+        { id: 'featured-magic', fn: fetchRandomMagic },
+        { id: 'featured-onepiece', fn: fetchRandomOnePiece }
+    ];
+    await Promise.all(fetchers.map(async ({ id, fn }) => {
+        try {
+            const data = await fn();
+            if (data) renderFeaturedCard(id, data);
+        } catch (e) {}
+    }));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const gameParam = urlParams.get('game');
@@ -218,6 +296,12 @@ document.addEventListener('DOMContentLoaded', () => {
         loadYugiohCards('yugioh-grid');
         loadMagicCards('magic-grid');
         loadOnePieceCards('onepiece-grid');
+
+        // Carta del Día: carga inicial + rotación cada 30s
+        if (document.getElementById('featured-grid')) {
+            loadFeaturedCards();
+            setInterval(loadFeaturedCards, 30000);
+        }
     }
 
     const modal = document.getElementById('card-modal');
