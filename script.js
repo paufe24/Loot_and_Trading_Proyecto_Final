@@ -23,6 +23,82 @@ function createToastContainer() {
     return container;
 }
 
+let MODAL_CARD = null;
+
+function setFavButtonState(favorited) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    btn.textContent = favorited ? '🗑️ Eliminar de favoritos' : '⭐ Añadir a favoritos';
+    btn.dataset.favorited = favorited ? '1' : '0';
+    btn.classList.toggle('is-favorited', !!favorited);
+}
+
+async function refreshFavoriteStatus(cardId) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    if (!cardId) {
+        setFavButtonState(false);
+        btn.disabled = true;
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const res = await fetch(`favorites.php?action=status&card_id=${encodeURIComponent(cardId)}`, {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' }
+        });
+        const data = await res.json();
+        if (res.ok && data && data.ok) {
+            setFavButtonState(!!data.favorited);
+        } else {
+            setFavButtonState(false);
+        }
+    } catch (e) {
+        setFavButtonState(false);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function toggleFavorite(card) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    if (!card || !card.card_id || !card.name || !card.img || !card.badge) {
+        showToast('No se pudo guardar en favoritos', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const fd = new FormData();
+        fd.append('action', 'toggle');
+        fd.append('card_id', card.card_id);
+        fd.append('card_name', card.name);
+        fd.append('card_image', card.img);
+        fd.append('card_game', card.badge);
+
+        const res = await fetch('favorites.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' },
+            body: fd
+        });
+        const data = await res.json();
+
+        if (res.ok && data && data.ok) {
+            setFavButtonState(!!data.favorited);
+            showToast(data.favorited ? 'Añadida a favoritos' : 'Eliminada de favoritos', 'success');
+        } else {
+            showToast((data && data.message) ? data.message : 'No se pudo actualizar favoritos', 'error');
+        }
+    } catch (e) {
+        showToast('Error al actualizar favoritos', 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 async function addToCart(cardId, cardName, cardImage, cardPrice, cardGame, condition = 'Near Mint', seller = 'TCGVerse') {
     try {
         const fd = new FormData();
@@ -105,11 +181,21 @@ function createCardHTML(data) {
 }
 
 function openModal(data) {
+    const cardId = (data.card_id || data.id || data.name);
+    MODAL_CARD = {
+        card_id: (cardId || '').toString(),
+        name: (data.name || '').toString(),
+        img: (data.img || '').toString(),
+        badge: (data.badge || '').toString()
+    };
+
     document.getElementById('modal-img').src = data.img;
     document.getElementById('modal-title').textContent = data.name;
     document.getElementById('modal-badge').textContent = data.badge;
     document.getElementById('modal-badge').style.backgroundColor = data.color;
     document.getElementById('modal-price').textContent = data.price ? '$' + data.price : 'Sin stock';
+
+    refreshFavoriteStatus(MODAL_CARD.card_id);
 
     const list = document.getElementById('market-list');
     list.innerHTML = ''; 
@@ -180,6 +266,12 @@ document.addEventListener('click', (e) => {
     }
 
     best.click();
+});
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#modal-toggle-fav');
+    if (!btn) return;
+    toggleFavorite(MODAL_CARD);
 });
 
 async function loadPokemonCards(gridId) {
@@ -367,6 +459,7 @@ async function loadFeaturedCards() {
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const gameParam = urlParams.get('game');
+    const openFav = urlParams.get('open_fav');
     
     if (document.getElementById('mercado-grid')) {
         const loadBtn = document.getElementById('mercado-load-more');
@@ -388,6 +481,32 @@ document.addEventListener('DOMContentLoaded', () => {
             title.innerText = 'Mercado: One Piece';
             loadOnePieceCards('mercado-grid');
             if(loadBtn) loadBtn.onclick = () => loadOnePieceCards('mercado-grid');
+        }
+
+        if (openFav === '1') {
+            const cardId = urlParams.get('card_id') || '';
+            const cardName = urlParams.get('card_name') || '';
+            const cardImage = urlParams.get('card_image') || '';
+            const cardGame = urlParams.get('card_game') || (gameParam || '');
+
+            const colorMap = {
+                pokemon: '#eab308',
+                yugioh: '#a855f7',
+                magic: '#ef4444',
+                onepiece: '#f97316'
+            };
+
+            if (cardName && cardImage) {
+                openModal({
+                    card_id: cardId || cardName,
+                    id: cardId || cardName,
+                    name: cardName,
+                    img: cardImage,
+                    badge: cardGame,
+                    color: colorMap[gameParam] || '#3b82f6',
+                    price: null
+                });
+            }
         }
     } 
     else if (document.getElementById('main-content')) {

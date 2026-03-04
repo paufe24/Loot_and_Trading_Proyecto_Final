@@ -185,6 +185,27 @@ body {
 }
 .modal-img { width: 100%; display: block; }
 
+.modal-fav-btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 900;
+    border-radius: 14px;
+    margin-top: 12px;
+}
+
+.modal-fav-btn.is-favorited {
+    background: rgba(239,68,68,0.10);
+    border-color: rgba(239,68,68,0.35);
+    color: #b91c1c;
+}
+
+body.dark .modal-fav-btn.is-favorited {
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.35);
+    color: #fecaca;
+}
+
 .price-big { font-size: 3rem; color: #16a34a; font-weight: 900; margin: 10px 0 25px; }
 
 .price-history-box {
