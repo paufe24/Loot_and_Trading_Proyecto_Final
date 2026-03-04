@@ -3,6 +3,66 @@ function toggleDarkMode() {
     localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 }
 
+function showToast(message, type = 'info') {
+    const container = document.querySelector('.toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `<span><span>${icon}</span><span>${message}</span></span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    return container;
+}
+
+async function addToCart(cardId, cardName, cardImage, cardPrice, cardGame, condition = 'Near Mint', seller = 'TCGVerse') {
+    try {
+        const fd = new FormData();
+        fd.append('action', 'add');
+        fd.append('card_id', cardId);
+        fd.append('card_name', cardName);
+        fd.append('card_image', cardImage);
+        fd.append('card_price', cardPrice);
+        fd.append('card_game', cardGame);
+        fd.append('condition', condition);
+        fd.append('seller', seller);
+
+        const res = await fetch('cart.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' },
+            body: fd
+        });
+
+        const raw = await res.text();
+        let data = null;
+        try { data = JSON.parse(raw); } catch (_) { data = null; }
+
+        if (!data) {
+            showToast('No se pudo añadir al carrito', 'error');
+            return;
+        }
+
+        if (res.ok && data.ok) {
+            const niceName = (cardName || '').trim();
+            showToast(niceName ? `Añadido al carrito: ${niceName}` : (data.message || 'Añadido al carrito'), 'success');
+            return;
+        }
+
+        showToast(data.message || 'No se pudo añadir al carrito', 'error');
+    } catch (e) {
+        showToast('Error al añadir al carrito', 'error');
+    }
+}
+
 const STATE = {
     pokemon: { page: 1, loading: false },
     yugioh: { offset: 0, loading: false },
@@ -66,10 +126,21 @@ function openModal(data) {
         const finalPrice = (basePrice * s.mult).toFixed(2);
         list.innerHTML += `
             <tr>
-                <td>👤 ${s.user}</td>
+                <td> ${s.user}</td>
                 <td><span class="tag-condition ${s.tag}">${s.cond}</span></td>
                 <td style="color: #16a34a;">$${finalPrice}</td>
-                <td><button class="btn-buy-small">Comprar</button></td>
+                <td>
+                    <button
+                        class="btn-buy-small js-add-to-cart"
+                        data-card-id="${encodeURIComponent(data.card_id || data.id || data.name)}"
+                        data-card-name="${encodeURIComponent(data.name)}"
+                        data-card-image="${encodeURIComponent(data.img)}"
+                        data-card-price="${encodeURIComponent(finalPrice)}"
+                        data-card-game="${encodeURIComponent(data.badge)}"
+                        data-condition="${encodeURIComponent(s.cond)}"
+                        data-seller="${encodeURIComponent(s.user)}"
+                    >Comprar</button>
+                </td>
             </tr>
         `;
     });
@@ -82,6 +153,34 @@ function closeModal() {
     document.getElementById('card-modal').classList.remove('open');
     setTimeout(() => { document.getElementById('card-modal').style.display = 'none'; }, 300);
 }
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.js-add-to-cart');
+    if (!btn) return;
+
+    const cardId = decodeURIComponent(btn.dataset.cardId || '');
+    const cardName = decodeURIComponent(btn.dataset.cardName || '');
+    const cardImage = decodeURIComponent(btn.dataset.cardImage || '');
+    const cardPrice = decodeURIComponent(btn.dataset.cardPrice || '');
+    const cardGame = decodeURIComponent(btn.dataset.cardGame || '');
+    const condition = decodeURIComponent(btn.dataset.condition || 'Near Mint');
+    const seller = decodeURIComponent(btn.dataset.seller || 'TCGVerse');
+
+    addToCart(cardId, cardName, cardImage, cardPrice, cardGame, condition, seller);
+});
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#modal-add-best');
+    if (!btn) return;
+
+    const best = document.querySelector('#market-list .js-add-to-cart');
+    if (!best) {
+        showToast('No hay ofertas disponibles', 'error');
+        return;
+    }
+
+    best.click();
+});
 
 async function loadPokemonCards(gridId) {
     if (STATE.pokemon.loading) return;

@@ -30,6 +30,10 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
             <svg class="nav-icon icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
 
+        <a href="cart.php" class="nav-item" title="Carrito">
+            🛒
+        </a>
+
         <?php if ($nombre_usuario): ?>
             <a href="profile.php" class="nav-item user-active" title="Ver Perfil">
                 <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
@@ -204,7 +208,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                             <tbody id="market-list"></tbody>
                         </table>
                     </div>
-                    <button class="btn-main full-width">Añadir mejor oferta al Carrito</button>
+                    <button id="modal-add-best" class="btn-main full-width">Añadir mejor oferta al Carrito</button>
                 </div>
             </div>
             <div class="related-section">
@@ -214,6 +218,6 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
