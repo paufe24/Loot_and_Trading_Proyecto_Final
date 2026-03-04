@@ -14,22 +14,34 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
+    <script>(function(){ if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark'); })();</script>
 
     <nav class="nav-dock">
-        <a href="#section-pokemon" class="nav-item">⚡</a>
-        <a href="#section-yugioh" class="nav-item">👁️</a>
-        <a href="#section-magic" class="nav-item">🔥</a>
-        <a href="#section-onepiece" class="nav-item">☠️</a>
-        
+        <div class="spacer"></div>
+        <a href="mercado.php?game=pokemon" class="nav-item" title="Pokémon"><img src="img/pokemon.png" alt="Pokémon" class="nav-logo"></a>
+        <a href="mercado.php?game=yugioh" class="nav-item" title="Yu-Gi-Oh!"><img src="img/yugioh.png" alt="Yu-Gi-Oh!" class="nav-logo"></a>
+        <a href="mercado.php?game=magic" class="nav-item" title="Magic: The Gathering"><img src="img/magic.png" alt="Magic" class="nav-logo"></a>
+        <a href="mercado.php?game=onepiece" class="nav-item" title="One Piece"><img src="img/onepiece.png" alt="One Piece" class="nav-logo"></a>
+
         <div class="spacer"></div>
 
+        <button class="nav-item dark-toggle" onclick="toggleDarkMode()" title="Cambiar tema">
+            <svg class="nav-icon icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="nav-icon icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+
         <?php if ($nombre_usuario): ?>
-            <a href="profile.php" class="nav-item" title="Ver Perfil" style="color: var(--accent-blue); text-decoration:none;">
-                👤<br><span style="font-size:0.6rem;">Perfil</span>
+            <a href="profile.php" class="nav-item user-active" title="Ver Perfil">
+                <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+                Perfil
             </a>
-            <a href="logout.php" class="nav-item" title="Cerrar Sesión" style="color:#ef4444; text-decoration:none;">🚪</a>
+            <a href="logout.php" class="nav-item logout-btn" title="Cerrar Sesión">
+                <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+            </a>
         <?php else: ?>
-            <a href="auth.php" class="nav-item">👤</a>
+            <a href="auth.php" class="nav-item" title="Iniciar Sesión">
+                <svg class="nav-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+            </a>
         <?php endif; ?>
     </nav>
 
@@ -115,8 +127,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         <main id="main-content">
             <div id="section-pokemon" class="category-section">
                 <div class="section-head">
-                    <h2>⚡ Pokémon TCG</h2>
-                    <p>Cartas más populares y buscadas del mercado.</p>
+                    <img src="img/pokemon.png" alt="Pokémon" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="pokemon-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -126,8 +137,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-yugioh" class="category-section">
                 <div class="section-head">
-                    <h2>👁️ Yu-Gi-Oh!</h2>
-                    <p>Las cartas staple más utilizadas en el formato actual.</p>
+                    <img src="img/yugioh.png" alt="Yu-Gi-Oh!" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="yugioh-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -137,8 +147,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-magic" class="category-section">
                 <div class="section-head">
-                    <h2>🔥 Magic: The Gathering</h2>
-                    <p>Cartas legendarias de Commander y Standard.</p>
+                    <img src="img/magic.png" alt="Magic: The Gathering" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="magic-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -148,8 +157,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-onepiece" class="category-section">
                 <div class="section-head">
-                    <h2>☠️ One Piece Card Game</h2>
-                    <p>Los líderes y secret rares más valorados.</p>
+                    <img src="img/onepiece.png" alt="One Piece" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="onepiece-grid" class="cards-grid"></div>
                 <div class="load-more-container">
