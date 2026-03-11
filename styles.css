@@ -542,3 +542,72 @@ body.dark .btn-cart.danger:hover { background: rgba(239,68,68,0.12); }
     .mercado-layout { flex-direction: column; }
     .filters-sidebar { width: 100%; position: static; }
 }
+/* ==========================================================
+   TCG PREDICTOR - SISTEMA DE APUESTAS Y TEMPORIZADOR
+   ========================================================== */
+
+.arena-hero {
+    position: relative; padding: 60px 20px;
+    background: linear-gradient(135deg, var(--bg-main) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.arena-content { max-width: 800px; margin: 0 auto; }
+.arena-content h1 { font-size: 3.5rem; font-weight: 900; color: var(--text-primary); letter-spacing: -1px; margin-bottom: 15px; }
+.arena-content h1 span { color: #8b5cf6; }
+.arena-content p { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 40px; }
+
+.balance-card {
+    background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px);
+    border: 2px solid #8b5cf6; border-radius: 24px;
+    padding: 30px; display: inline-block; box-shadow: 0 15px 35px rgba(139, 92, 246, 0.15);
+    transition: transform 0.3s;
+}
+.balance-card:hover { transform: translateY(-5px); }
+.balance-label { font-size: 0.9rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; }
+.balance-amount { font-size: 3.5rem; font-weight: 900; color: var(--text-primary); line-height: 1.1; margin: 5px 0; }
+.balance-amount .coin { color: #f59e0b; font-size: 2.5rem; }
+.balance-sub { font-size: 1rem; color: #8b5cf6; font-weight: 800; }
+
+.bet-item {
+    position: relative; 
+    background: rgba(255,255,255,0.9); border: 1px solid var(--border-color);
+    border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transition: all 0.3s ease; text-align: center; display: flex; flex-direction: column;
+}
+.bet-item:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: #8b5cf6; }
+.bet-item-img { width: 100%; height: 250px; object-fit: cover; object-position: top; border-bottom: 1px solid var(--border-color); }
+.bet-item-info { padding: 20px; flex: 1; display: flex; flex-direction: column;}
+.bet-item-title { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 5px; }
+.bet-item-price { font-size: 1.4rem; color: var(--text-primary); font-weight: 900; margin-bottom: 20px; }
+
+/* Temporizador sobre la foto */
+.timer-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(15, 23, 42, 0.85); color: white;
+    padding: 8px 16px; border-radius: 50px; font-weight: 800; font-size: 0.95rem;
+    z-index: 10; backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: color 0.3s;
+}
+
+.bet-buttons { display: flex; gap: 10px; margin-top: auto; }
+.btn-bull, .btn-bear {
+    flex: 1; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s; font-family: 'Outfit';
+}
+.btn-bull { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 2px solid #10b981; }
+.btn-bull:hover { background: #10b981; color: white; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
+.btn-bear { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 2px solid #ef4444; }
+.btn-bear:hover { background: #ef4444; color: white; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
+
+.tag-bull { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 5px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+.tag-bear { background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 5px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+.tag-pending { background: var(--border-color); color: var(--text-secondary); padding: 5px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+
+body.dark .arena-hero { background: linear-gradient(135deg, var(--bg-main) 0%, rgba(139, 92, 246, 0.1) 100%); }
+body.dark .balance-card { background: rgba(30, 41, 59, 0.8); }
+body.dark .bet-item { background: #1e293b; border-color: #334155; }
+body.dark .bet-item-img { border-color: #334155; }
