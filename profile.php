@@ -78,6 +78,32 @@ if (count($orderIds) > 0) {
     }
 }
 
+// Favoritos
+$conn->query("CREATE TABLE IF NOT EXISTS user_favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    card_id VARCHAR(255) NOT NULL,
+    card_name VARCHAR(255) NOT NULL,
+    card_image VARCHAR(500) NOT NULL,
+    card_game VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_user_card (user_id, card_id),
+    INDEX idx_user_created (user_id, created_at),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)");
+
+$favorites = [];
+$favStmt = $conn->prepare('SELECT card_id, card_name, card_image, card_game, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT 24');
+if ($favStmt) {
+    $favStmt->bind_param('i', $_SESSION['user_id']);
+    $favStmt->execute();
+    $favRes = $favStmt->get_result();
+    while ($row = $favRes->fetch_assoc()) {
+        $favorites[] = $row;
+    }
+    $favStmt->close();
+}
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -171,6 +197,58 @@ $conn->close();
             font-weight: 700;
             font-size: 0.85rem;
         }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .favorite-card {
+            background: rgba(255,255,255,0.75);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 52px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        body.dark .favorite-card {
+            background: rgba(30,41,59,0.75);
+            border-color: #334155;
+        }
+
+        .favorite-thumb {
+            width: 52px;
+            height: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(0,0,0,0.06);
+            background: #fff;
+        }
+
+        body.dark .favorite-thumb {
+            border-color: rgba(255,255,255,0.12);
+            background: #0f172a;
+        }
+
+        .favorite-name {
+            font-weight: 900;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .favorite-game {
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .favorite-link { text-decoration: none; color: inherit; }
+        .favorite-link:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.10); transition: 0.2s; }
 
         .profile-header {
             background: rgba(255, 255, 255, 0.95);
@@ -690,11 +768,33 @@ $conn->close();
 
                 <div class="profile-section">
                     <h3 class="section-title">⭐ Favoritos</h3>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💝</div>
-                        <p>No tienes cartas favoritas</p>
-                        <small>Añade cartas a tus favoritos para verlas aquí</small>
-                    </div>
+                    <?php if (count($favorites) === 0): ?>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💝</div>
+                            <p>No tienes cartas favoritas</p>
+                            <small>Añade cartas a tus favoritos para verlas aquí</small>
+                        </div>
+                    <?php else: ?>
+                        <div class="favorites-grid">
+                            <?php foreach ($favorites as $fav): ?>
+                                <?php
+                                    $gameKey = 'pokemon';
+                                    $g = strtolower((string)$fav['card_game']);
+                                    if (strpos($g, 'yugioh') !== false || strpos($g, 'yu-gi-oh') !== false) $gameKey = 'yugioh';
+                                    else if (strpos($g, 'magic') !== false) $gameKey = 'magic';
+                                    else if (strpos($g, 'one') !== false && strpos($g, 'piece') !== false) $gameKey = 'onepiece';
+                                    else if (strpos($g, 'pokemon') !== false || strpos($g, 'pok') !== false) $gameKey = 'pokemon';
+                                ?>
+                                <a class="favorite-card favorite-link" href="mercado.php?game=<?php echo urlencode($gameKey); ?>&open_fav=1&card_id=<?php echo urlencode($fav['card_id']); ?>&card_name=<?php echo urlencode($fav['card_name']); ?>&card_image=<?php echo urlencode($fav['card_image']); ?>&card_game=<?php echo urlencode($fav['card_game']); ?>">
+                                    <img class="favorite-thumb" src="<?php echo htmlspecialchars($fav['card_image']); ?>" alt="">
+                                    <div>
+                                        <div class="favorite-name"><?php echo htmlspecialchars($fav['card_name']); ?></div>
+                                        <div class="favorite-game"><?php echo htmlspecialchars($fav['card_game']); ?></div>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

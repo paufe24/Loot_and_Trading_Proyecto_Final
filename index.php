@@ -199,6 +199,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <img id="modal-img" src="" alt="Carta" class="modal-img">
                         <div class="scan-line"></div>
                     </div>
+                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Favorito</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">
@@ -230,13 +231,15 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                     <button id="modal-add-best" class="btn-main full-width">Añadir mejor oferta al Carrito</button>
                 </div>
             </div>
-            <div class="related-section">
-                <h4>Cartas Relacionadas</h4>
-                <div id="related-grid" class="cards-grid mini-grid"></div>
-            </div>
+        </div>
+
+        <div class="related-section">
+            <h4>Cartas Relacionadas</h4>
+            <div id="related-grid" class="cards-grid mini-grid"></div>
         </div>
     </div>
+</div>
 
-    <script src="script.js?v=<?php echo time(); ?>"></script>
+<script src="script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
