@@ -10,7 +10,6 @@ function showToast(message, type = 'info') {
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
     toast.innerHTML = `<span><span>${icon}</span><span>${message}</span></span>`;
     container.appendChild(toast);
-
     setTimeout(() => {
         toast.remove();
     }, 3000);
@@ -153,8 +152,6 @@ const BACKUPS = {
     onepiece: 'https://asia-en.onepiece-cardgame.com/images/common/back.jpg'
 };
 
-let ONEPIECE_CACHE = null;
-
 function createCardHTML(data) {
     const div = document.createElement('div');
     div.className = 'tcg-item';
@@ -175,7 +172,7 @@ function createCardHTML(data) {
             <div class="card-price">${data.price ? '$' + data.price : 'Sin stock'}</div>
         </div>
     `;
-    
+
     div.addEventListener('click', () => openModal(data));
     return div;
 }
@@ -198,8 +195,8 @@ function openModal(data) {
     refreshFavoriteStatus(MODAL_CARD.card_id);
 
     const list = document.getElementById('market-list');
-    list.innerHTML = ''; 
-    
+    list.innerHTML = '';
+
     let basePrice = parseFloat(data.price) || 25.00;
 
     const sellers = [
@@ -293,7 +290,9 @@ async function loadPokemonCards(gridId) {
             const realPrice = cmPrice || tcgPrice;
             grid.appendChild(createCardHTML({
                 badge: 'Pokémon', color: '#eab308', name: card.name,
-                img: card.image + '/high.png', price: realPrice ? parseFloat(realPrice).toFixed(2) : null
+                img: card.image + '/high.png', price: realPrice ? parseFloat(realPrice).toFixed(2) : null,
+                card_id: card.id,
+                id: card.id
             }));
         });
         STATE.pokemon.page++;
@@ -520,6 +519,18 @@ document.addEventListener('DOMContentLoaded', () => {
             loadFeaturedCards();
             setInterval(loadFeaturedCards, 30000);
         }
+    }
+
+    // Abrir modal de favorito si viene desde perfil
+    const favDataRaw = urlParams.get('fav_data');
+    if (openFav === '1' && favDataRaw) {
+        try {
+            const favData = JSON.parse(decodeURIComponent(favDataRaw));
+            if (favData.card_id && favData.name && favData.img && favData.badge) {
+                // Abrir modal con los datos de la carta favorita
+                setTimeout(() => openModal(favData), 400);
+            }
+        } catch (e) {}
     }
 
     const modal = document.getElementById('card-modal');
