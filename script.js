@@ -10,7 +10,6 @@ function showToast(message, type = 'info') {
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
     toast.innerHTML = `<span><span>${icon}</span><span>${message}</span></span>`;
     container.appendChild(toast);
-
     setTimeout(() => {
         toast.remove();
     }, 3000);
@@ -21,6 +20,86 @@ function createToastContainer() {
     container.className = 'toast-container';
     document.body.appendChild(container);
     return container;
+}
+
+let MODAL_CARD = null;
+
+function setFavButtonState(favorited) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    btn.textContent = favorited ? '🗑️ Eliminar de favoritos' : '⭐ Añadir a favoritos';
+    btn.dataset.favorited = favorited ? '1' : '0';
+    btn.classList.toggle('is-favorited', !!favorited);
+}
+
+async function refreshFavoriteStatus(cardId) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    if (!cardId) {
+        setFavButtonState(false);
+        btn.disabled = true;
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const res = await fetch(`favorites.php?action=status&card_id=${encodeURIComponent(cardId)}`, {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' }
+        });
+        const data = await res.json();
+        if (res.ok && data && data.ok) {
+            setFavButtonState(!!data.favorited);
+        } else {
+            setFavButtonState(false);
+        }
+    } catch (e) {
+        setFavButtonState(false);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function toggleFavorite(card) {
+    const btn = document.getElementById('modal-toggle-fav');
+    if (!btn) return;
+    if (!card || !card.card_id || !card.name || !card.img || !card.badge) {
+        showToast('No se pudo guardar en favoritos', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    try {
+        const fd = new FormData();
+        fd.append('action', 'toggle');
+        fd.append('card_id', card.card_id);
+        fd.append('card_name', card.name);
+        fd.append('card_image', card.img);
+        fd.append('card_game', card.badge);
+
+        const res = await fetch('favorites.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' },
+            body: fd
+        });
+        const data = await res.json();
+
+        if (res.ok && data && data.ok) {
+            setFavButtonState(!!data.favorited);
+            if (data.favorited) {
+                showToast('Añadida a favoritos', 'success');
+            } else {
+                showToast('Eliminada de favoritos', 'error');
+            }
+        } else {
+            showToast((data && data.message) ? data.message : 'No se pudo actualizar favoritos', 'error');
+        }
+    } catch (e) {
+        showToast('Error al actualizar favoritos', 'error');
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 async function addToCart(cardId, cardName, cardImage, cardPrice, cardGame, condition = 'Near Mint', seller = 'TCGVerse') {
@@ -77,8 +156,6 @@ const BACKUPS = {
     onepiece: 'https://asia-en.onepiece-cardgame.com/images/common/back.jpg'
 };
 
-let ONEPIECE_CACHE = null;
-
 function createCardHTML(data) {
     const div = document.createElement('div');
     div.className = 'tcg-item';
@@ -99,21 +176,31 @@ function createCardHTML(data) {
             <div class="card-price">${data.price ? '$' + data.price : 'Sin stock'}</div>
         </div>
     `;
-    
+
     div.addEventListener('click', () => openModal(data));
     return div;
 }
 
 function openModal(data) {
+    const cardId = (data.card_id || data.id || data.name);
+    MODAL_CARD = {
+        card_id: (cardId || '').toString(),
+        name: (data.name || '').toString(),
+        img: (data.img || '').toString(),
+        badge: (data.badge || '').toString()
+    };
+
     document.getElementById('modal-img').src = data.img;
     document.getElementById('modal-title').textContent = data.name;
     document.getElementById('modal-badge').textContent = data.badge;
     document.getElementById('modal-badge').style.backgroundColor = data.color;
     document.getElementById('modal-price').textContent = data.price ? '$' + data.price : 'Sin stock';
 
+    refreshFavoriteStatus(MODAL_CARD.card_id);
+
     const list = document.getElementById('market-list');
-    list.innerHTML = ''; 
-    
+    list.innerHTML = '';
+
     let basePrice = parseFloat(data.price) || 25.00;
 
     const sellers = [
@@ -182,6 +269,12 @@ document.addEventListener('click', (e) => {
     best.click();
 });
 
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#modal-toggle-fav');
+    if (!btn) return;
+    toggleFavorite(MODAL_CARD);
+});
+
 async function loadPokemonCards(gridId) {
     if (STATE.pokemon.loading) return;
     STATE.pokemon.loading = true;
@@ -201,7 +294,9 @@ async function loadPokemonCards(gridId) {
             const realPrice = cmPrice || tcgPrice;
             grid.appendChild(createCardHTML({
                 badge: 'Pokémon', color: '#eab308', name: card.name,
-                img: card.image + '/high.png', price: realPrice ? parseFloat(realPrice).toFixed(2) : null
+                img: card.image + '/high.png', price: realPrice ? parseFloat(realPrice).toFixed(2) : null,
+                card_id: card.id,
+                id: card.id
             }));
         });
         STATE.pokemon.page++;
@@ -401,6 +496,19 @@ document.addEventListener('DOMContentLoaded', () => {
             loadFeaturedCards();
             setInterval(loadFeaturedCards, 30000);
         }
+    }
+
+    // Abrir modal de favorito si viene desde perfil
+    const openFav = urlParams.get('open_fav');
+    const favDataRaw = urlParams.get('fav_data');
+    if (openFav === '1' && favDataRaw) {
+        try {
+            const favData = JSON.parse(decodeURIComponent(favDataRaw));
+            if (favData.card_id && favData.name && favData.img && favData.badge) {
+                // Abrir modal con los datos de la carta favorita
+                setTimeout(() => openModal(favData), 400);
+            }
+        } catch (e) {}
     }
 
     const modal = document.getElementById('card-modal');

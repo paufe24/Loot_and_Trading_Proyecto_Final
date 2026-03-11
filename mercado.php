@@ -91,6 +91,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <img id="modal-img" src="" alt="Carta" class="modal-img">
                         <div class="scan-line"></div>
                     </div>
+                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Añadir a favoritos</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">

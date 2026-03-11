@@ -78,6 +78,30 @@ if (count($orderIds) > 0) {
     }
 }
 
+// Favoritos
+$conn->query("CREATE TABLE IF NOT EXISTS user_favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    card_id VARCHAR(255) NOT NULL,
+    card_name VARCHAR(255) NOT NULL,
+    card_image VARCHAR(500) NOT NULL,
+    card_game VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_card (user_id, card_id),
+    INDEX idx_user_id (user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)");
+
+$favorites = [];
+$favStmt = $conn->prepare("SELECT card_id, card_name, card_image, card_game FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC");
+$favStmt->bind_param("i", $_SESSION['user_id']);
+$favStmt->execute();
+$favRes = $favStmt->get_result();
+while ($row = $favRes->fetch_assoc()) {
+    $favorites[] = $row;
+}
+$favStmt->close();
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -690,11 +714,34 @@ $conn->close();
 
                 <div class="profile-section">
                     <h3 class="section-title">⭐ Favoritos</h3>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💝</div>
-                        <p>No tienes cartas favoritas</p>
-                        <small>Añade cartas a tus favoritos para verlas aquí</small>
-                    </div>
+                    <?php if (empty($favorites)): ?>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💝</div>
+                            <p>No tienes cartas favoritas</p>
+                            <small>Añade cartas a tus favoritos para verlas aquí</small>
+                        </div>
+                    <?php else: ?>
+                        <div class="mini-grid">
+                            <?php foreach ($favorites as $fav): ?>
+                                <a href="mercado.php?game=<?php echo urlencode(strtolower($fav['card_game'])); ?>&open_fav=1&fav_data=<?php echo urlencode(json_encode(['card_id'=>$fav['card_id'],'name'=>$fav['card_name'],'img'=>$fav['card_image'],'badge'=>$fav['card_game']])); ?>" class="tcg-item" style="text-decoration:none;cursor:pointer;">
+                                    <div class="tcg-bg">
+                                        <img src="<?php echo htmlspecialchars($fav['card_image']); ?>" alt="<?php echo htmlspecialchars($fav['card_name']); ?>" onerror="this.style.display='none'" loading="lazy">
+                                    </div>
+                                    <div class="scan-line"></div>
+                                    <div class="tcg-info">
+                                        <span class="card-badge" style="background-color:<?php
+                                            $badgeColor = '#eab308';
+                                            if ($fav['card_game'] === 'Yu-Gi-Oh!') $badgeColor = '#a855f7';
+                                            elseif ($fav['card_game'] === 'Magic') $badgeColor = '#ef4444';
+                                            elseif ($fav['card_game'] === 'One Piece') $badgeColor = '#f97316';
+                                            echo $badgeColor;
+                                        ?>"><?php echo htmlspecialchars($fav['card_game']); ?></span>
+                                        <div class="card-name"><?php echo htmlspecialchars($fav['card_name']); ?></div>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
