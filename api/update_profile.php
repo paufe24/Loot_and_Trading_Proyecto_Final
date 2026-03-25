@@ -7,13 +7,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-include 'db.php';
+require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/csrf.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'];
+    csrf_verify();
+    $name     = $_POST['name'];
     $username = $_POST['username'];
-    $email = $_POST['email'];
-    $user_id = $_SESSION['user_id'];
+    $email    = $_POST['email'];
+    $address  = trim($_POST['address'] ?? '');
+    $user_id  = $_SESSION['user_id'];
 
     // Verificar si el email ya existe (excepto el actual)
     $check_email = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
@@ -41,9 +44,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $check_username->close();
 
+    // Añadir columna address si no existe (por compatibilidad)
+    try { $conn->query("ALTER TABLE users ADD COLUMN address TEXT NULL"); } catch (Exception $e) {}
+
     // Actualizar datos del usuario
-    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, username = ? WHERE id = ?");
-    $stmt->bind_param("sssi", $name, $email, $username, $user_id);
+    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, username = ?, address = ? WHERE id = ?");
+    $stmt->bind_param("ssssi", $name, $email, $username, $address, $user_id);
 
     if ($stmt->execute()) {
         // Actualizar sesión
