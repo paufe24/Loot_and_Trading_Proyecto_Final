@@ -10,11 +10,13 @@ if (!isset($_SESSION['user_id'])) {
         echo json_encode(['ok' => false, 'message' => 'Debes iniciar sesión']);
         exit;
     }
-    header('Location: auth.php');
+    header('Location: ../auth.php');
     exit;
 }
 
-include 'db.php';
+require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/csrf.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') csrf_verify();
 
 $userId = (int)$_SESSION['user_id'];
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
@@ -59,7 +61,7 @@ if ($action === 'list') {
     $stmt = $conn->prepare('SELECT card_id, card_name, card_image, card_game, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC');
     if (!$stmt) {
         http_response_code(500);
-        echo json_encode(['ok' => false, 'message' => $conn->error]);
+        echo json_encode(['ok' => false, 'message' => 'Error interno del servidor']);
         exit;
     }
     $stmt->bind_param('i', $userId);
@@ -92,14 +94,14 @@ if ($action === 'toggle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare('DELETE FROM user_favorites WHERE user_id = ? AND card_id = ?');
         if (!$stmt) {
             http_response_code(500);
-            echo json_encode(['ok' => false, 'message' => $conn->error]);
+            echo json_encode(['ok' => false, 'message' => 'Error interno del servidor']);
             exit;
         }
         $stmt->bind_param('is', $userId, $cardId);
         $ok = $stmt->execute();
         if (!$ok) {
             http_response_code(500);
-            echo json_encode(['ok' => false, 'message' => $stmt->error]);
+            echo json_encode(['ok' => false, 'message' => 'Error interno del servidor']);
             exit;
         }
         echo json_encode(['ok' => true, 'favorited' => false]);
@@ -109,14 +111,14 @@ if ($action === 'toggle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare('INSERT INTO user_favorites (user_id, card_id, card_name, card_image, card_game) VALUES (?, ?, ?, ?, ?)');
     if (!$stmt) {
         http_response_code(500);
-        echo json_encode(['ok' => false, 'message' => $conn->error]);
+        echo json_encode(['ok' => false, 'message' => 'Error interno del servidor']);
         exit;
     }
     $stmt->bind_param('issss', $userId, $cardId, $cardName, $cardImage, $cardGame);
     $ok = $stmt->execute();
     if (!$ok) {
         http_response_code(500);
-        echo json_encode(['ok' => false, 'message' => $stmt->error]);
+        echo json_encode(['ok' => false, 'message' => 'Error interno del servidor']);
         exit;
     }
 

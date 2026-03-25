@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+require_once dirname(__DIR__) . '/includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
