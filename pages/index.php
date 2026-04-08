@@ -262,7 +262,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         <main id="main-content">
             <div id="section-pokemon" class="category-section">
                 <div class="section-head">
-                    <img src="img/pokemon.png" alt="Pokémon" style="height:60px;display:block;margin:0 auto 10px;">
+                    <img src="../img/pokemon.png" alt="Pokémon" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="pokemon-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -272,7 +272,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-yugioh" class="category-section">
                 <div class="section-head">
-                    <img src="img/yugioh.png" alt="Yu-Gi-Oh!" style="height:60px;display:block;margin:0 auto 10px;">
+                    <img src="../img/yugioh.png" alt="Yu-Gi-Oh!" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="yugioh-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -282,7 +282,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-magic" class="category-section">
                 <div class="section-head">
-                    <img src="img/magic.png" alt="Magic: The Gathering" style="height:60px;display:block;margin:0 auto 10px;">
+                    <img src="../img/magic.png" alt="Magic: The Gathering" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="magic-grid" class="cards-grid"></div>
                 <div class="load-more-container">
@@ -292,7 +292,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 
             <div id="section-onepiece" class="category-section">
                 <div class="section-head">
-                    <img src="img/onepiece.png" alt="One Piece" style="height:60px;display:block;margin:0 auto 10px;">
+                    <img src="../img/onepiece.png" alt="One Piece" style="height:60px;display:block;margin:0 auto 10px;">
                 </div>
                 <div id="onepiece-grid" class="cards-grid"></div>
                 <div class="load-more-container">
