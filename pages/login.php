@@ -6,8 +6,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    // Migración: añadir columna is_admin si no existe
+    // Migración: añadir columnas si no existen
     try { $conn->query("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e) {}
+    try { $conn->query("ALTER TABLE users ADD COLUMN is_envios TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e) {}
 
     $stmt = $conn->prepare("SELECT id, username, password_hash, is_admin, is_envios FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
@@ -23,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: " . ((bool)$user['is_envios'] ? "envios.php" : "index.php"));
             exit;
         } else {
-            echo "<script>alert('Contraseña incorrecta'); window.location.href='auth.html'</script>";
+            echo "<script>alert('Contraseña incorrecta'); window.location.href='auth.php'</script>";
         }
     } else {
-        echo "<script>alert('El usuario no existe'); window.location.href='auth.html'</script>";
+        echo "<script>alert('El usuario no existe'); window.location.href='auth.php'</script>";
     }
 
     $stmt->close();

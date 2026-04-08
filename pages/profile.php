@@ -9,8 +9,10 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once dirname(__DIR__) . '/includes/db.php';
 
-// Migración: añadir columna address si no existe
+// Migraciones: añadir columnas si no existen
 try { $conn->query("ALTER TABLE users ADD COLUMN address TEXT NULL"); } catch (Exception $e) {}
+try { $conn->query("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500) NULL"); } catch (Exception $e) {}
+try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
 
 // Obtener datos del usuario
 $stmt = $conn->prepare("SELECT name, email, username, created_at, avatar_url, address FROM users WHERE id = ?");
@@ -35,6 +37,8 @@ $conn->query("CREATE TABLE IF NOT EXISTS user_activity (
 )");
 
 // Pedidos del carrito con estado de envío
+// Migración: añadir columna shipment_status si no existe
+try { $conn->query("ALTER TABLE cart_orders ADD COLUMN shipment_status VARCHAR(30) DEFAULT 'pending'"); } catch (Exception $e) {}
 $myOrders = [];
 try {
     $stOrders = $conn->prepare("

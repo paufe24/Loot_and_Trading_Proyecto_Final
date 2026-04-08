@@ -5,6 +5,9 @@ $logged_in    = isset($_SESSION['user_id']);
 $user_id      = $logged_in ? (int)$_SESSION['user_id'] : 0;
 $lootcoins    = 0;
 $user_address = '';
+// Migración: añadir columnas si no existen
+try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
+try { $conn->query("ALTER TABLE users ADD COLUMN address TEXT NULL"); } catch (Exception $e) {}
 if ($logged_in) {
     $s = $conn->prepare("SELECT lootcoins, address FROM users WHERE id = ?");
     $s->bind_param("i", $user_id);
