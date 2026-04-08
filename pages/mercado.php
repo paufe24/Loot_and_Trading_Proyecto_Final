@@ -55,16 +55,16 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 <?php $game = $_GET['game'] ?? 'pokemon'; ?>
                 <div class="mercado-game-tabs">
                     <a href="mercado.php?game=pokemon" class="mgame-tab <?php echo $game==='pokemon'?'active':''; ?>">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Pok%C3%A9mon_Trading_Card_Game_logo.svg/1200px-Pok%C3%A9mon_Trading_Card_Game_logo.svg.png" alt="Pokémon">
+                        <img src="../img/pokemon.png" alt="Pokémon">
                     </a>
                     <a href="mercado.php?game=yugioh" class="mgame-tab <?php echo $game==='yugioh'?'active':''; ?>">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/Yu-Gi-Oh%21_The_Dark_Side_of_Dimensions_logo.png/250px-Yu-Gi-Oh%21_The_Dark_Side_of_Dimensions_logo.png" alt="Yu-Gi-Oh!" style="height:28px;">
+                        <img src="../img/yugioh.png" alt="Yu-Gi-Oh!">
                     </a>
                     <a href="mercado.php?game=magic" class="mgame-tab <?php echo $game==='magic'?'active':''; ?>">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/Magic-the-gathering-logo.svg/1280px-Magic-the-gathering-logo.svg.png" alt="Magic">
+                        <img src="../img/magic.png" alt="Magic">
                     </a>
                     <a href="mercado.php?game=onepiece" class="mgame-tab <?php echo $game==='onepiece'?'active':''; ?>">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/90/One_Piece_Card_Game_Logo.png/250px-One_Piece_Card_Game_Logo.png" alt="One Piece">
+                        <img src="../img/onepiece.png" alt="One Piece">
                     </a>
                 </div>
                 <div class="section-head">

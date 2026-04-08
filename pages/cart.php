@@ -312,14 +312,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
     if ($action === 'update') {
         $cardId = (string)($_POST['card_id'] ?? '');
         $qty = (int)($_POST['quantity'] ?? 1);
-        updateCartItemQuantity($userId, $cardId, $qty);
+        $ok = updateCartItemQuantity($userId, $cardId, $qty);
+        if ($isFetch) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => (bool)$ok]);
+            exit;
+        }
         header('Location: cart.php');
         exit;
     }
 
     if ($action === 'remove') {
         $cardId = (string)($_POST['card_id'] ?? '');
-        removeFromCart($userId, $cardId);
+        $ok = removeFromCart($userId, $cardId);
+        if ($isFetch) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => (bool)$ok]);
+            exit;
+        }
         header('Location: cart.php');
         exit;
     }
@@ -407,7 +417,9 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                 <div class="cart-grid">
                     <div class="cart-items">
                         <?php foreach ($items as $it): ?>
-                            <div class="cart-item">
+                            <div class="cart-item"
+                                 data-card-id="<?php echo htmlspecialchars($it['card_id']); ?>"
+                                 data-price="<?php echo number_format((float)$it['card_price'], 4, '.', ''); ?>">
                                 <img class="cart-item-image" src="<?php echo htmlspecialchars($it['card_image']); ?>" alt="">
                                 <div class="cart-item-main">
                                     <div class="cart-item-name"><?php echo htmlspecialchars($it['card_name']); ?></div>
@@ -418,20 +430,15 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                                 </div>
 
                                 <div class="cart-item-controls">
-                                    <form method="post" action="cart.php" class="cart-qty-form">
-                                        <input type="hidden" name="action" value="update">
-                                        <input type="hidden" name="card_id" value="<?php echo htmlspecialchars($it['card_id']); ?>">
-                                        <input class="cart-qty" type="number" name="quantity" min="1" value="<?php echo (int)$it['quantity']; ?>">
-                                        <button class="btn-cart" type="submit">Actualizar</button>
-                                    </form>
+                                    <div class="cart-qty-form">
+                                        <input class="cart-qty" type="number" min="1"
+                                               value="<?php echo (int)$it['quantity']; ?>">
+                                        <button class="btn-cart" type="button" onclick="cartUpdate(this)">Actualizar</button>
+                                    </div>
 
                                     <div class="cart-item-subtotal">
                                         <div class="cart-item-subtotal-value">$<?php echo number_format((float)$it['_subtotal'], 2); ?></div>
-                                        <form method="post" action="cart.php" class="cart-inline-form">
-                                            <input type="hidden" name="action" value="remove">
-                                            <input type="hidden" name="card_id" value="<?php echo htmlspecialchars($it['card_id']); ?>">
-                                            <button class="btn-cart danger" type="submit">Eliminar</button>
-                                        </form>
+                                        <button class="btn-cart danger" type="button" onclick="cartRemove(this)">Eliminar</button>
                                     </div>
                                 </div>
                             </div>
@@ -442,7 +449,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                         <div class="cart-summary-header">Resumen</div>
                         <div class="cart-summary-row">
                             <span>Total</span>
-                            <strong>$<?php echo number_format($total, 2); ?></strong>
+                            <strong id="cart-total">$<?php echo number_format($total, 2); ?></strong>
                         </div>
                         <form method="post" action="cart.php" class="cart-summary-actions">
                             <input type="hidden" name="action" value="checkout">
@@ -457,5 +464,77 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
 
     <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
+    <script>
+    function cartRecalcTotal() {
+        let total = 0;
+        document.querySelectorAll('.cart-item').forEach(row => {
+            const price = parseFloat(row.dataset.price) || 0;
+            const qty   = parseInt(row.querySelector('.cart-qty').value) || 0;
+            total += price * qty;
+        });
+        const el = document.getElementById('cart-total');
+        if (el) el.textContent = '$' + total.toFixed(2);
+    }
+
+    async function cartUpdate(btn) {
+        const row    = btn.closest('.cart-item');
+        const cardId = row.dataset.cardId;
+        const price  = parseFloat(row.dataset.price) || 0;
+        const qtyEl  = row.querySelector('.cart-qty');
+        const qty    = parseInt(qtyEl.value) || 0;
+
+        if (qty <= 0) { cartRemove(btn); return; }
+
+        btn.disabled = true;
+        const fd = new FormData();
+        fd.append('action',   'update');
+        fd.append('card_id',  cardId);
+        fd.append('quantity', qty);
+
+        try {
+            const res  = await fetch('cart.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'fetch' },
+                body: fd
+            });
+            const data = await res.json();
+            if (data.ok) {
+                row.querySelector('.cart-item-subtotal-value').textContent =
+                    '$' + (price * qty).toFixed(2);
+                cartRecalcTotal();
+                if (typeof showToast === 'function') showToast('Cantidad actualizada', 'success');
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function cartRemove(btn) {
+        const row    = btn.closest('.cart-item');
+        const cardId = row.dataset.cardId;
+
+        btn.disabled = true;
+        const fd = new FormData();
+        fd.append('action',  'remove');
+        fd.append('card_id', cardId);
+
+        try {
+            const res  = await fetch('cart.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'fetch' },
+                body: fd
+            });
+            const data = await res.json();
+            if (data.ok) {
+                row.remove();
+                cartRecalcTotal();
+                if (typeof showToast === 'function') showToast('Carta eliminada', 'success');
+                if (!document.querySelector('.cart-item')) location.reload();
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    }
+    </script>
 </body>
 </html>

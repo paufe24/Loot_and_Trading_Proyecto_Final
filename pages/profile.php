@@ -34,6 +34,30 @@ $conn->query("CREATE TABLE IF NOT EXISTS user_activity (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )");
 
+// Pedidos del carrito con estado de envío
+$myOrders = [];
+try {
+    $stOrders = $conn->prepare("
+        SELECT co.id, co.order_number, co.total_amount, co.shipment_status, co.created_at
+        FROM cart_orders co
+        WHERE co.user_id = ? AND co.status = 'paid'
+        ORDER BY co.created_at DESC LIMIT 20
+    ");
+    if ($stOrders) {
+        $stOrders->bind_param("i", $_SESSION['user_id']);
+        $stOrders->execute();
+        $ordersRes = $stOrders->get_result();
+        while ($ord = $ordersRes->fetch_assoc()) {
+            $stItems = $conn->prepare("SELECT card_name, card_image, card_game, quantity FROM cart_order_items WHERE order_id = ? LIMIT 6");
+            $stItems->bind_param("i", $ord['id']);
+            $stItems->execute();
+            $ord['items'] = $stItems->get_result()->fetch_all(MYSQLI_ASSOC);
+            $myOrders[] = $ord;
+        }
+        $stOrders->close();
+    }
+} catch (Exception $e) {}
+
 $recentActivity = [];
 $activityStmt = $conn->prepare("SELECT activity_type, title, description, ref_id, created_at FROM user_activity WHERE user_id = ? ORDER BY created_at DESC LIMIT 20");
 $activityStmt->bind_param("i", $_SESSION['user_id']);
@@ -697,6 +721,36 @@ $conn->close();
         body.dark .form-group input { background: #0f172a; border-color: #334155; color: #e2e8f0; }
         body.dark .form-group input:focus { background: #1e293b; }
         body.dark .btn-edit { background: #e2e8f0; color: #0f172a; }
+
+        /* ── Pedidos ── */
+        .order-item { background: rgba(255,255,255,0.75); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; margin-bottom: 10px; }
+        body.dark .order-item { background: rgba(30,41,59,0.75); border-color: #334155; }
+        .order-header { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; margin-bottom: 10px; }
+        .order-header img { width: 52px; height: 72px; border-radius: 10px; object-fit: cover; }
+        .order-num  { font-weight: 900; font-size: .85rem; margin-bottom: 2px; }
+        .order-meta { color: var(--text-secondary); font-size: .78rem; margin-bottom: 6px; }
+        .order-items-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+        .order-chip { background: #f1f5f9; border-radius: 8px; padding: 2px 8px; font-size: .72rem; font-weight: 700; }
+        body.dark .order-chip { background: #0f172a; }
+        .ship-progress { display: flex; gap: 0; margin-top: 8px; }
+        .ship-step { flex: 1; text-align: center; position: relative; }
+        .ship-dot  { width: 22px; height: 22px; border-radius: 50%; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 800; }
+        .ship-lbl  { font-size: .65rem; font-weight: 700; }
+        .ship-line { position: absolute; top: 11px; left: calc(50% + 11px); right: calc(-50% + 11px); height: 2px; }
+        .orders-collapsed { max-height: 320px; overflow: hidden; }
+
+        /* ── Subastas ganadas ── */
+        .won-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .won-list.collapsed { max-height: 340px; overflow: hidden; }
+        .won-item { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; background: rgba(255,255,255,0.75); border: 1px solid var(--border-color); border-radius: 16px; padding: 12px; }
+        body.dark .won-item { background: rgba(30,41,59,0.75); border-color: #334155; }
+        .won-item img { width: 52px; height: 72px; border-radius: 10px; object-fit: cover; }
+        .won-item-name { font-weight: 900; margin-bottom: 4px; }
+        .won-item-meta { color: var(--text-secondary); font-size: .85rem; margin-bottom: 4px; }
+        .won-item-badge { font-size: .78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+        .won-item-badge.claimed { background: rgba(16,185,129,.15); color: #059669; }
+        .won-item-badge.pending { background: rgba(139,92,246,.15); color: #7c3aed; text-decoration: none; display: inline-block; }
+        .btn-won-more { margin-top: 14px; background: none; border: 2px solid var(--border-color); border-radius: 50px; padding: 8px 20px; font-weight: 700; cursor: pointer; color: var(--text-secondary); width: 100%; font-family: 'Outfit',sans-serif; font-size: .9rem; }
     </style>
 </head>
 <body>
@@ -886,7 +940,7 @@ $conn->close();
                             <small><a href="apuestas.php" style="color:var(--accent-blue);">Explorar subastas</a></small>
                         </div>
                     <?php else: ?>
-                        <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px;">
+                        <div class="won-list<?php echo count($wonAuctions) > 3 ? ' collapsed' : ''; ?>" id="won-list">
                             <?php foreach ($wonAuctions as $w): ?>
                                 <?php
                                     $claimIcon = '';
@@ -897,24 +951,25 @@ $conn->close();
                                         $claimIcon = '📦'; $claimLabel = $statusMap[$w['claim_status']] ?? 'En proceso';
                                     }
                                 ?>
-                                <div style="display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;background:rgba(255,255,255,0.75);border:1px solid var(--border-color);border-radius:16px;padding:12px;">
-                                    <img src="<?php echo htmlspecialchars($w['card_image']); ?>" alt="" style="width:52px;height:72px;border-radius:10px;object-fit:cover;">
+                                <div class="won-item">
+                                    <img src="<?php echo htmlspecialchars($w['card_image']); ?>" alt="">
                                     <div>
-                                        <div style="font-weight:900;margin-bottom:4px;"><?php echo htmlspecialchars($w['card_name']); ?></div>
-                                        <div style="color:var(--text-secondary);font-size:.85rem;margin-bottom:4px;"><?php echo htmlspecialchars($w['card_game']); ?> — <?php echo number_format((int)$w['current_bid']); ?> LJ</div>
+                                        <div class="won-item-name"><?php echo htmlspecialchars($w['card_name']); ?></div>
+                                        <div class="won-item-meta"><?php echo htmlspecialchars($w['card_game']); ?> — <?php echo number_format((int)$w['current_bid']); ?> LJ</div>
                                         <?php if ($claimLabel): ?>
-                                            <span style="font-size:.78rem;font-weight:800;padding:3px 10px;border-radius:20px;background:rgba(16,185,129,.15);color:#059669;">
-                                                <?php echo $claimIcon . ' ' . htmlspecialchars($claimLabel); ?>
-                                            </span>
+                                            <span class="won-item-badge claimed"><?php echo $claimIcon . ' ' . htmlspecialchars($claimLabel); ?></span>
                                         <?php else: ?>
-                                            <a href="apuestas.php" style="font-size:.78rem;font-weight:800;padding:3px 10px;border-radius:20px;background:rgba(139,92,246,.15);color:#7c3aed;text-decoration:none;">
-                                                Reclamar →
-                                            </a>
+                                            <a href="apuestas.php" class="won-item-badge pending">Reclamar →</a>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php if (count($wonAuctions) > 3): ?>
+                        <button class="btn-won-more" id="won-more-btn" onclick="toggleWonList()">
+                            Ver todas las subastas (<?php echo count($wonAuctions); ?>) ▼
+                        </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
 
@@ -965,6 +1020,83 @@ $conn->close();
                     </div>
                 </div>
                 <?php endif; ?>
+
+                <!-- Mis Pedidos -->
+                <div class="profile-section">
+                    <h3 class="section-title">🛒 Mis Pedidos</h3>
+                    <?php
+                    $shipSteps  = ['pending'=>1,'processing'=>2,'shipped'=>3,'delivered'=>4,'done'=>4];
+                    $shipLabels = ['Recibido','Preparando','Enviado','Entregado'];
+                    $shipColors = ['pending'=>'#f59e0b','processing'=>'#3b82f6','shipped'=>'#8b5cf6','delivered'=>'#10b981','done'=>'#10b981'];
+                    $shipNames  = ['pending'=>'Pendiente','processing'=>'Preparando','shipped'=>'Enviado','delivered'=>'Entregado','done'=>'Completado'];
+                    ?>
+                    <?php if (empty($myOrders)): ?>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛍️</div>
+                            <p>Aún no has realizado ningún pedido</p>
+                            <small><a href="mercado.php?game=pokemon" style="color:var(--accent-blue);">Explorar el mercado</a></small>
+                        </div>
+                    <?php else: ?>
+                        <div id="orders-list" class="<?php echo count($myOrders) > 3 ? 'orders-collapsed' : ''; ?>">
+                        <?php foreach ($myOrders as $ord):
+                            $ss    = $ord['shipment_status'] ?? 'pending';
+                            $color = $shipColors[$ss] ?? '#f59e0b';
+                            $step  = $shipSteps[$ss]  ?? 1;
+                            $firstImg = $ord['items'][0]['card_image'] ?? '';
+                        ?>
+                        <div class="order-item">
+                            <div class="order-header">
+                                <?php if ($firstImg): ?>
+                                    <img src="<?php echo htmlspecialchars($firstImg); ?>" alt="">
+                                <?php else: ?>
+                                    <div style="width:52px;height:72px;border-radius:10px;background:var(--border-color);display:flex;align-items:center;justify-content:center;">🛒</div>
+                                <?php endif; ?>
+                                <div>
+                                    <div class="order-num"><?php echo htmlspecialchars($ord['order_number']); ?></div>
+                                    <div class="order-meta">
+                                        <?php echo date('d/m/Y H:i', strtotime($ord['created_at'])); ?> ·
+                                        $<?php echo number_format((float)$ord['total_amount'], 2); ?>
+                                    </div>
+                                    <div class="order-items-chips">
+                                        <?php foreach ($ord['items'] as $it): ?>
+                                            <span class="order-chip">
+                                                <?php echo htmlspecialchars($it['card_name']); ?>
+                                                <?php if ($it['quantity'] > 1): ?>(x<?php echo $it['quantity']; ?>)<?php endif; ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <span style="font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:20px;background:<?php echo $color; ?>22;color:<?php echo $color; ?>;">
+                                        <?php echo $shipNames[$ss] ?? $ss; ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Barra de progreso -->
+                            <div class="ship-progress">
+                                <?php foreach ($shipLabels as $i => $lbl):
+                                    $done = ($i + 1) <= $step; ?>
+                                <div class="ship-step">
+                                    <div class="ship-dot" style="background:<?php echo $done ? $color : 'var(--border-color)'; ?>;color:<?php echo $done ? '#fff' : 'var(--text-secondary)'; ?>;">
+                                        <?php echo $done ? '✓' : ($i + 1); ?>
+                                    </div>
+                                    <div class="ship-lbl" style="color:<?php echo $done ? 'var(--text-primary)' : 'var(--text-secondary)'; ?>">
+                                        <?php echo $lbl; ?>
+                                    </div>
+                                    <?php if ($i < 3): ?>
+                                    <div class="ship-line" style="background:<?php echo ($i + 1 < $step) ? $color : 'var(--border-color)'; ?>;"></div>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        </div>
+                        <?php if (count($myOrders) > 3): ?>
+                        <button class="btn-won-more" id="orders-more-btn" onclick="toggleOrders()">
+                            Ver todos los pedidos (<?php echo count($myOrders); ?>) ▼
+                        </button>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
 
                 <div class="profile-section">
                     <h3 class="section-title">⭐ Favoritos</h3>
@@ -1028,6 +1160,26 @@ $conn->close();
     </div>
 
     <script>
+        function toggleOrders() {
+            const list = document.getElementById('orders-list');
+            const btn  = document.getElementById('orders-more-btn');
+            if (!list) return;
+            const collapsed = list.classList.toggle('orders-collapsed');
+            btn.textContent = collapsed
+                ? `Ver todos los pedidos (<?php echo count($myOrders); ?>) ▼`
+                : 'Ver menos ▲';
+        }
+
+        function toggleWonList() {
+            const list = document.getElementById('won-list');
+            const btn  = document.getElementById('won-more-btn');
+            if (!list) return;
+            const collapsed = list.classList.toggle('collapsed');
+            btn.textContent = collapsed
+                ? `Ver todas las subastas (<?php echo count($wonAuctions); ?>) ▼`
+                : 'Ver menos ▲';
+        }
+
         function toggleActivity() {
             const short = document.getElementById('activity-list-short');
             const full  = document.getElementById('activity-list-full');

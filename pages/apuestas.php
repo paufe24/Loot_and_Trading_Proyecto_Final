@@ -22,132 +22,6 @@ if ($logged_in) {
     <title>Subastas | Loot&Trading</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>">
-    <style>
-        /* ── Selector de modo ───────── */
-        .mode-selector {
-            display: flex; gap: 14px; justify-content: center;
-            padding: 32px 20px 16px; flex-wrap: wrap;
-        }
-        .mode-btn {
-            padding: 14px 36px; border-radius: 50px; border: 2px solid var(--border-color);
-            font-weight: 800; font-size: 1rem; cursor: pointer; transition: all .25s;
-            background: #fff; color: var(--text-primary); letter-spacing: .01em;
-            box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        }
-        .mode-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); transform: translateY(-2px); }
-        .mode-btn.active {
-            background: var(--accent-blue);
-            border-color: transparent; color: #fff;
-            box-shadow: 0 8px 24px rgba(59,130,246,.35);
-            transform: translateY(-2px);
-        }
-        body.dark .mode-btn { background: #1e293b; }
-        body.dark .mode-btn.active { background: var(--accent-blue); }
-
-        /* ── Panel vender ───────────── */
-        .sell-panel { max-width: 820px; margin: 30px auto; padding: 0 20px 60px; }
-        .sell-panel-title { font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
-        .sell-panel-desc { color: var(--text-secondary); margin-bottom: 28px; font-size: .95rem; }
-        .sell-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media(max-width:600px){ .sell-form-grid { grid-template-columns: 1fr; } }
-        .sell-field label {
-            display: block; margin-bottom: 8px; font-weight: 700; font-size: .82rem;
-            text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary);
-        }
-        .sell-field input, .sell-field select {
-            width: 100%; padding: 14px 16px; border: 2px solid var(--border-color);
-            border-radius: 14px; font-size: .95rem; font-family: 'Outfit',sans-serif;
-            background: #fff; color: var(--text-primary); box-sizing: border-box;
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .sell-field input:focus, .sell-field select:focus {
-            outline: none; border-color: var(--accent-blue);
-            box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-        }
-        body.dark .sell-field input, body.dark .sell-field select {
-            background: #0f172a; border-color: #334155; color: #e2e8f0;
-        }
-        .sell-preview { margin-top: 28px; }
-        .sell-preview-label { font-weight: 700; font-size: .82rem; text-transform: uppercase;
-            letter-spacing: .04em; color: var(--text-secondary); margin-bottom: 14px; }
-        .sell-preview-card {
-            display: flex; gap: 16px; align-items: center;
-            background: #fff; border: 2px solid var(--border-color);
-            border-radius: 20px; padding: 18px; max-width: 360px;
-            box-shadow: 0 4px 16px rgba(0,0,0,.06);
-        }
-        body.dark .sell-preview-card { background: #1e293b; border-color: #334155; }
-        .sell-preview-img-wrap img { width: 80px; border-radius: 12px; object-fit: cover; }
-        .sell-preview-info { flex: 1; }
-
-        /* ── Mis subastas tabs ───────── */
-        .mine-tabs { display: flex; gap: 12px; padding: 24px 20px 8px; flex-wrap: wrap; }
-        .mine-tab {
-            padding: 12px 28px; border-radius: 50px; border: 2px solid var(--border-color);
-            font-weight: 700; font-size: .9rem; cursor: pointer;
-            background: #fff; color: var(--text-primary); transition: all .2s;
-        }
-        .mine-tab:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-        .mine-tab.active {
-            background: var(--accent-blue); color: #fff; border-color: transparent;
-            box-shadow: 0 4px 14px rgba(59,130,246,.3);
-        }
-        body.dark .mine-tab { background: #1e293b; }
-
-        /* ── Claim modal ─────────────── */
-        .claim-overlay {
-            position: fixed; inset: 0; background: rgba(15,23,42,.75);
-            backdrop-filter: blur(10px); z-index: 3000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .claim-overlay.open { display: flex; }
-        .claim-box {
-            background: #fff; border-radius: 28px; padding: 40px 36px;
-            max-width: 500px; width: 100%;
-            box-shadow: 0 30px 70px rgba(0,0,0,.3);
-            border: 1px solid var(--border-color); text-align: center;
-        }
-        .claim-box img { width: 110px; border-radius: 16px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,.15); }
-        .claim-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
-        .claim-box > p { color: var(--text-secondary); margin-bottom: 28px; font-size: .92rem; }
-        .claim-options { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
-        .claim-opt {
-            flex: 1; min-width: 160px; padding: 20px 16px; border: 2px solid var(--border-color);
-            border-radius: 20px; cursor: pointer; transition: all .2s; background: #f8f9fd;
-            font-weight: 700; font-size: .92rem;
-        }
-        .claim-opt:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(59,130,246,.15); }
-        .claim-opt.selected {
-            border-color: var(--accent-blue); background: rgba(59,130,246,.08);
-            box-shadow: 0 6px 18px rgba(59,130,246,.2);
-        }
-        .claim-opt .opt-icon { font-size: 2.2rem; margin-bottom: 8px; }
-        #claim-address-wrap { margin-top: 18px; display: none; text-align: left; }
-        #claim-address-wrap textarea {
-            width: 100%; box-sizing: border-box; padding: 14px; border-radius: 14px;
-            border: 2px solid var(--border-color); font-family: 'Outfit',sans-serif;
-            font-size: .92rem; background: #f8f9fd; color: var(--text-primary); resize: vertical;
-            transition: border-color .2s;
-        }
-        #claim-address-wrap textarea:focus { outline: none; border-color: var(--accent-blue); }
-        .claim-confirm-btn {
-            width: 100%; margin-top: 20px; padding: 16px; border-radius: 50px;
-            background: var(--accent-blue); color: #fff; font-weight: 800; font-size: 1rem;
-            border: none; cursor: pointer; transition: all .25s;
-            box-shadow: 0 6px 20px rgba(59,130,246,.35);
-        }
-        .claim-confirm-btn:hover { background: #2563eb; transform: translateY(-2px); }
-        .claim-cancel-btn {
-            background: none; border: none; color: var(--text-secondary);
-            cursor: pointer; margin-top: 12px; font-size: .88rem; font-family: 'Outfit',sans-serif;
-            transition: color .2s;
-        }
-        .claim-cancel-btn:hover { color: var(--text-primary); }
-        body.dark .claim-box { background: #1e293b; border-color: #334155; }
-        body.dark .claim-opt { background: #0f172a; }
-        body.dark .claim-opt.selected { background: rgba(59,130,246,.15); }
-        body.dark #claim-address-wrap textarea { background: #0f172a; border-color: #334155; color: #e2e8f0; }
-    </style>
 </head>
 <body>
 <script>(function(){ if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark'); })();</script>
@@ -198,7 +72,7 @@ if ($logged_in) {
             <div class="auctions-title">Subastas <span>en vivo</span></div>
             <?php if ($logged_in): ?>
             <div class="balance-pill" style="margin-top:20px;align-self:center;">
-                <img src="img/lujanito.svg" alt="Lujanito" style="width:38px;height:38px;border-radius:50%;">
+                <img src="../img/lujanito.svg" alt="Lujanito" style="width:76px;height:76px;border-radius:50%;">
                 <div>
                     <div style="font-size:.6rem;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:1px;">Lujanitos</div>
                     <div class="balance-amount" id="balance-display"><?php echo number_format($lootcoins); ?></div>
