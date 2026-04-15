@@ -1,0 +1,5 @@
+# Claude Code local config
+.claude/settings.local.json
+
+# Imágenes subidas por usuarios
+img/cards/
