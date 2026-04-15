@@ -536,5 +536,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
         }
     }
     </script>
+
+<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 </body>
 </html>

@@ -1445,5 +1445,7 @@ async function deleteAlert(id, btn) {
     else alert(data.message || 'Error al eliminar');
 }
 </script>
+
+<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 </body>
 </html>

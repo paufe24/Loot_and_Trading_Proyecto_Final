@@ -861,5 +861,7 @@ async function submitAlert() {
     else toast(data.message || 'Error al crear la alerta', 'error');
 }
 </script>
+
+<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 </body>
 </html>
