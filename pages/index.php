@@ -348,6 +348,8 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     </div>
 </div>
 
+<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
 </body>

@@ -185,5 +185,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         }
     }
     </script>
+
+<?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 </body>
 </html>
