@@ -65,9 +65,17 @@ try { $totalBids = (int)($conn->query("SELECT COUNT(*) n FROM auction_bids")->fe
 $totalRevenue   = 0;
 try { $totalRevenue = (float)($conn->query("SELECT COALESCE(SUM(total_amount),0) n FROM cart_orders WHERE status='paid'")->fetch_assoc()['n'] ?? 0); } catch (Exception $e) {}
 
-// ── Usuarios ───────────────────────────────────────────────────
+// ── System Status ────────────────────────────────────────────────────────────
+$dbOk = ($conn && $conn->ping());
+$lastUser    = $conn->query("SELECT username, created_at FROM users ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
+$lastOrder   = null;
+try { $lastOrder = $conn->query("SELECT id, created_at FROM cart_orders ORDER BY created_at DESC LIMIT 1")->fetch_assoc(); } catch(Exception $e){}
+$paidOrders  = (int)($conn->query("SELECT COUNT(*) n FROM cart_orders WHERE status='paid'")->fetch_assoc()['n'] ?? 0);
+$totalAdmins = (int)($conn->query("SELECT COUNT(*) n FROM users WHERE is_admin=1")->fetch_assoc()['n'] ?? 0);
+
+// ── Usuarios ───────────────────────────────────────────────────────────────────
 $users = [];
-$r = $conn->query("SELECT id, name, username, email, lootcoins, is_admin, created_at FROM users ORDER BY created_at DESC");
+$r = $conn->query("SELECT id, name, username, email, lootcoins, is_admin, created_at, avatar_url, xp FROM users ORDER BY created_at DESC");
 while ($row = $r->fetch_assoc()) $users[] = $row;
 
 // ── Subastas recientes ─────────────────────────────────────────
@@ -79,9 +87,9 @@ $r = $conn->query("SELECT a.id, a.card_name, a.card_game, a.current_bid, a.statu
                    ORDER BY a.id DESC LIMIT 20");
 while ($row = $r->fetch_assoc()) $auctions[] = $row;
 
-// ── Actividad reciente global ──────────────────────────────────
+// ── Actividad reciente global ──────────────────────────────────────────────────
 $activity = [];
-$r = $conn->query("SELECT ua.activity_type, ua.title, ua.description, ua.created_at, u.username
+$r = $conn->query("SELECT ua.activity_type, ua.title, ua.description, ua.created_at, u.username, u.avatar_url
                    FROM user_activity ua
                    JOIN users u ON u.id = ua.user_id
                    ORDER BY ua.created_at DESC LIMIT 20");
@@ -205,14 +213,80 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         /* Loading placeholder */
         .chart-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--text-secondary); font-size: .9rem; }
 
+        /* ── System Status Bar ── */
+        .status-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; padding: 14px 20px; background: #fff; border: 1px solid var(--border-color); border-radius: 16px; }
+        body.dark .status-bar { background: #1e293b; border-color: #334155; }
+        .status-bar-title { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-right: 4px; }
+        .status-item { display: flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 600; color: var(--text-secondary); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot.green { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.2); animation: pulseDot 2s infinite; }
+        .status-dot.red   { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.2); }
+        .status-dot.amber { background: #f59e0b; }
+        @keyframes pulseDot { 0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,.2); } 50% { box-shadow: 0 0 0 5px rgba(16,185,129,.08); } }
+        .status-divider { width: 1px; height: 18px; background: var(--border-color); margin: 0 4px; }
+
+        /* ── Quick Actions ── */
+        .admin-header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .btn-action { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 12px; font-size: .82rem; font-weight: 700; border: 1.5px solid var(--border-color); background: #fff; color: var(--text-primary); cursor: pointer; text-decoration: none; font-family: 'Outfit',sans-serif; transition: all .2s; }
+        .btn-action:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59,130,246,.04); transform: translateY(-1px); }
+        body.dark .btn-action { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        body.dark .btn-action:hover { border-color: #60a5fa; color: #60a5fa; background: rgba(96,165,250,.08); }
+        .btn-action.primary { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+        .btn-action.primary:hover { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+        /* ── Row flash feedback ── */
+        @keyframes flashGreen { 0%,100% { background: transparent; } 30% { background: rgba(16,185,129,.15); } }
+        @keyframes flashRed   { 0%,100% { background: transparent; } 30% { background: rgba(239,68,68,.12); } }
+        .row-flash-green { animation: flashGreen .8s ease; }
+        .row-flash-red   { animation: flashRed .8s ease; }
+
+        /* ── Empty state ── */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 20px; gap: 12px; color: var(--text-secondary); }
+        .empty-state svg { opacity: .3; }
+        .empty-state-title { font-weight: 800; font-size: 1rem; color: var(--text-primary); }
+        .empty-state-sub { font-size: .88rem; }
+
+        /* ── User avatar in table ── */
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); flex-shrink: 0; }
+        .user-avatar-placeholder { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 800; color: #fff; flex-shrink: 0; }
+        .user-cell { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .user-cell:hover .user-name { color: #3b82f6; text-decoration: underline; }
+        .user-name { font-weight: 700; }
+
+        /* ── Search bar ── */
+        .table-search { width: 100%; max-width: 300px; padding: 8px 14px; border: 1.5px solid var(--border-color); border-radius: 12px; font-size: .88rem; font-family: 'Outfit',sans-serif; background: transparent; color: var(--text-primary); outline: none; transition: border-color .2s; }
+        .table-search:focus { border-color: #3b82f6; }
+        body.dark .table-search { border-color: #334155; color: #e2e8f0; }
+
+        /* ── User profile modal ── */
+        .umodal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(6px); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .umodal-overlay.open { display: flex; }
+        .umodal-box { background: #fff; border-radius: 24px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 30px 70px rgba(0,0,0,.25); border: 1px solid var(--border-color); position: relative; animation: umodalIn .2s ease; }
+        body.dark .umodal-box { background: #1e293b; border-color: #334155; }
+        @keyframes umodalIn { from { opacity:0; transform: scale(.95) translateY(8px); } to { opacity:1; transform: scale(1) translateY(0); } }
+        .umodal-close { position: absolute; top: 16px; right: 16px; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; color: var(--text-primary); }
+        body.dark .umodal-close { background: #334155; color: #e2e8f0; }
+        .umodal-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color); margin: 0 auto 16px; display: block; }
+        .umodal-avatar-ph { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 auto 16px; }
+        .umodal-name { font-size: 1.3rem; font-weight: 800; text-align: center; margin-bottom: 4px; }
+        .umodal-username { font-size: .9rem; color: var(--text-secondary); text-align: center; margin-bottom: 20px; }
+        .umodal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .umodal-stat { background: #f8fafc; border-radius: 12px; padding: 12px 14px; }
+        body.dark .umodal-stat { background: #0f172a; }
+        .umodal-stat-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); margin-bottom: 4px; }
+        .umodal-stat-value { font-size: 1.1rem; font-weight: 800; }
+        .umodal-footer { display: flex; gap: 10px; }
+
         @media (max-width: 900px) {
             .charts-grid { grid-template-columns: 1fr; }
             .ranking-grid { grid-template-columns: 1fr; }
             .admin-header { flex-direction: column; align-items: flex-start; }
             .admin-tabs { overflow-x: auto; }
+            .admin-header-right { width: 100%; }
         }
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .status-bar { gap: 8px; }
         }
     </style>
 </head>
@@ -232,11 +306,54 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             </div>
             <div class="admin-sub">Bienvenido, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>. Vista general de la plataforma.</div>
         </div>
-        <div class="admin-tabs">
-            <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
-            <button class="admin-tab" data-tab="users">Usuarios</button>
-            <button class="admin-tab" data-tab="auctions">Subastas</button>
-            <button class="admin-tab" data-tab="activity">Actividad</button>
+        <div class="admin-header-right">
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
+                <button class="admin-tab" data-tab="users">Usuarios</button>
+                <button class="admin-tab" data-tab="auctions">Subastas</button>
+                <button class="admin-tab" data-tab="activity">Actividad</button>
+            </div>
+            <button class="btn-action" onclick="exportUsersCSV()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                Export CSV
+            </button>
+            <a class="btn-action primary" href="index.php" target="_blank">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                Ver plataforma
+            </a>
+        </div>
+    </div>
+
+    <!-- System Status Bar -->
+    <div class="status-bar">
+        <span class="status-bar-title">System Status</span>
+        <div class="status-item">
+            <span class="status-dot <?php echo $dbOk ? 'green' : 'red'; ?>"></span>
+            Base de datos <?php echo $dbOk ? 'operativa' : 'error'; ?>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+            <span class="status-dot green"></span>
+            <?php echo $activeAuctions; ?> subasta<?php echo $activeAuctions !== 1 ? 's' : ''; ?> activa<?php echo $activeAuctions !== 1 ? 's' : ''; ?>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z"/></svg>
+            Último registro:
+            <?php if ($lastUser): ?>
+                <strong><?php echo htmlspecialchars($lastUser['username']); ?></strong>
+                <span style="color:var(--text-secondary);font-size:.78rem">(<?php echo date('d/m/Y H:i', strtotime($lastUser['created_at'])); ?>)</span>
+            <?php else: ?>—<?php endif; ?>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272"/></svg>
+            <?php echo $paidOrders; ?> pedido<?php echo $paidOrders !== 1 ? 's' : ''; ?> pagado<?php echo $paidOrders !== 1 ? 's' : ''; ?>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
+            <?php echo $totalAdmins; ?> admin<?php echo $totalAdmins !== 1 ? 's' : ''; ?>
         </div>
     </div>
 
@@ -362,10 +479,20 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <div class="admin-section">
             <div class="admin-section-header">
                 <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg> Usuarios</h2>
-                <span class="section-badge"><?php echo count($users); ?> registrados</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <input class="table-search" id="user-search" type="text" placeholder="Buscar usuario..." oninput="filterUsers()">
+                    <span class="section-badge"><?php echo count($users); ?> registrados</span>
+                </div>
             </div>
+            <?php if (empty($users)): ?>
+            <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z"/></svg>
+                <div class="empty-state-title">No hay usuarios registrados</div>
+                <div class="empty-state-sub">Los usuarios aparecerán aquí cuando se registren en la plataforma.</div>
+            </div>
+            <?php else: ?>
             <div style="overflow-x:auto;">
-            <table class="admin-table">
+            <table class="admin-table" id="users-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -373,16 +500,43 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                         <th>Nombre</th>
                         <th>Email</th>
                         <th>LootCoins</th>
+                        <th>Nivel</th>
                         <th>Rol</th>
                         <th>Registro</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($users as $u): ?>
-                    <tr id="user-row-<?php echo $u['id']; ?>">
+                <?php foreach ($users as $u):
+                    $initials  = strtoupper(substr($u['username'], 0, 1));
+                    $avatarSrc = !empty($u['avatar_url']) ? htmlspecialchars($u['avatar_url']) : '';
+                    $uXP       = (int)($u['xp'] ?? 0);
+                    $uLevel    = max(1, 1 + (int)floor(sqrt($uXP / 50)));
+                    $userDataJson = json_encode([
+                        'id'         => $u['id'],
+                        'name'       => $u['name'],
+                        'username'   => $u['username'],
+                        'email'      => $u['email'],
+                        'lootcoins'  => (int)$u['lootcoins'],
+                        'xp'         => $uXP,
+                        'level'      => $uLevel,
+                        'is_admin'   => (bool)$u['is_admin'],
+                        'created_at' => $u['created_at'],
+                        'avatar_url' => $u['avatar_url'] ?? ''
+                    ]);
+                ?>
+                    <tr id="user-row-<?php echo $u['id']; ?>" data-username="<?php echo htmlspecialchars(strtolower($u['username'])); ?>" data-name="<?php echo htmlspecialchars(strtolower($u['name'])); ?>" data-email="<?php echo htmlspecialchars(strtolower($u['email'])); ?>">
                         <td style="color:var(--text-secondary)"><?php echo $u['id']; ?></td>
-                        <td style="font-weight:700"><?php echo htmlspecialchars($u['username']); ?></td>
+                        <td>
+                            <div class="user-cell" onclick='openUserModal(<?php echo $u["id"]; ?>)'>
+                                <?php if ($avatarSrc): ?>
+                                    <img src="<?php echo $avatarSrc; ?>" class="user-avatar" alt="avatar">
+                                <?php else: ?>
+                                    <div class="user-avatar-placeholder"><?php echo $initials; ?></div>
+                                <?php endif; ?>
+                                <span class="user-name"><?php echo htmlspecialchars($u['username']); ?></span>
+                            </div>
+                        </td>
                         <td><?php echo htmlspecialchars($u['name']); ?></td>
                         <td style="color:var(--text-secondary);font-size:.82rem"><?php echo htmlspecialchars($u['email']); ?></td>
                         <td>
@@ -390,8 +544,14 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                                 <input class="coins-input" type="number" min="0"
                                        value="<?php echo (int)$u['lootcoins']; ?>"
                                        id="coins-<?php echo $u['id']; ?>">
-                                <button class="btn-xs blue" onclick="setCoins(<?php echo $u['id']; ?>)">✓</button>
+                                <button class="btn-xs blue" onclick="setCoins(<?php echo $u['id']; ?>)">&#10003;</button>
                             </div>
+                        </td>
+                        <td>
+                            <span style="display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:800;padding:3px 10px;border-radius:20px;background:rgba(139,92,246,.12);color:#7c3aed;">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>
+                                Nv.&nbsp;<?php echo $uLevel; ?>
+                            </span>
                         </td>
                         <td>
                             <span class="<?php echo $u['is_admin'] ? 'badge-admin' : 'badge-user'; ?>"
@@ -411,10 +571,17 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                             <?php endif; ?>
                         </td>
                     </tr>
+                    <script>window._adminUsers = window._adminUsers||{}; window._adminUsers[<?php echo $u['id']; ?>] = <?php echo $userDataJson; ?>;</script>
                 <?php endforeach; ?>
                 </tbody>
             </table>
             </div>
+            <div id="users-no-results" style="display:none;" class="empty-state">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                <div class="empty-state-title">Sin resultados</div>
+                <div class="empty-state-sub">Ningún usuario coincide con tu búsqueda.</div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -423,20 +590,30 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <div class="admin-section">
             <div class="admin-section-header">
                 <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5"/></svg> Subastas recientes</h2>
-                <span class="section-badge"><?php echo count($auctions); ?> mostradas</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input class="table-search" id="auction-search" type="text" placeholder="Buscar subasta..." oninput="filterAuctions()">
+                    <span class="section-badge"><?php echo count($auctions); ?> mostradas</span>
+                </div>
             </div>
+            <?php if (empty($auctions)): ?>
+            <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3"/></svg>
+                <div class="empty-state-title">No hay subastas</div>
+                <div class="empty-state-sub">Las subastas creadas por los usuarios aparecerán aquí.</div>
+            </div>
+            <?php else: ?>
             <div style="overflow-x:auto;">
-            <table class="admin-table">
+            <table class="admin-table" id="auctions-table">
                 <thead>
                     <tr><th>#</th><th>Carta</th><th>Juego</th><th>Puja actual</th><th>Vendedor</th><th>Estado</th><th>Fin</th><th>Acción</th></tr>
                 </thead>
                 <tbody>
                 <?php foreach ($auctions as $a): ?>
-                    <tr id="auction-row-<?php echo $a['id']; ?>">
+                    <tr id="auction-row-<?php echo $a['id']; ?>" data-card="<?php echo htmlspecialchars(strtolower($a['card_name'])); ?>" data-seller="<?php echo htmlspecialchars(strtolower($a['seller'] ?? '')); ?>">
                         <td style="color:var(--text-secondary)"><?php echo $a['id']; ?></td>
                         <td style="font-weight:700"><?php echo htmlspecialchars($a['card_name']); ?></td>
                         <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($a['card_game']); ?></td>
-                        <td><?php echo number_format((int)$a['current_bid']); ?> LJ</td>
+                        <td><?php echo number_format((int)$a['current_bid']); ?> LC</td>
                         <td><?php echo htmlspecialchars($a['seller'] ?? '—'); ?></td>
                         <td>
                             <span class="<?php echo $a['status'] === 'active' ? 'badge-active' : 'badge-ended'; ?>">
@@ -452,6 +629,12 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 </tbody>
             </table>
             </div>
+            <div id="auctions-no-results" style="display:none;" class="empty-state">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                <div class="empty-state-title">Sin resultados</div>
+                <div class="empty-state-sub">Ninguna subasta coincide con tu búsqueda.</div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -462,6 +645,13 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg> Actividad reciente global</h2>
                 <span class="section-badge"><?php echo count($activity); ?> últimas</span>
             </div>
+            <?php if (empty($activity)): ?>
+            <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg>
+                <div class="empty-state-title">Sin actividad registrada</div>
+                <div class="empty-state-sub">Las acciones de los usuarios aparecerán aquí.</div>
+            </div>
+            <?php else: ?>
             <div style="overflow-x:auto;">
             <table class="admin-table">
                 <thead>
@@ -472,9 +662,20 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                     $atClass = 'at-default';
                     $typeMap = ['order'=>'at-order','auction_win'=>'at-auction_win','auction_claim'=>'at-auction_claim','level_up'=>'at-level_up','achievement'=>'at-achievement','price_alert'=>'at-price_alert'];
                     if (isset($typeMap[$ac['activity_type']])) $atClass = $typeMap[$ac['activity_type']];
+                    $acInitials = strtoupper(substr($ac['username'], 0, 1));
+                    $acAvatar   = !empty($ac['avatar_url']) ? htmlspecialchars($ac['avatar_url']) : '';
                 ?>
                     <tr>
-                        <td style="font-weight:700"><?php echo htmlspecialchars($ac['username']); ?></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <?php if ($acAvatar): ?>
+                                    <img src="<?php echo $acAvatar; ?>" class="user-avatar" alt="">
+                                <?php else: ?>
+                                    <div class="user-avatar-placeholder" style="width:26px;height:26px;font-size:.7rem"><?php echo $acInitials; ?></div>
+                                <?php endif; ?>
+                                <span style="font-weight:700"><?php echo htmlspecialchars($ac['username']); ?></span>
+                            </div>
+                        </td>
                         <td><span class="activity-type-badge <?php echo $atClass; ?>"><?php echo htmlspecialchars($ac['activity_type']); ?></span></td>
                         <td><?php echo htmlspecialchars($ac['title']); ?></td>
                         <td style="color:var(--text-secondary);font-size:.82rem"><?php echo htmlspecialchars($ac['description']); ?></td>
@@ -484,10 +685,19 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 </tbody>
             </table>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
 </div>
+</div>
+
+<!-- User Profile Modal -->
+<div class="umodal-overlay" id="umodal-overlay" onclick="if(event.target===this)closeUserModal()">
+    <div class="umodal-box">
+        <button class="umodal-close" onclick="closeUserModal()">&#215;</button>
+        <div id="umodal-body"></div>
+    </div>
 </div>
 
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
@@ -534,21 +744,129 @@ async function toggleAdmin(uid, btn) {
 async function setCoins(uid) {
     const coins = parseInt(document.getElementById('coins-' + uid).value) || 0;
     const data = await adminPost({ action: 'set_coins', user_id: uid, coins });
+    const row = document.getElementById('user-row-' + uid);
     if (data.ok) {
+        if (row) { row.classList.add('row-flash-green'); setTimeout(() => row.classList.remove('row-flash-green'), 900); }
         if (typeof showToast === 'function') showToast('LootCoins actualizados', 'success');
+    } else {
+        if (row) { row.classList.add('row-flash-red'); setTimeout(() => row.classList.remove('row-flash-red'), 900); }
+        if (typeof showToast === 'function') showToast('Error al actualizar', 'error');
     }
 }
 
 async function deleteAuction(aid, btn) {
-    if (!confirm('¿Eliminar esta subasta?')) return;
+    if (!confirm('¿Eliminar esta subasta? Esta acción no se puede deshacer.')) return;
     btn.disabled = true;
+    const row = document.getElementById('auction-row-' + aid);
     const data = await adminPost({ action: 'delete_auction', auction_id: aid });
     if (data.ok) {
-        document.getElementById('auction-row-' + aid)?.remove();
+        if (row) { row.classList.add('row-flash-red'); setTimeout(() => row.remove(), 500); }
         if (typeof showToast === 'function') showToast('Subasta eliminada', 'success');
+    } else {
+        btn.disabled = false;
+        if (typeof showToast === 'function') showToast('Error al eliminar', 'error');
     }
-    btn.disabled = false;
 }
+
+// ── Live search filters ──
+function filterUsers() {
+    const q = (document.getElementById('user-search')?.value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#users-table tbody tr');
+    let visible = 0;
+    rows.forEach(row => {
+        const match = !q ||
+            (row.dataset.username || '').includes(q) ||
+            (row.dataset.name    || '').includes(q) ||
+            (row.dataset.email   || '').includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const noRes = document.getElementById('users-no-results');
+    const tbl   = document.getElementById('users-table');
+    if (noRes) noRes.style.display = visible === 0 ? 'flex' : 'none';
+    if (tbl)   tbl.style.display   = visible === 0 ? 'none' : '';
+}
+
+function filterAuctions() {
+    const q = (document.getElementById('auction-search')?.value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#auctions-table tbody tr');
+    let visible = 0;
+    rows.forEach(row => {
+        const match = !q ||
+            (row.dataset.card   || '').includes(q) ||
+            (row.dataset.seller || '').includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+    const noRes = document.getElementById('auctions-no-results');
+    const tbl   = document.getElementById('auctions-table');
+    if (noRes) noRes.style.display = visible === 0 ? 'flex' : 'none';
+    if (tbl)   tbl.style.display   = visible === 0 ? 'none' : '';
+}
+
+// ── Export CSV ──
+function exportUsersCSV() {
+    const users = window._adminUsers || {};
+    const rows = [['ID','Usuario','Nombre','Email','LootCoins','XP','Admin','Registro']];
+    Object.values(users).forEach(u => {
+        rows.push([u.id, u.username, u.name, u.email, u.lootcoins, u.xp, u.is_admin ? 'Sí' : 'No', u.created_at]);
+    });
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'usuarios_loot_trading.csv'; a.click();
+    URL.revokeObjectURL(url);
+    if (typeof showToast === 'function') showToast('CSV descargado', 'success');
+}
+
+// ── User profile modal ──
+function openUserModal(uid) {
+    const u = (window._adminUsers || {})[uid];
+    if (!u) return;
+    const initials = (u.username || '?').charAt(0).toUpperCase();
+    const avatarHtml = u.avatar_url
+        ? `<img src="${u.avatar_url}" class="umodal-avatar" alt="avatar">`
+        : `<div class="umodal-avatar-ph">${initials}</div>`;
+    const regDate = new Date(u.created_at).toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+    document.getElementById('umodal-body').innerHTML = `
+        ${avatarHtml}
+        <div class="umodal-name">${u.name || u.username}</div>
+        <div class="umodal-username">@${u.username} · ${u.is_admin ? '🛡️ Admin' : 'Usuario'}</div>
+        <div class="umodal-grid">
+            <div class="umodal-stat">
+                <div class="umodal-stat-label">LootCoins</div>
+                <div class="umodal-stat-value" style="color:#f59e0b">💰 ${u.lootcoins.toLocaleString()}</div>
+            </div>
+            <div class="umodal-stat">
+                <div class="umodal-stat-label">Nivel / XP</div>
+                <div class="umodal-stat-value" style="color:#8b5cf6">★ Nv.${u.level || 1} <span style="font-size:.78rem;font-weight:600;color:var(--text-secondary)">(${u.xp.toLocaleString()} XP)</span></div>
+            </div>
+            <div class="umodal-stat">
+                <div class="umodal-stat-label">Email</div>
+                <div class="umodal-stat-value" style="font-size:.82rem;font-weight:600;word-break:break-all">${u.email}</div>
+            </div>
+            <div class="umodal-stat">
+                <div class="umodal-stat-label">Registro</div>
+                <div class="umodal-stat-value" style="font-size:.82rem;font-weight:600">${regDate}</div>
+            </div>
+        </div>
+        <div class="umodal-footer">
+            <a href="profile.php?id=${u.id}" target="_blank" class="btn-action primary" style="flex:1;justify-content:center;text-decoration:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                Ver perfil
+            </a>
+            <button class="btn-action" onclick="closeUserModal()" style="flex:1;justify-content:center;">Cerrar</button>
+        </div>
+    `;
+    document.getElementById('umodal-overlay').classList.add('open');
+}
+
+function closeUserModal() {
+    document.getElementById('umodal-overlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUserModal(); });
 
 // ── Chart.js config ──
 const isDark = document.body.classList.contains('dark');
