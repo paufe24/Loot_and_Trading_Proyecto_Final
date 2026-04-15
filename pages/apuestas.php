@@ -391,6 +391,7 @@ function buildAuctionCard(a) {
                     onclick="openBidModal(${a.id})" ${!isActive || !LOGGED_IN ? 'disabled' : ''}>
                 ${!LOGGED_IN ? 'Inicia sesión' : !isActive ? 'Subasta cerrada' : imWinning ? '🏆 Vas ganando' : `Pujar (min. ${minBid.toLocaleString('es-ES')} LJ)`}
             </button>
+            ${LOGGED_IN && isActive ? '<button class="btn-alert-price" data-name="' + a.card_name.replace(/"/g,'&quot;') + '" data-game="' + a.card_game + '" data-price="' + a.base_price + '" onclick="openAlertFromBtn(this)">🔔 Alerta de precio</button>' : ''}
         </div>
     `;
 
@@ -803,5 +804,62 @@ async function confirmClaim() {
 }
 </script>
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
+
+<!-- Modal Alerta de Precio -->
+<div id="alert-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card,#fff);border-radius:24px;padding:32px;width:340px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.25);" id="alert-modal-box">
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:6px;">🔔 Alerta de precio</h3>
+        <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
+            Te notificaremos cuando <strong id="alert-card-preview"></strong> aparezca en subasta a tu precio objetivo o menos.
+        </p>
+        <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LC)</label>
+        <input type="number" id="alert-price-input" min="1" placeholder="Ej: 300"
+               style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:'Outfit',sans-serif;box-sizing:border-box;">
+        <div style="display:flex;gap:10px;">
+            <button onclick="closeAlertModal()" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:none;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Cancelar</button>
+            <button onclick="submitAlert()" style="flex:1;padding:12px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;">Crear alerta</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let _alertCardName = '', _alertCardGame = '', _alertBasePrice = 0;
+
+function openAlertFromBtn(btn) {
+    openAlertModal(btn.dataset.name, btn.dataset.game, parseInt(btn.dataset.price));
+}
+
+function openAlertModal(cardName, cardGame, basePrice) {
+    _alertCardName  = cardName;
+    _alertCardGame  = cardGame;
+    _alertBasePrice = basePrice;
+    document.getElementById('alert-card-preview').textContent = cardName;
+    document.getElementById('alert-price-input').value = basePrice;
+    const m = document.getElementById('alert-modal');
+    m.style.display = 'flex';
+}
+function closeAlertModal() {
+    document.getElementById('alert-modal').style.display = 'none';
+}
+document.getElementById('alert-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAlertModal();
+});
+
+async function submitAlert() {
+    const price = parseInt(document.getElementById('alert-price-input').value);
+    if (!price || price <= 0) { alert('Introduce un precio válido'); return; }
+    const fd = new FormData();
+    fd.append('action',       'create');
+    fd.append('card_name',    _alertCardName);
+    fd.append('card_game',    _alertCardGame);
+    fd.append('target_price', price);
+    fd.append('csrf_token',   document.querySelector('meta[name="csrf-token"]')?.content || '');
+    const res  = await fetch('../api/price_alerts.php', { method: 'POST', body: fd });
+    const data = await res.json();
+    closeAlertModal();
+    if (data.ok) toast('✅ Alerta creada — te avisaremos en tu perfil', 'success');
+    else toast(data.message || 'Error al crear la alerta', 'error');
+}
+</script>
 </body>
 </html>

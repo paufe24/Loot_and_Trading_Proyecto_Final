@@ -57,6 +57,66 @@ function createToastContainer() {
 
 let MODAL_CARD = null;
 
+/* ── Alerta de precio (funciona en todas las páginas) ── */
+(function() {
+    // Crear el modal HTML si no existe ya en la página
+    if (!document.getElementById('global-alert-modal')) {
+        const html = `
+        <div id="global-alert-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:24px;padding:32px;width:340px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.25);">
+                <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:6px;">🔔 Alerta de precio</h3>
+                <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
+                    Te avisaremos cuando <strong id="gam-alert-name"></strong> aparezca en subasta a tu precio o menos.
+                </p>
+                <label style="font-size:.82rem;font-weight:700;">Precio objetivo (Lujanitos)</label>
+                <input type="number" id="gam-alert-price" min="1" placeholder="Ej: 300"
+                       style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:inherit;box-sizing:border-box;">
+                <div style="display:flex;gap:10px;">
+                    <button onclick="closeGlobalAlert()" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:none;font-weight:700;cursor:pointer;font-family:inherit;">Cancelar</button>
+                    <button onclick="submitGlobalAlert()" style="flex:1;padding:12px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;cursor:pointer;font-family:inherit;">Crear alerta</button>
+                </div>
+            </div>
+        </div>`;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            document.getElementById('global-alert-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeGlobalAlert();
+            });
+        });
+    }
+})();
+
+function openMarketAlert() {
+    const loggedIn = document.querySelector('meta[name="csrf-token"]') !== null;
+    if (!loggedIn) { window.location.href = 'auth.php'; return; }
+    const name = document.getElementById('modal-title')?.textContent || '';
+    document.getElementById('gam-alert-name').textContent = name;
+    document.getElementById('gam-alert-price').value = 100;
+    document.getElementById('global-alert-modal').style.display = 'flex';
+}
+function closeGlobalAlert() {
+    document.getElementById('global-alert-modal').style.display = 'none';
+}
+async function submitGlobalAlert() {
+    const name  = document.getElementById('modal-title')?.textContent || '';
+    const game  = document.getElementById('modal-badge')?.textContent || '';
+    const price = parseInt(document.getElementById('gam-alert-price').value);
+    if (!price || price <= 0) { alert('Introduce un precio válido'); return; }
+    // Detectar prefijo según ubicación
+    const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+    const fd = new FormData();
+    fd.append('action','create'); fd.append('card_name', name); fd.append('card_game', game);
+    fd.append('target_price', price);
+    fd.append('csrf_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
+    const res  = await fetch(prefix + 'api/price_alerts.php', { method:'POST', body:fd });
+    const data = await res.json();
+    closeGlobalAlert();
+    const t = document.createElement('div');
+    t.textContent = data.ok ? '✅ Alerta creada — te avisaremos en tu perfil' : (data.message || 'Error');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 24px;border-radius:50px;font-weight:700;font-size:.88rem;z-index:99999;';
+    document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
+
 function setFavButtonState(favorited) {
     const btn = document.getElementById('modal-toggle-fav');
     if (!btn) return;
@@ -193,8 +253,12 @@ function createCardHTML(data) {
     const price = parseFloat(data.price) || 0;
     div.dataset.game   = (data.badge || '').toLowerCase().replace(/[^a-z]/g, '');
     div.dataset.rarity = price > 50 ? 'ultra' : price > 10 ? 'rare' : 'common';
-    const condRoll = Math.random();
-    div.dataset.cond = condRoll < 0.05 ? 'gem-mint' : condRoll < 0.20 ? 'mint' : condRoll < 0.78 ? 'near-mint' : 'played';
+    div.dataset.price  = price;
+    // Condición determinista basada en el ID de la carta (siempre igual para la misma carta)
+    const idStr = String(data.card_id || data.id || data.name || '');
+    const hash  = [...idStr].reduce((h, c) => Math.imul(h, 31) + c.charCodeAt(0) | 0, 0);
+    const condIdx = Math.abs(hash) % 10;
+    div.dataset.cond = condIdx === 0 ? 'gem-mint' : condIdx === 1 ? 'mint' : condIdx <= 3 ? 'near-mint' : 'played';
 
     let backup = BACKUPS.pokemon;
     if (data.badge === 'Yu-Gi-Oh!') backup = BACKUPS.yugioh;
@@ -253,23 +317,8 @@ function openModal(data) {
         {r:1,  label:'Poor',      mult:0.12, bg:'#fee2e2', color:'#991b1b'},
     ];
 
-    // Elige 4-5 condiciones variadas (sesgadas hacia calidad media-alta)
-    const weights = [0.05,0.15,0.20,0.18,0.14,0.11,0.08,0.05,0.03,0.01];
-    const chosen = [];
+    // Mostrar los 10 estados (10/10 → 1/10) con un vendedor distinto cada uno
     const shuffledSellers = [...SELLER_POOL].sort(() => Math.random() - 0.5);
-    let attempts = 0;
-    while (chosen.length < 5 && attempts < 50) {
-        attempts++;
-        const r = Math.random();
-        let cum = 0;
-        for (let i = 0; i < weights.length; i++) {
-            cum += weights[i];
-            if (r < cum) { chosen.push(i); break; }
-        }
-    }
-    // Eliminar duplicados de condición
-    const uniqueChosen = [...new Set(chosen)].slice(0,5);
-    uniqueChosen.sort((a,b) => COND_MAP[a].r - COND_MAP[b].r); // orden asc condición
 
     const condFilter = window._selectedCondFilter || '';
     const condMatchFn = (c) => {
@@ -281,9 +330,8 @@ function openModal(data) {
         return false;
     };
 
-    uniqueChosen.forEach((idx, i) => {
-        const c = COND_MAP[idx];
-        const noise = 0.96 + Math.random() * 0.08;
+    COND_MAP.forEach((c, i) => {
+        const noise = 0.97 + Math.random() * 0.06;
         const finalPrice = (basePrice * c.mult * noise).toFixed(2);
         const seller = shuffledSellers[i] || 'Seller' + i;
         const highlight = condMatchFn(c) ? ' style="outline:2px solid #3b82f6;outline-offset:-2px;border-radius:6px;"' : '';
@@ -312,6 +360,23 @@ function openModal(data) {
 
     document.getElementById('card-modal').style.display = 'flex';
     setTimeout(() => { document.getElementById('card-modal').classList.add('open'); }, 10);
+    document.body.style.overflow = 'hidden';
+
+    // Botón alerta de precio — inyectado siempre tras el botón de favoritos
+    const favBtn = document.getElementById('modal-toggle-fav');
+    if (favBtn) {
+        let alertBtn = document.getElementById('modal-alert-inject');
+        if (!alertBtn) {
+            alertBtn = document.createElement('button');
+            alertBtn.id = 'modal-alert-inject';
+            alertBtn.style.cssText = 'width:100%;margin-top:8px;padding:10px 0;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:inherit;';
+            alertBtn.textContent = '🔔 Alerta de precio';
+            alertBtn.onclick = () => {
+                if (typeof openMarketAlert === 'function') openMarketAlert();
+            };
+            favBtn.parentNode.insertBefore(alertBtn, favBtn.nextSibling);
+        }
+    }
 
     // Cargar historial de precios
     fetchPriceHistory(data);
@@ -427,6 +492,7 @@ async function fetchPriceHistory(data) {
 function closeModal() {
     document.getElementById('card-modal').classList.remove('open');
     setTimeout(() => { document.getElementById('card-modal').style.display = 'none'; }, 300);
+    document.body.style.overflow = '';
 }
 
 document.addEventListener('click', (e) => {
@@ -717,16 +783,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== FILTROS MERCADO EN TIEMPO REAL =====
     function applyMercadoFilters() {
-        const q = (document.getElementById('filter-search')?.value || '').toLowerCase().trim();
-        const conds   = [...document.querySelectorAll('#cond-gem-mint,#cond-mint,#cond-near-mint,#cond-played')].filter(c=>c.checked).map(c=>c.value);
-        const rarities= [...document.querySelectorAll('#rar-common,#rar-rare,#rar-ultra')].filter(c=>c.checked).map(c=>c.value);
+        const q      = (document.getElementById('filter-search')?.value || '').toLowerCase().trim();
+        const conds  = [...document.querySelectorAll('#cond-gem-mint,#cond-mint,#cond-near-mint,#cond-played')].filter(c=>c.checked).map(c=>c.value);
+        const minP   = parseFloat(document.getElementById('filter-price-min')?.value) || 0;
+        const maxP   = parseFloat(document.getElementById('filter-price-max')?.value) || Infinity;
         window._selectedCondFilter = conds[0] || '';
         document.querySelectorAll('#mercado-grid .tcg-item').forEach(card => {
-            const name = (card.querySelector('.card-name')?.textContent||'').toLowerCase();
+            const name  = (card.querySelector('.card-name')?.textContent||'').toLowerCase();
+            const price = parseFloat(card.dataset.price) || 0;
             let show = true;
-            if (q && !name.includes(q)) show = false;
-            if (conds.length    && !conds.includes(card.dataset.cond))     show = false;
-            if (rarities.length && !rarities.includes(card.dataset.rarity)) show = false;
+            if (q && !name.includes(q))                        show = false;
+            if (conds.length && !conds.includes(card.dataset.cond)) show = false;
+            if (price < minP || price > maxP)                  show = false;
             card.style.display = show ? '' : 'none';
         });
     }
@@ -741,8 +809,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', () => {
-            document.querySelectorAll('#cond-gem-mint,#cond-mint,#cond-near-mint,#cond-played,#rar-common,#rar-rare,#rar-ultra').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#cond-gem-mint,#cond-mint,#cond-near-mint,#cond-played').forEach(cb => cb.checked = false);
             const fs = document.getElementById('filter-search'); if (fs) fs.value = '';
+            const mn = document.getElementById('filter-price-min'); if (mn) mn.value = '';
+            const mx = document.getElementById('filter-price-max'); if (mx) mx.value = '';
             document.querySelectorAll('#mercado-grid .tcg-item').forEach(c => c.style.display = '');
             window._selectedCondFilter = '';
         });

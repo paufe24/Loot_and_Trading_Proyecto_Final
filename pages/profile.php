@@ -8,6 +8,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/gamification.php';
+runGamificationMigrations($conn);
+
+// Otorgar logro 'bienvenido' si es el primer acceso
+checkAchievements($conn, $_SESSION['user_id']);
 
 // Migraciones: añadir columnas si no existen
 try { $conn->query("ALTER TABLE users ADD COLUMN address TEXT NULL"); } catch (Exception $e) {}
@@ -15,7 +20,7 @@ try { $conn->query("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500) NULL");
 try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
 
 // Obtener datos del usuario
-$stmt = $conn->prepare("SELECT name, email, username, created_at, avatar_url, address FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email, username, created_at, avatar_url, address, xp FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -182,6 +187,43 @@ if ($favStmt) {
     }
     $favStmt->close();
 }
+
+// Nivel y XP
+$userXP    = (int)($user['xp'] ?? 0);
+$levelInfo = getLevelInfo($userXP);
+
+// Logros del usuario
+$userAchievements = [];
+$stUA = $conn->prepare(
+    "SELECT a.`key`, a.name, a.description, a.icon, a.xp_reward, ua.unlocked_at
+     FROM user_achievements ua
+     JOIN achievements a ON a.id = ua.achievement_id
+     WHERE ua.user_id = ?
+     ORDER BY ua.unlocked_at DESC"
+);
+$stUA->bind_param("i", $_SESSION['user_id']);
+$stUA->execute();
+$resUA = $stUA->get_result();
+while ($row = $resUA->fetch_assoc()) $userAchievements[] = $row;
+$stUA->close();
+
+// Todos los logros (para mostrar los bloqueados en gris)
+$allAchievements = [];
+$resAll = $conn->query("SELECT `key`, name, description, icon FROM achievements ORDER BY id");
+while ($row = $resAll->fetch_assoc()) $allAchievements[] = $row;
+$unlockedKeys = array_column($userAchievements, 'key');
+
+// Alertas de precio del usuario
+$userAlerts = [];
+$stAl = $conn->prepare(
+    "SELECT id, card_name, card_game, target_price, is_active, triggered_at, created_at
+     FROM price_alerts WHERE user_id = ? ORDER BY created_at DESC LIMIT 20"
+);
+$stAl->bind_param("i", $_SESSION['user_id']);
+$stAl->execute();
+$resAl = $stAl->get_result();
+while ($row = $resAl->fetch_assoc()) $userAlerts[] = $row;
+$stAl->close();
 
 $conn->close();
 ?>
@@ -755,6 +797,38 @@ $conn->close();
         .won-item-badge.claimed { background: rgba(16,185,129,.15); color: #059669; }
         .won-item-badge.pending { background: rgba(139,92,246,.15); color: #7c3aed; text-decoration: none; display: inline-block; }
         .btn-won-more { margin-top: 14px; background: none; border: 2px solid var(--border-color); border-radius: 50px; padding: 8px 20px; font-weight: 700; cursor: pointer; color: var(--text-secondary); width: 100%; font-family: 'Outfit',sans-serif; font-size: .9rem; }
+
+        /* ── Nivel y XP ── */
+        .level-badge { display:inline-flex;align-items:center;gap:8px;background:#f1f5f9;border-radius:50px;padding:6px 16px;margin:10px auto 0;font-weight:800;font-size:.9rem;color:#0f172a; }
+        body.dark .level-badge { background:#1e293b;color:#e2e8f0; }
+        .level-badge .lv-num { background:#3b82f6;color:#fff;border-radius:50px;padding:2px 10px;font-size:.8rem; }
+        .xp-bar-wrap { width:220px;margin:10px auto 0;text-align:center; }
+        .xp-bar-track { background:#e2e8f0;border-radius:50px;height:8px;overflow:hidden; }
+        body.dark .xp-bar-track { background:#334155; }
+        .xp-bar-fill { background:linear-gradient(90deg,#3b82f6,#8b5cf6);height:8px;border-radius:50px;transition:width .6s; }
+        .xp-bar-label { font-size:.72rem;font-weight:700;color:var(--text-secondary);margin-top:4px; }
+
+        /* ── Logros ── */
+        .achievements-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:10px; }
+        .ach-card { background:#f8fafc;border-radius:16px;padding:14px 10px;text-align:center;border:2px solid transparent;transition:.2s; }
+        .ach-card.unlocked { border-color:#3b82f6;background:#eff6ff; }
+        body.dark .ach-card { background:#0f172a; }
+        body.dark .ach-card.unlocked { background:#1e3a5f;border-color:#3b82f6; }
+        .ach-card.locked { opacity:.4;filter:grayscale(1); }
+        .ach-icon { font-size:2rem;margin-bottom:6px; }
+        .ach-name { font-size:.78rem;font-weight:800;color:#0f172a;line-height:1.2; }
+        body.dark .ach-name { color:#e2e8f0; }
+        .ach-date { font-size:.65rem;color:var(--text-secondary);margin-top:4px; }
+
+        /* ── Alertas ── */
+        .alert-item { display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.75);border:1px solid var(--border-color);border-radius:14px;padding:12px 14px;margin-bottom:8px; }
+        body.dark .alert-item { background:rgba(30,41,59,.75);border-color:#334155; }
+        .alert-card-name { font-weight:800;font-size:.88rem; }
+        .alert-price { font-size:.82rem;color:var(--text-secondary);margin-top:2px; }
+        .alert-status-active { color:#059669;font-size:.72rem;font-weight:800; }
+        .alert-status-triggered { color:#d97706;font-size:.72rem;font-weight:800; }
+        .btn-del-alert { background:#fef2f2;border:none;color:#ef4444;border-radius:8px;padding:4px 10px;font-weight:800;cursor:pointer;font-size:.78rem;font-family:'Outfit',sans-serif; }
+        body.dark .btn-del-alert { background:rgba(239,68,68,.1); }
     </style>
 </head>
 <body>
@@ -819,7 +893,21 @@ $conn->close();
                     <input type="file" id="avatar-upload-input" accept="image/jpeg,image/png,image/webp,image/gif">
                     <h1 class="profile-name"><?php echo htmlspecialchars($user['name']); ?></h1>
                     <p class="profile-username">@<?php echo htmlspecialchars($user['username']); ?></p>
-                    
+
+                    <div class="level-badge">
+                        <span class="lv-num">Nv. <?php echo $levelInfo['level']; ?></span>
+                        <?php echo htmlspecialchars($levelInfo['title']); ?>
+                    </div>
+                    <div class="xp-bar-wrap">
+                        <div class="xp-bar-track">
+                            <div class="xp-bar-fill" style="width:<?php echo $levelInfo['progress']; ?>%"></div>
+                        </div>
+                        <div class="xp-bar-label">
+                            <?php echo $levelInfo['xp_in_level']; ?> / <?php echo $levelInfo['xp_range']; ?> XP
+                            &nbsp;·&nbsp; Total: <?php echo $userXP; ?> XP
+                        </div>
+                    </div>
+
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $statsCartas; ?></div>
@@ -1132,6 +1220,65 @@ $conn->close();
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <!-- Logros e Insignias -->
+                <div class="profile-section" style="grid-column:1/-1;">
+                    <h3 class="section-title">🏆 Logros e Insignias
+                        <span style="font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-left:8px;">
+                            <?php echo count($userAchievements); ?> / <?php echo count($allAchievements); ?> desbloqueados
+                        </span>
+                    </h3>
+                    <div class="achievements-grid">
+                        <?php foreach ($allAchievements as $ach):
+                            $isUnlocked = in_array($ach['key'], $unlockedKeys);
+                            $unlockData = null;
+                            foreach ($userAchievements as $ua) {
+                                if ($ua['key'] === $ach['key']) { $unlockData = $ua; break; }
+                            }
+                        ?>
+                        <div class="ach-card <?php echo $isUnlocked ? 'unlocked' : 'locked'; ?>"
+                             title="<?php echo htmlspecialchars($ach['description']); ?>">
+                            <div class="ach-icon"><?php echo $ach['icon']; ?></div>
+                            <div class="ach-name"><?php echo htmlspecialchars($ach['name']); ?></div>
+                            <?php if ($isUnlocked && $unlockData): ?>
+                                <div class="ach-date"><?php echo date('d/m/Y', strtotime($unlockData['unlocked_at'])); ?></div>
+                            <?php else: ?>
+                                <div class="ach-date">Bloqueado</div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Alertas de Precio -->
+                <div class="profile-section" style="grid-column:1/-1;">
+                    <h3 class="section-title">🔔 Mis Alertas de Precio</h3>
+                    <?php if (count($userAlerts) === 0): ?>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔕</div>
+                            <p>No tienes alertas configuradas</p>
+                            <small>Crea alertas desde la página de Subastas para recibir notificaciones cuando aparezca una carta a tu precio</small>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($userAlerts as $al): ?>
+                        <div class="alert-item">
+                            <div>
+                                <div class="alert-card-name"><?php echo htmlspecialchars($al['card_name']); ?></div>
+                                <div class="alert-price">Precio objetivo: <?php echo number_format((int)$al['target_price']); ?> LC &nbsp;·&nbsp; <?php echo htmlspecialchars($al['card_game']); ?></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <?php if ($al['is_active']): ?>
+                                    <span class="alert-status-active">● Activa</span>
+                                <?php else: ?>
+                                    <span class="alert-status-triggered">✓ Disparada</span>
+                                <?php endif; ?>
+                                <button class="btn-del-alert" onclick="deleteAlert(<?php echo (int)$al['id']; ?>, this)">Eliminar</button>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1285,5 +1432,18 @@ $conn->close();
     </script>
 
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
+<script>
+async function deleteAlert(id, btn) {
+    if (!confirm('¿Eliminar esta alerta?')) return;
+    const fd = new FormData();
+    fd.append('action', 'delete');
+    fd.append('id', id);
+    fd.append('csrf_token', window.CSRF_TOKEN || document.querySelector('meta[name="csrf-token"]')?.content || '');
+    const res = await fetch('../api/price_alerts.php', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.ok) btn.closest('.alert-item').remove();
+    else alert(data.message || 'Error al eliminar');
+}
+</script>
 </body>
 </html>

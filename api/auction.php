@@ -2,13 +2,15 @@
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/csrf.php';
+require_once dirname(__DIR__) . '/includes/gamification.php';
 header('Content-Type: application/json');
+runGamificationMigrations($conn);
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') csrf_verify();
 
 // Migración: añadir seller_id si la tabla ya existía sin esa columna
-@$conn->query("ALTER TABLE auctions ADD COLUMN IF NOT EXISTS seller_id INT NULL");
+try { $conn->query("ALTER TABLE auctions ADD COLUMN IF NOT EXISTS seller_id INT NULL"); } catch (Exception $e) {}
 
 // Resolver subastas expiradas antes de cualquier acción
 resolveEnded($conn);
@@ -70,6 +72,10 @@ function resolveEnded($conn) {
             );
             $ins->bind_param("isssid", $wId, $type, $title, $desc, $aId, $bid);
             $ins->execute();
+
+            // XP por ganar subasta
+            addXP($conn, $wId, 50);
+            checkAchievements($conn, $wId);
         }
 
         // Crear nueva subasta automática para reemplazar la terminada
@@ -86,6 +92,9 @@ function resolveEnded($conn) {
         );
         $stIns->bind_param("ssssis", $card_name, $card_image, $card_game, $badge_color, $base_price, $new_ends_at);
         $stIns->execute();
+
+        // Verificar alertas de precio para esta carta recién subastada
+        checkPriceAlerts($conn, $card_name, $base_price);
     }
 
     // Si no hay ninguna subasta activa, generar subastas desde el catálogo predefinido
@@ -125,6 +134,7 @@ function spawnDefaultAuctions($conn) {
         $new_ends_at = date('Y-m-d H:i:s', strtotime("+{$duration_h} hours"));
         $stSpawn->bind_param("ssssis", $name, $image, $game, $badge, $price, $new_ends_at);
         $stSpawn->execute();
+        checkPriceAlerts($conn, $name, $price);
     }
 }
 
@@ -222,6 +232,10 @@ function placeBid($conn) {
         $ins->execute();
 
         $conn->commit();
+
+        // XP por pujar
+        addXP($conn, $user_id, 5);
+        checkAchievements($conn, $user_id);
 
         // Nuevo balance
         $newBal = $user['lootcoins'] - $amount;

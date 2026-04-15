@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/gamification.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name     = trim($_POST['name'] ?? '');
@@ -61,6 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sssss", $name, $email, $username, $password_hash, $address);
 
     if ($stmt->execute()) {
+        $new_user_id = (int)$conn->insert_id;
+        runGamificationMigrations($conn);
+        addXP($conn, $new_user_id, 20);       // XP de bienvenida
+        checkAchievements($conn, $new_user_id); // Logro "¡Bienvenido!"
         echo "<script>window.location.href='auth.php'; setTimeout(function() { toggleForm('login'); }, 100);</script>";
     } else {
         echo "<script>alert('Error en el registro. Inténtalo de nuevo.'); window.location.href='auth.php';</script>";

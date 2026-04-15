@@ -35,10 +35,12 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                     <input type="text" id="filter-search" placeholder="Ej. Charizard...">
                 </div>
                 <div class="filter-group">
-                    <label>Rareza:</label>
-                    <div><input type="checkbox" id="rar-common" value="common"> Común (&lt;$10)</div>
-                    <div><input type="checkbox" id="rar-rare" value="rare"> Rara ($10–$50)</div>
-                    <div><input type="checkbox" id="rar-ultra" value="ultra"> Secreta / Ultra (&gt;$50)</div>
+                    <label>Precio (€):</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="number" id="filter-price-min" min="0" step="0.01" placeholder="Mín" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0;font-family:'Outfit',sans-serif;font-size:.85rem;">
+                        <span style="color:#64748b;">—</span>
+                        <input type="number" id="filter-price-max" min="0" step="0.01" placeholder="Máx" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0;font-family:'Outfit',sans-serif;font-size:.85rem;">
+                    </div>
                 </div>
                 <div class="filter-group">
                     <label>Estado (Condición):</label>
@@ -89,6 +91,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <div class="scan-line"></div>
                     </div>
                     <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Añadir a favoritos</button>
+                    <button onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;">🔔 Alerta de precio</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">
@@ -114,13 +117,73 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                             <tbody id="market-list"></tbody>
                         </table>
                     </div>
-                    <button id="modal-add-best" class="btn-main full-width">Añadir al Carrito</button>
+                    <div class="modal-btns-sticky">
+                        <button id="modal-add-best" class="btn-main full-width" style="margin-top:0;">Añadir mejor oferta al Carrito</button>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alerta de Precio (Mercado) -->
+    <div id="market-alert-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;">
+        <div style="background:var(--bg-card,#fff);border-radius:24px;padding:32px;width:340px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.25);">
+            <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:6px;">🔔 Alerta de precio</h3>
+            <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
+                Te notificaremos cuando <strong id="market-alert-name"></strong> aparezca en subasta a tu precio objetivo o menos.
+            </p>
+            <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LC)</label>
+            <input type="number" id="market-alert-price" min="1" placeholder="Ej: 300"
+                   style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:'Outfit',sans-serif;box-sizing:border-box;">
+            <div style="display:flex;gap:10px;">
+                <button onclick="closeMarketAlert()" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:none;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Cancelar</button>
+                <button onclick="submitMarketAlert()" style="flex:1;padding:12px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;">Crear alerta</button>
             </div>
         </div>
     </div>
 
     <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
+    <script>
+    const MARKET_LOGGED_IN = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+
+    function openMarketAlert() {
+        if (!MARKET_LOGGED_IN) { window.location.href = 'auth.php'; return; }
+        const name = document.getElementById('modal-title').textContent;
+        document.getElementById('market-alert-name').textContent = name;
+        document.getElementById('market-alert-price').value = 100;
+        document.getElementById('market-alert-modal').style.display = 'flex';
+    }
+    function closeMarketAlert() {
+        document.getElementById('market-alert-modal').style.display = 'none';
+    }
+    document.getElementById('market-alert-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeMarketAlert();
+    });
+    async function submitMarketAlert() {
+        const name  = document.getElementById('modal-title').textContent;
+        const game  = document.getElementById('modal-badge').textContent;
+        const price = parseInt(document.getElementById('market-alert-price').value);
+        if (!price || price <= 0) { alert('Introduce un precio válido'); return; }
+        const fd = new FormData();
+        fd.append('action',       'create');
+        fd.append('card_name',    name);
+        fd.append('card_game',    game);
+        fd.append('target_price', price);
+        fd.append('csrf_token',   document.querySelector('meta[name="csrf-token"]')?.content || '');
+        const res  = await fetch('../api/price_alerts.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        closeMarketAlert();
+        if (data.ok) {
+            const toast = document.createElement('div');
+            toast.textContent = '✅ Alerta creada — te avisaremos en tu perfil';
+            toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 24px;border-radius:50px;font-weight:700;font-size:.88rem;z-index:9999;';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        } else {
+            alert(data.message || 'Error al crear la alerta');
+        }
+    }
+    </script>
 </body>
 </html>
