@@ -12,7 +12,6 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="../styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <script>(function(){ if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark'); })();</script>

@@ -96,22 +96,22 @@ body.dark .nav-dd-divider { background: #334155; }
 
 /* AJUSTE PARA SCROLL INFINITO FLUIDO */
 .card-wall-bg {
-    position: absolute; top: -50%; left: -10%; width: 120%; height: 250%; /* Más alto para cubrir bien */
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 20px;
-    transform: rotate(-10deg); z-index: 0; opacity: 1; 
+    position: absolute; top: -50%; left: -10%; width: 120%; height: 250%;
+    display: grid; grid-template-columns: repeat(11, 1fr); gap: 10px;
+    transform: rotate(-10deg); z-index: 0; opacity: 1;
     mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 70%);
     -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 70%);
 }
 
-.wall-column { display: flex; flex-direction: column; gap: 20px; }
+.wall-column { display: flex; flex-direction: column; gap: 10px; }
 /* Las matemáticas del bucle infinito perfecto */
-.col-up { animation: scrollUp 40s linear infinite; }
-.col-down { animation: scrollDown 40s linear infinite; }
+.col-up { animation: scrollUp 30s linear infinite; }
+.col-down { animation: scrollDown 30s linear infinite; }
 
 .wall-img {
-    width: 100%; height: 350px; border-radius: 12px;
+    width: 100%; height: 185px; border-radius: 10px;
     background-size: cover; background-position: center;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     flex-shrink: 0;
 }
 
@@ -294,8 +294,8 @@ body.dark .modal-fav-btn.is-favorited {
 .btn-buy-small:hover { background: var(--accent-blue); transform: scale(1.05); }
 
 .mercado-page { padding-top: 40px; }
-.mercado-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 40px; padding: 0 20px; }
-.filters-sidebar { width: 280px; background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 20px; text-align: left; }
+.mercado-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 40px; padding: 0 20px; align-items: flex-start; }
+.filters-sidebar { width: 280px; background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); height: fit-content; position: sticky; top: 84px; text-align: left; align-self: flex-start; z-index: 2; }
 .filters-sidebar h3 { font-size: 1.5rem; margin-bottom: 20px; }
 .filter-group { margin-bottom: 25px; }
 .filter-group label { display: block; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); }
@@ -934,7 +934,7 @@ body.dark .stats-banner { background: #1e293b; }
 }
 body.dark .auctions-hero { background: #0f172a; }
 .auctions-hero .card-wall-bg {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(11, 1fr);
     mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 70%);
     -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.9) 70%);
 }
