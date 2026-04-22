@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:docs.google.com)"
+      "WebFetch(domain:docs.google.com)",
+      "Bash(php -r ' *)",
+      "Bash(grep -n \"^    </div>$\\\\|^        </div>$\\\\|^</div>$\" C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/profile.php)",
+      "Bash(awk -F: '{if \\($1 > 1395 && $1 < 1430\\) print}')",
+      "Bash(python3 *)",
+      "Bash(php *)",
+      "Bash(grep -n '$game' C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/mercado.php)"
     ]
   }
 }

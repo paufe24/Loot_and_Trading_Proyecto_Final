@@ -1,6 +1,7 @@
 <?php
 session_start();
 $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
+$game = $_GET['game'] ?? 'pokemon';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -9,7 +10,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loot&Trading | Mercado Completo</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         .price-chart-section { background: #f8f9fd; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
@@ -19,6 +20,61 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         .price-change-badge.up { background: #dcfce7; color: #16a34a; }
         .price-change-badge.down { background: #fee2e2; color: #dc2626; }
         .cond-rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; }
+
+        /* ===== POKÉBALLS FONDO FLOTANTE ===== */
+        .main-wrapper.mercado-page { position: relative; z-index: 1; }
+        .poke-float-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .pfb {
+            position: absolute;
+            clip-path: circle(46%);
+            opacity: 0;
+            filter: blur(2px);
+        }
+        /* Esquina izquierda → sube hacia la derecha */
+        .pfb-1  { width:120px; height:120px; left: 0%;  bottom:  3%; animation: pokeFloatL 14s   linear -2s  infinite; }
+        .pfb-2  { width: 75px; height: 75px; left: 4%;  bottom: 22%; animation: pokeFloatL 10s   linear -7s  infinite; }
+        .pfb-3  { width: 95px; height: 95px; left: 1%;  bottom: 45%; animation: pokeFloatL 12s   linear -4s  infinite; }
+        .pfb-4  { width: 60px; height: 60px; left: 8%;  bottom:  8%; animation: pokeFloatL  9s   linear -10s infinite; }
+        .pfb-5  { width:110px; height:110px; left: 3%;  bottom: 65%; animation: pokeFloatL 13s   linear -1s  infinite; }
+        .pfb-6  { width: 80px; height: 80px; left:14%;  bottom: 30%; animation: pokeFloatL 11s   linear -8s  infinite; }
+        .pfb-13 { width: 50px; height: 50px; left: 6%;  bottom: 55%; animation: pokeFloatL  8.5s linear -13s infinite; }
+        .pfb-14 { width: 90px; height: 90px; left: 2%;  bottom: 80%; animation: pokeFloatL 15s   linear -3s  infinite; }
+        .pfb-15 { width: 65px; height: 65px; left:10%;  bottom: 15%; animation: pokeFloatL 10.5s linear -16s infinite; }
+        .pfb-16 { width:100px; height:100px; left: 0%;  bottom: 92%; animation: pokeFloatL 12.5s linear -6s  infinite; }
+        /* Esquina derecha → sube hacia la izquierda */
+        .pfb-7  { width: 55px; height: 55px; right: 0%;  bottom:  3%; animation: pokeFloatR  8s   linear -5s  infinite; }
+        .pfb-8  { width:100px; height:100px; right: 4%;  bottom: 22%; animation: pokeFloatR 15s   linear -12s infinite; }
+        .pfb-9  { width: 85px; height: 85px; right: 1%;  bottom: 45%; animation: pokeFloatR 11.5s linear -6s  infinite; }
+        .pfb-10 { width: 65px; height: 65px; right: 8%;  bottom:  8%; animation: pokeFloatR  9.5s linear -3s  infinite; }
+        .pfb-11 { width:105px; height:105px; right: 3%;  bottom: 65%; animation: pokeFloatR 13.5s linear -9s  infinite; }
+        .pfb-12 { width: 70px; height: 70px; right:14%;  bottom: 30%; animation: pokeFloatR 10.5s linear -11s infinite; }
+        .pfb-17 { width: 50px; height: 50px; right: 6%;  bottom: 55%; animation: pokeFloatR  8.5s linear -14s infinite; }
+        .pfb-18 { width: 90px; height: 90px; right: 2%;  bottom: 80%; animation: pokeFloatR 15s   linear -4s  infinite; }
+        .pfb-19 { width: 65px; height: 65px; right:10%;  bottom: 15%; animation: pokeFloatR 10.5s linear -17s infinite; }
+        .pfb-20 { width:100px; height:100px; right: 0%;  bottom: 92%; animation: pokeFloatR 12.5s linear -7s  infinite; }
+        @keyframes pokeFloatL {
+            0%   { transform: translate(  0px,    0px) rotate(  0deg); opacity: 0; }
+            8%   { opacity: 0.30; }
+            82%  { opacity: 0.25; }
+            95%  { opacity: 0; }
+            100% { transform: translate(380px, -90vh) rotate( 360deg); opacity: 0; }
+        }
+        @keyframes pokeFloatR {
+            0%   { transform: translate(   0px,   0px) rotate(  0deg); opacity: 0; }
+            8%   { opacity: 0.30; }
+            82%  { opacity: 0.25; }
+            95%  { opacity: 0; }
+            100% { transform: translate(-380px, -90vh) rotate(-360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -27,6 +83,30 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     <?php include dirname(__DIR__) . '/includes/navbar.php'; ?>
 
     <div class="main-wrapper mercado-page">
+        <?php if ($game === 'pokemon'): ?>
+        <div class="poke-float-bg">
+            <img class="pfb pfb-1"  src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
+            <img class="pfb pfb-2"  src="../img/pokeanimations/pokeballazul.png"      alt="">
+            <img class="pfb pfb-3"  src="../img/pokeanimations/pokeballlila.png"      alt="">
+            <img class="pfb pfb-4"  src="../img/pokeanimations/pokeballnegra.png"     alt="">
+            <img class="pfb pfb-5"  src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
+            <img class="pfb pfb-6"  src="../img/pokeanimations/pokeballazul.png"      alt="">
+            <img class="pfb pfb-7"  src="../img/pokeanimations/pokeballlila.png"      alt="">
+            <img class="pfb pfb-8"  src="../img/pokeanimations/pokeballnegra.png"     alt="">
+            <img class="pfb pfb-9"  src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
+            <img class="pfb pfb-10" src="../img/pokeanimations/pokeballazul.png"      alt="">
+            <img class="pfb pfb-11" src="../img/pokeanimations/pokeballlila.png"      alt="">
+            <img class="pfb pfb-12" src="../img/pokeanimations/pokeballnegra.png"     alt="">
+            <img class="pfb pfb-13" src="../img/pokeanimations/pokeballazul.png"      alt="">
+            <img class="pfb pfb-14" src="../img/pokeanimations/pokeballlila.png"      alt="">
+            <img class="pfb pfb-15" src="../img/pokeanimations/pokeballnegra.png"     alt="">
+            <img class="pfb pfb-16" src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
+            <img class="pfb pfb-17" src="../img/pokeanimations/pokeballlila.png"      alt="">
+            <img class="pfb pfb-18" src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
+            <img class="pfb pfb-19" src="../img/pokeanimations/pokeballazul.png"      alt="">
+            <img class="pfb pfb-20" src="../img/pokeanimations/pokeballnegra.png"     alt="">
+        </div>
+        <?php endif; ?>
         <div class="mercado-layout">
             <aside class="filters-sidebar">
                 <h3>Filtros</h3>
@@ -54,7 +134,6 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
             </aside>
             
             <div class="mercado-content">
-                <?php $game = $_GET['game'] ?? 'pokemon'; ?>
                 <div class="mercado-game-tabs">
                     <a href="mercado.php?game=pokemon" class="mgame-tab <?php echo $game==='pokemon'?'active':''; ?>">
                         <img src="../img/pokemon.png" alt="Pokémon">
