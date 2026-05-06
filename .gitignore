@@ -3,3 +3,15 @@
 
 # Imágenes subidas por usuarios
 img/cards/
+
+# Configuración local (credenciales de Supabase Postgres + API)
+includes/config.php
+
+# Ficheros temporales de migración / smoke test
+_probe_*.php
+_dump_*.php
+_smoke_*.php
+_smoke_*.ps1
+_smoke_*.out
+_smoke_*.err
+_smoke_*.txt

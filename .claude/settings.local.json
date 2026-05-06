@@ -7,7 +7,17 @@
       "Bash(awk -F: '{if \\($1 > 1395 && $1 < 1430\\) print}')",
       "Bash(python3 *)",
       "Bash(php *)",
-      "Bash(grep -n '$game' C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/mercado.php)"
+      "Bash(grep -n '$game' C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/mercado.php)",
+      "PowerShell(Test-Path *)",
+      "PowerShell($php = 'C:\\\\xampp\\\\php\\\\php.exe'; & $php -v; & $php -m | Select-String -Pattern 'pgsql|pdo')",
+      "PowerShell(& 'C:\\\\xampp\\\\php\\\\php.exe' 'C:\\\\Users\\\\d.vargas\\\\Desktop\\\\Loot_and_Trading_Proyecto_Final\\\\_probe_supabase.php')",
+      "PowerShell(& 'C:\\\\xampp\\\\php\\\\php.exe' 'C:\\\\Users\\\\d.vargas\\\\Desktop\\\\Loot_and_Trading_Proyecto_Final\\\\_probe_mysql.php')",
+      "PowerShell(Test-NetConnection *)",
+      "PowerShell(& 'C:\\\\xampp\\\\php\\\\php.exe' 'C:\\\\Users\\\\d.vargas\\\\Desktop\\\\Loot_and_Trading_Proyecto_Final\\\\_dump_mysql_to_supabase.php')",
+      "PowerShell(& 'C:\\\\xampp\\\\php\\\\php.exe' 'C:\\\\Users\\\\d.vargas\\\\Desktop\\\\Loot_and_Trading_Proyecto_Final\\\\_smoke_test.php' 2>&1 | Select-Object -First 300)",
+      "PowerShell(& 'C:\\\\Users\\\\d.vargas\\\\Desktop\\\\Loot_and_Trading_Proyecto_Final\\\\_smoke_test.ps1')",
+      "PowerShell(Set-Content *)",
+      "PowerShell($null = Invoke-WebRequest -Uri 'http://127.0.0.1:8765/_smoke_login.php' -SessionVariable sess -UseBasicParsing; $targets = @\\('/pages/admin.php','/pages/envios.php','/api/auction.php?action=balance'\\); foreach \\($p in $targets\\) { try { $r = Invoke-WebRequest -Uri \"http://127.0.0.1:8765$p\" -WebSession $sess -UseBasicParsing -ErrorAction Stop; $body = $r.Content; $err = ''; foreach \\($pat in @\\('Fatal error[^<]{0,250}','Parse error[^<]{0,250}','Warning:[^<]{0,250}','SQLSTATE\\\\[[^\\\\]]+\\\\][^<]{0,250}','Uncaught[^<]{0,250}','Call to undefined[^<]{0,250}','on null[^<]{0,250}'\\)\\) { $m = [regex]::Matches\\($body, $pat\\); foreach \\($mm in $m\\) { $err += \"`n      \" + \\($mm.Value -replace '\\\\s+',' '\\).Trim\\(\\) } }; $st = if \\($err\\) {'X'} else {'OK'}; Write-Output \\(\"{0,-3} [{1}] {2}{3}\" -f $st, $r.StatusCode, $p, $err\\) } catch { Write-Output \\(\"ERR     {0} -> {1}\" -f $p, $_.Exception.Message\\) } })"
     ]
   }
 }
