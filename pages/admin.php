@@ -5,6 +5,7 @@ if (empty($_SESSION['is_admin'])) {
     exit;
 }
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/avatar_helper.php';
 
 // Migraciones
 try { $conn->query("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e) {}
@@ -302,24 +303,24 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <div class="admin-header-left">
             <div class="admin-title">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
-                Panel de Administración
+                <span data-i18n="admin.title">Panel de Administración</span>
             </div>
-            <div class="admin-sub">Bienvenido, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>. Vista general de la plataforma.</div>
+            <div class="admin-sub"><span data-i18n="admin.welcome">Bienvenido</span>, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>. <span data-i18n="admin.overview">Vista general de la plataforma.</span></div>
         </div>
         <div class="admin-header-right">
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
-                <button class="admin-tab" data-tab="users">Usuarios</button>
-                <button class="admin-tab" data-tab="auctions">Subastas</button>
-                <button class="admin-tab" data-tab="activity">Actividad</button>
+                <button class="admin-tab" data-tab="users" data-i18n="admin.users">Usuarios</button>
+                <button class="admin-tab" data-tab="auctions" data-i18n="admin.auctions_tab">Subastas</button>
+                <button class="admin-tab" data-tab="activity" data-i18n="admin.activity">Actividad</button>
             </div>
             <button class="btn-action" onclick="exportUsersCSV()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                Export CSV
+                <span data-i18n="admin.export_csv">Export CSV</span>
             </button>
             <a class="btn-action primary" href="index.php" target="_blank">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
-                Ver plataforma
+                <span data-i18n="admin.view_live">Ver plataforma</span>
             </a>
         </div>
     </div>
@@ -365,65 +366,65 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             <div class="stat-card">
                 <div class="stat-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalUsers); ?></div>
-                <div class="stat-label">Usuarios</div>
+                <div class="stat-label" data-i18n="admin.users">Usuarios</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalOrders); ?></div>
-                <div class="stat-label">Pedidos</div>
+                <div class="stat-label" data-i18n="admin.orders">Pedidos</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></div>
                 <div class="stat-value">$<?php echo number_format($totalRevenue, 0); ?></div>
-                <div class="stat-label">Ingresos mercado</div>
+                <div class="stat-label" data-i18n="admin.revenue">Ingresos mercado</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalAuctions); ?></div>
-                <div class="stat-label">Subastas totales</div>
+                <div class="stat-label" data-i18n="admin.total_auctions">Subastas totales</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($activeAuctions); ?></div>
-                <div class="stat-label">Subastas activas</div>
+                <div class="stat-label" data-i18n="admin.active_auctions">Subastas activas</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon red"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalBids); ?></div>
-                <div class="stat-label">Pujas totales</div>
+                <div class="stat-label" data-i18n="admin.total_bids">Pujas totales</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon pink"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalCoins); ?></div>
-                <div class="stat-label">Lujanitos totales</div>
+                <div class="stat-label" data-i18n="admin.total_coins">Lujanitos totales</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalActivity); ?></div>
-                <div class="stat-label">Acciones registradas</div>
+                <div class="stat-label" data-i18n="admin.actions">Acciones registradas</div>
             </div>
         </div>
 
         <!-- Charts Row 1 -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>Registro de usuarios</h3>
-                <p class="chart-sub">Nuevos usuarios por mes (últimos 6 meses)</p>
+                <h3 data-i18n="admin.chart_users">Registro de usuarios</h3>
+                <p class="chart-sub" data-i18n="admin.chart_users_sub">Nuevos usuarios por mes (últimos 6 meses)</p>
                 <canvas id="chartUsersMonth"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Ventas del mercado</h3>
-                <p class="chart-sub">Pedidos e ingresos mensuales</p>
+                <h3 data-i18n="admin.chart_sales">Ventas del mercado</h3>
+                <p class="chart-sub" data-i18n="admin.chart_sales_sub">Pedidos e ingresos mensuales</p>
                 <canvas id="chartOrdersMonth"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Ventas por juego</h3>
-                <p class="chart-sub">Distribución de ingresos por franquicia</p>
+                <h3 data-i18n="admin.chart_by_game">Ventas por juego</h3>
+                <p class="chart-sub" data-i18n="admin.chart_by_game_sub">Distribución de ingresos por franquicia</p>
                 <canvas id="chartSalesByGame"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Subastas por juego</h3>
-                <p class="chart-sub">Activas vs terminadas por franquicia</p>
+                <h3 data-i18n="admin.chart_auctions_game">Subastas por juego</h3>
+                <p class="chart-sub" data-i18n="admin.chart_auctions_game_sub">Activas vs terminadas por franquicia</p>
                 <canvas id="chartAuctionsByGame"></canvas>
             </div>
         </div>
@@ -431,23 +432,23 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <!-- Charts Row 2 -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>Tipos de actividad</h3>
-                <p class="chart-sub">Distribución de acciones de los usuarios</p>
+                <h3 data-i18n="admin.chart_activity_type">Tipos de actividad</h3>
+                <p class="chart-sub" data-i18n="admin.chart_activity_type_sub">Distribución de acciones de los usuarios</p>
                 <canvas id="chartActivityType"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Actividad diaria</h3>
-                <p class="chart-sub">Acciones registradas (últimos 14 días)</p>
+                <h3 data-i18n="admin.chart_daily">Actividad diaria</h3>
+                <p class="chart-sub" data-i18n="admin.chart_daily_sub">Acciones registradas (últimos 14 días)</p>
                 <canvas id="chartActivityDaily"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Hora de pujas</h3>
-                <p class="chart-sub">Distribución horaria de pujas en subastas</p>
+                <h3 data-i18n="admin.chart_bids_hour">Hora de pujas</h3>
+                <p class="chart-sub" data-i18n="admin.chart_bids_hour_sub">Distribución horaria de pujas en subastas</p>
                 <canvas id="chartBidsHour"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Ingresos por subastas</h3>
-                <p class="chart-sub">Valor de pujas ganadoras por mes</p>
+                <h3 data-i18n="admin.chart_auction_rev">Ingresos por subastas</h3>
+                <p class="chart-sub" data-i18n="admin.chart_auction_rev_sub">Valor de pujas ganadoras por mes</p>
                 <canvas id="chartAuctionRevenue"></canvas>
             </div>
         </div>
@@ -455,21 +456,21 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <!-- Rankings -->
         <div class="ranking-grid">
             <div class="ranking-card">
-                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.896m0 0a6.042 6.042 0 0 1-2.77-.896"/></svg> Top Usuarios por Lujanitos</h3>
-                <div id="rankingCoins"><div class="chart-loading">Cargando...</div></div>
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.896m0 0a6.042 6.042 0 0 1-2.77-.896"/></svg> <span data-i18n="admin.rank_coins">Top Usuarios por Lujanitos</span></h3>
+                <div id="rankingCoins"><div class="chart-loading" data-i18n="common.loading">Cargando...</div></div>
             </div>
             <div class="ranking-card">
-                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg> Top Usuarios por XP</h3>
-                <div id="rankingXP"><div class="chart-loading">Cargando...</div></div>
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg> <span data-i18n="admin.rank_xp">Top Usuarios por XP</span></h3>
+                <div id="rankingXP"><div class="chart-loading" data-i18n="common.loading">Cargando...</div></div>
             </div>
         </div>
 
         <!-- Top cards sold -->
         <div class="admin-section">
             <div class="admin-section-header">
-                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg> Cartas más vendidas</h2>
+                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg> <span data-i18n="admin.top_cards">Cartas más vendidas</span></h2>
             </div>
-            <div id="topCardsSold"><div class="chart-loading">Cargando...</div></div>
+            <div id="topCardsSold"><div class="chart-loading" data-i18n="common.loading">Cargando...</div></div>
         </div>
 
     </div>
@@ -478,17 +479,17 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
     <div class="tab-panel" id="panel-users">
         <div class="admin-section">
             <div class="admin-section-header">
-                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg> Usuarios</h2>
+                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg> <span data-i18n="admin.users">Usuarios</span></h2>
                 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                    <input class="table-search" id="user-search" type="text" placeholder="Buscar usuario..." oninput="filterUsers()">
-                    <span class="section-badge"><?php echo count($users); ?> registrados</span>
+                    <input class="table-search" id="user-search" type="text" placeholder="Buscar usuario..." data-i18n-placeholder="admin.search_users" oninput="filterUsers()">
+                    <span class="section-badge"><?php echo count($users); ?> <span data-i18n="admin.registered">registrados</span></span>
                 </div>
             </div>
             <?php if (empty($users)): ?>
             <div class="empty-state">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z"/></svg>
-                <div class="empty-state-title">No hay usuarios registrados</div>
-                <div class="empty-state-sub">Los usuarios aparecerán aquí cuando se registren en la plataforma.</div>
+                <div class="empty-state-title" data-i18n="admin.no_users">No hay usuarios registrados</div>
+                <div class="empty-state-sub" data-i18n="admin.no_users_desc">Los usuarios aparecerán aquí cuando se registren en la plataforma.</div>
             </div>
             <?php else: ?>
             <div style="overflow-x:auto;">
@@ -496,20 +497,20 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Usuario</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
+                        <th data-i18n="profile.username">Usuario</th>
+                        <th data-i18n="profile.name">Nombre</th>
+                        <th data-i18n="profile.email">Email</th>
                         <th>Lujanitos</th>
-                        <th>Nivel</th>
-                        <th>Rol</th>
-                        <th>Registro</th>
-                        <th>Acciones</th>
+                        <th data-i18n="admin.level">Nivel</th>
+                        <th data-i18n="admin.role">Rol</th>
+                        <th data-i18n="admin.registered_date">Registro</th>
+                        <th data-i18n="admin.actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($users as $u):
                     $initials  = strtoupper(substr($u['username'], 0, 1));
-                    $avatarSrc = !empty($u['avatar_url']) ? htmlspecialchars($u['avatar_url']) : '';
+                    $avatarSrc = resolveAvatarUrl($u['avatar_url'] ?? '', '../');
                     $uXP       = (int)($u['xp'] ?? 0);
                     $uLevel    = max(1, 1 + (int)floor(sqrt($uXP / 50)));
                     $userDataJson = json_encode([
@@ -530,7 +531,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                         <td>
                             <div class="user-cell" onclick='openUserModal(<?php echo $u["id"]; ?>)'>
                                 <?php if ($avatarSrc): ?>
-                                    <img src="<?php echo $avatarSrc; ?>" class="user-avatar" alt="avatar">
+                                    <img src="<?php echo htmlspecialchars($avatarSrc); ?>" class="user-avatar" alt="avatar">
                                 <?php else: ?>
                                     <div class="user-avatar-placeholder"><?php echo $initials; ?></div>
                                 <?php endif; ?>
@@ -578,8 +579,8 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             </div>
             <div id="users-no-results" style="display:none;" class="empty-state">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                <div class="empty-state-title">Sin resultados</div>
-                <div class="empty-state-sub">Ningún usuario coincide con tu búsqueda.</div>
+                <div class="empty-state-title" data-i18n="admin.no_results">Sin resultados</div>
+                <div class="empty-state-sub" data-i18n="admin.no_users_match">Ningún usuario coincide con tu búsqueda.</div>
             </div>
             <?php endif; ?>
         </div>
@@ -589,23 +590,23 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
     <div class="tab-panel" id="panel-auctions">
         <div class="admin-section">
             <div class="admin-section-header">
-                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5"/></svg> Subastas recientes</h2>
+                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5"/></svg> <span data-i18n="admin.recent_auctions">Subastas recientes</span></h2>
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <input class="table-search" id="auction-search" type="text" placeholder="Buscar subasta..." oninput="filterAuctions()">
-                    <span class="section-badge"><?php echo count($auctions); ?> mostradas</span>
+                    <input class="table-search" id="auction-search" type="text" placeholder="Buscar subasta..." data-i18n-placeholder="admin.search_auctions" oninput="filterAuctions()">
+                    <span class="section-badge"><?php echo count($auctions); ?> <span data-i18n="admin.shown">mostradas</span></span>
                 </div>
             </div>
             <?php if (empty($auctions)): ?>
             <div class="empty-state">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3"/></svg>
-                <div class="empty-state-title">No hay subastas</div>
-                <div class="empty-state-sub">Las subastas creadas por los usuarios aparecerán aquí.</div>
+                <div class="empty-state-title" data-i18n="admin.no_auctions">No hay subastas</div>
+                <div class="empty-state-sub" data-i18n="admin.no_auctions_desc">Las subastas creadas por los usuarios aparecerán aquí.</div>
             </div>
             <?php else: ?>
             <div style="overflow-x:auto;">
             <table class="admin-table" id="auctions-table">
                 <thead>
-                    <tr><th>#</th><th>Carta</th><th>Juego</th><th>Puja actual</th><th>Vendedor</th><th>Estado</th><th>Fin</th><th>Acción</th></tr>
+                    <tr><th>#</th><th data-i18n="admin.card">Carta</th><th data-i18n="auctions.game">Juego</th><th data-i18n="admin.current_bid">Puja actual</th><th data-i18n="admin.seller">Vendedor</th><th data-i18n="admin.status">Estado</th><th data-i18n="admin.end">Fin</th><th data-i18n="admin.action">Acción</th></tr>
                 </thead>
                 <tbody>
                 <?php foreach ($auctions as $a): ?>
@@ -617,12 +618,12 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                         <td><?php echo htmlspecialchars($a['seller'] ?? '—'); ?></td>
                         <td>
                             <span class="<?php echo $a['status'] === 'active' ? 'badge-active' : 'badge-ended'; ?>">
-                                <?php echo $a['status'] === 'active' ? 'Activa' : 'Terminada'; ?>
+                                <?php echo $a['status'] === 'active' ? '<span data-i18n="auctions.active">' : '<span data-i18n="admin.finished">'; ?><?php echo $a['status'] === 'active' ? 'Activa' : 'Terminada'; ?></span>
                             </span>
                         </td>
                         <td style="font-size:.82rem;color:var(--text-secondary)"><?php echo date('d/m H:i', strtotime($a['ends_at'])); ?></td>
                         <td>
-                            <button class="btn-xs red" onclick="deleteAuction(<?php echo $a['id']; ?>, this)">Eliminar</button>
+                            <button class="btn-xs red" onclick="deleteAuction(<?php echo $a['id']; ?>, this)" data-i18n="common.delete">Eliminar</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -631,8 +632,8 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             </div>
             <div id="auctions-no-results" style="display:none;" class="empty-state">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                <div class="empty-state-title">Sin resultados</div>
-                <div class="empty-state-sub">Ninguna subasta coincide con tu búsqueda.</div>
+                <div class="empty-state-title" data-i18n="admin.no_results">Sin resultados</div>
+                <div class="empty-state-sub" data-i18n="admin.no_auctions_match">Ninguna subasta coincide con tu búsqueda.</div>
             </div>
             <?php endif; ?>
         </div>
@@ -642,20 +643,20 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
     <div class="tab-panel" id="panel-activity">
         <div class="admin-section">
             <div class="admin-section-header">
-                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg> Actividad reciente global</h2>
-                <span class="section-badge"><?php echo count($activity); ?> últimas</span>
+                <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg> <span data-i18n="admin.global_activity">Actividad reciente global</span></h2>
+                <span class="section-badge"><?php echo count($activity); ?> <span data-i18n="admin.latest">últimas</span></span>
             </div>
             <?php if (empty($activity)): ?>
             <div class="empty-state">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg>
-                <div class="empty-state-title">Sin actividad registrada</div>
-                <div class="empty-state-sub">Las acciones de los usuarios aparecerán aquí.</div>
+                <div class="empty-state-title" data-i18n="admin.no_activity">Sin actividad registrada</div>
+                <div class="empty-state-sub" data-i18n="admin.no_activity_desc">Las acciones de los usuarios aparecerán aquí.</div>
             </div>
             <?php else: ?>
             <div style="overflow-x:auto;">
             <table class="admin-table">
                 <thead>
-                    <tr><th>Usuario</th><th>Tipo</th><th>Título</th><th>Descripción</th><th>Fecha</th></tr>
+                    <tr><th data-i18n="profile.username">Usuario</th><th data-i18n="admin.type">Tipo</th><th data-i18n="admin.title_col">Título</th><th data-i18n="admin.description">Descripción</th><th data-i18n="admin.date">Fecha</th></tr>
                 </thead>
                 <tbody>
                 <?php foreach ($activity as $ac):
@@ -663,13 +664,13 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                     $typeMap = ['order'=>'at-order','auction_win'=>'at-auction_win','auction_claim'=>'at-auction_claim','level_up'=>'at-level_up','achievement'=>'at-achievement','price_alert'=>'at-price_alert'];
                     if (isset($typeMap[$ac['activity_type']])) $atClass = $typeMap[$ac['activity_type']];
                     $acInitials = strtoupper(substr($ac['username'], 0, 1));
-                    $acAvatar   = !empty($ac['avatar_url']) ? htmlspecialchars($ac['avatar_url']) : '';
+                    $acAvatar   = resolveAvatarUrl($ac['avatar_url'] ?? '', '../');
                 ?>
                     <tr>
                         <td>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <?php if ($acAvatar): ?>
-                                    <img src="<?php echo $acAvatar; ?>" class="user-avatar" alt="">
+                                    <img src="<?php echo htmlspecialchars($acAvatar); ?>" class="user-avatar" alt="">
                                 <?php else: ?>
                                     <div class="user-avatar-placeholder" style="width:26px;height:26px;font-size:.7rem"><?php echo $acInitials; ?></div>
                                 <?php endif; ?>
@@ -703,6 +704,19 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
 <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
 <script>
+// ── Resolve avatar_shop: URLs client-side ──
+function resolveAvatarJS(u) {
+    if (!u) return '';
+    if (u.startsWith('avatar_shop:')) {
+        const key = u.substring(12);
+        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺️'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔️'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩️'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🃏'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
+        const d = AVDEFS[key];
+        if (d) return 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${d.c1}"/><stop offset="100%" style="stop-color:${d.c2}"/></linearGradient></defs><rect width="200" height="200" rx="100" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="80">${d.i}</text></svg>`);
+        return '';
+    }
+    return u;
+}
+
 // ── Tab navigation ──
 document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -826,7 +840,7 @@ function openUserModal(uid) {
     if (!u) return;
     const initials = (u.username || '?').charAt(0).toUpperCase();
     const avatarHtml = u.avatar_url
-        ? `<img src="${u.avatar_url}" class="umodal-avatar" alt="avatar">`
+        ? `<img src="${resolveAvatarJS(u.avatar_url)}" class="umodal-avatar" alt="avatar">`
         : `<div class="umodal-avatar-ph">${initials}</div>`;
     const regDate = new Date(u.created_at).toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
     document.getElementById('umodal-body').innerHTML = `

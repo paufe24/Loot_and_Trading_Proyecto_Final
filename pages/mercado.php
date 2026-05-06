@@ -109,13 +109,13 @@ $game = $_GET['game'] ?? 'pokemon';
         <?php endif; ?>
         <div class="mercado-layout">
             <aside class="filters-sidebar">
-                <h3>Filtros</h3>
+                <h3 data-i18n="market.filters">Filtros</h3>
                 <div class="filter-group">
-                    <label>Buscar carta:</label>
-                    <input type="text" id="filter-search" placeholder="Ej. Charizard...">
+                    <label data-i18n="market.search">Buscar carta:</label>
+                    <input type="text" id="filter-search" placeholder="Ej. Charizard..." data-i18n-placeholder="market.search">
                 </div>
                 <div class="filter-group">
-                    <label>Precio (€):</label>
+                    <label data-i18n="market.price">Precio (€):</label>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <input type="number" id="filter-price-min" min="0" step="0.01" placeholder="Mín" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0;font-family:'Outfit',sans-serif;font-size:.85rem;">
                         <span style="color:#64748b;">—</span>
@@ -123,14 +123,14 @@ $game = $_GET['game'] ?? 'pokemon';
                     </div>
                 </div>
                 <div class="filter-group">
-                    <label>Estado (Condición):</label>
+                    <label data-i18n="market.condition">Estado (Condición):</label>
                     <div><input type="checkbox" id="cond-gem-mint" value="gem-mint"> Gem Mint (10)</div>
                     <div><input type="checkbox" id="cond-mint" value="mint"> Mint (9)</div>
                     <div><input type="checkbox" id="cond-near-mint" value="near-mint"> Near Mint (7-8)</div>
                     <div><input type="checkbox" id="cond-played" value="played"> Played (1-6)</div>
                 </div>
-                <button class="btn-main full-width" id="apply-filters-btn">Aplicar Filtros</button>
-                <button class="btn-main full-width" id="clear-filters-btn" style="background:#64748b;margin-top:8px;">Limpiar</button>
+                <button class="btn-main full-width" id="apply-filters-btn" data-i18n="market.apply">Aplicar Filtros</button>
+                <button class="btn-main full-width" id="clear-filters-btn" style="background:#64748b;margin-top:8px;" data-i18n="market.clear">Limpiar</button>
             </aside>
             
             <div class="mercado-content">
@@ -150,11 +150,11 @@ $game = $_GET['game'] ?? 'pokemon';
                 </div>
                 <div class="section-head">
                     <h2 id="mercado-title">Cargando Mercado...</h2>
-                    <p>Catálogo completo con todas las expansiones.</p>
+                    <p data-i18n="market.catalog">Catálogo completo con todas las expansiones.</p>
                 </div>
                 <div id="mercado-grid" class="cards-grid"></div>
                 <div class="load-more-container">
-                    <button id="mercado-load-more" class="btn-main">Cargar más cartas</button>
+                    <button id="mercado-load-more" class="btn-main" data-i18n="market.load_more">Cargar más cartas</button>
                 </div>
             </div>
         </div>
@@ -169,8 +169,8 @@ $game = $_GET['game'] ?? 'pokemon';
                         <img id="modal-img" src="" alt="Carta" class="modal-img">
                         <div class="scan-line"></div>
                     </div>
-                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Añadir a favoritos</button>
-                    <button id="modal-alert-inject" onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;">🔔 Alerta de precio</button>
+                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button" data-i18n="modal.add_fav">⭐ Añadir a favoritos</button>
+                    <button id="modal-alert-inject" onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;" data-i18n="modal.price_alert">🔔 Alerta de precio</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">
@@ -180,7 +180,7 @@ $game = $_GET['game'] ?? 'pokemon';
                     </div>
                     <div class="price-chart-section">
                         <div class="price-chart-header">
-                            <span>📈 Histórico de Precios (30 días)</span>
+                            <span data-i18n="modal.price_history">📈 Histórico de Precios (30 días)</span>
                             <span id="price-chart-change" class="price-change-badge"></span>
                         </div>
                         <div style="position:relative;height:140px;">
@@ -188,16 +188,16 @@ $game = $_GET['game'] ?? 'pokemon';
                         </div>
                     </div>
                     <div class="market-table-container">
-                        <h4>🛒 Ofertas de Vendedores</h4>
+                        <h4 data-i18n="modal.sellers">🛒 Ofertas de Vendedores</h4>
                         <table class="market-table">
                             <thead>
-                                <tr><th>Vendedor</th><th>Estado</th><th>Precio</th><th>Acción</th></tr>
+                                <tr><th data-i18n="modal.seller">Vendedor</th><th data-i18n="modal.condition">Estado</th><th data-i18n="modal.price">Precio</th><th data-i18n="modal.action">Acción</th></tr>
                             </thead>
                             <tbody id="market-list"></tbody>
                         </table>
                     </div>
                     <div class="modal-btns-sticky">
-                        <button id="modal-add-best" class="btn-main full-width" style="margin-top:0;">Añadir mejor oferta al Carrito</button>
+                        <button id="modal-add-best" class="btn-main full-width" style="margin-top:0;" data-i18n="modal.add_best">Añadir mejor oferta al Carrito</button>
                     </div>
                 </div>
             </div>
@@ -207,16 +207,16 @@ $game = $_GET['game'] ?? 'pokemon';
     <!-- Modal Alerta de Precio (Mercado) -->
     <div id="market-alert-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;">
         <div style="background:var(--bg-card,#fff);border-radius:24px;padding:32px;width:340px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.25);">
-            <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:6px;">🔔 Alerta de precio</h3>
+            <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:6px;" data-i18n="modal.price_alert">🔔 Alerta de precio</h3>
             <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
                 Te notificaremos cuando <strong id="market-alert-name"></strong> aparezca en subasta a tu precio objetivo o menos.
             </p>
-            <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LJ)</label>
+            <label style="font-size:.82rem;font-weight:700;color:#0f172a;" data-i18n="modal.target_price">Precio objetivo (LJ)</label>
             <input type="number" id="market-alert-price" min="1" placeholder="Ej: 300"
                    style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:'Outfit',sans-serif;box-sizing:border-box;">
             <div style="display:flex;gap:10px;">
-                <button onclick="closeMarketAlert()" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:none;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Cancelar</button>
-                <button onclick="submitMarketAlert()" style="flex:1;padding:12px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;">Crear alerta</button>
+                <button onclick="closeMarketAlert()" style="flex:1;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:none;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;" data-i18n="common.cancel">Cancelar</button>
+                <button onclick="submitMarketAlert()" style="flex:1;padding:12px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;" data-i18n="modal.create_alert">Crear alerta</button>
             </div>
         </div>
     </div>

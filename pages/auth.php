@@ -318,49 +318,50 @@
         <div class="auth-content">
             <!-- FORMULARIO LOGIN -->
             <div id="login-form" class="form-card form-active">
-                <h2>🔐 Iniciar Sesión</h2>
+                <h2 data-i18n="auth.login_title">🔐 Iniciar Sesión</h2>
                 <form action="login.php" method="POST">
                     <div class="form-group">
-                        <input type="text" name="username" placeholder="Usuario" required>
+                        <input type="text" name="username" placeholder="Usuario" data-i18n-placeholder="auth.username" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" name="password" placeholder="Contraseña" required>
+                        <input type="password" name="password" placeholder="Contraseña" data-i18n-placeholder="auth.password" required>
                     </div>
-                    <button type="submit">Iniciar Sesión</button>
+                    <button type="submit" data-i18n="auth.login_btn">Iniciar Sesión</button>
                 </form>
                 <div class="auth-toggle">
-                    <p>¿No tienes cuenta? <a href="#" onclick="toggleForm('register')">Regístrate aquí</a></p>
+                    <p><span data-i18n="auth.no_account">¿No tienes cuenta?</span> <a href="#" onclick="toggleForm('register')" data-i18n="auth.register_here">Regístrate aquí</a></p>
                 </div>
             </div>
 
             <!-- FORMULARIO REGISTRO -->
             <div id="register-form" class="form-card form-hidden">
-                <h2>✨ Registrarse</h2>
+                <h2 data-i18n="auth.register_title">✨ Registrarse</h2>
                 <form action="register.php" method="POST">
                     <div class="form-group">
-                        <input type="text" name="name" placeholder="Nombre completo" required>
+                        <input type="text" name="name" placeholder="Nombre completo" data-i18n-placeholder="auth.fullname" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="username" placeholder="Usuario" required>
+                        <input type="text" name="username" placeholder="Usuario" data-i18n-placeholder="auth.username" required>
                     </div>
                     <div class="form-group">
-                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="email" name="email" placeholder="Email" data-i18n-placeholder="auth.email" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" name="password" placeholder="Contraseña" required>
+                        <input type="password" name="password" placeholder="Contraseña" data-i18n-placeholder="auth.password" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="address" placeholder="Dirección de envío (calle, ciudad, CP)" required>
+                        <input type="text" name="address" placeholder="Dirección de envío (calle, ciudad, CP)" data-i18n-placeholder="auth.address" required>
                     </div>
-                    <button type="submit">Registrarse</button>
+                    <button type="submit" data-i18n="auth.register_btn">Registrarse</button>
                 </form>
                 <div class="auth-toggle">
-                    <p>¿Ya tienes cuenta? <a href="#" onclick="toggleForm('login')">Inicia sesión aquí</a></p>
+                    <p><span data-i18n="auth.has_account">¿Ya tienes cuenta?</span> <a href="#" onclick="toggleForm('login')" data-i18n="auth.login_here">Inicia sesión aquí</a></p>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="../assets/js/i18n.js?v=<?php echo time(); ?>"></script>
     <script>
         function toggleForm(formType) {
             const loginForm = document.getElementById('login-form');

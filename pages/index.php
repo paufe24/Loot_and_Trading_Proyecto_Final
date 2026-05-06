@@ -215,11 +215,11 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <p class="welcome-text">¡Hola de nuevo, <?php echo htmlspecialchars($nombre_usuario); ?>!</p>
                     <?php endif; ?>
                     <h1>Loot&Trading<br><span>Marketplace.</span></h1>
-                    <p>El mercado definitivo de TCGs con precios en tiempo real.</p>
+                    <p data-i18n="home.subtitle">El mercado definitivo de TCGs con precios en tiempo real.</p>
                     <div style="display: flex; gap: 20px; justify-content: center; align-items: center; margin-top: 30px; flex-wrap: wrap; width: 100%;">
-                        <a href="#section-pokemon" class="btn-main" style="margin-top: 0;">Explorar Colecciones</a>
-                        <a href="mercado.php?game=pokemon" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white; box-shadow: 0 10px 25px rgba(59,130,246,0.3);">🔍 Buscar en el Mercado</a>
-                        <a href="apuestas.php" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); color: white; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);">🔮 Entrar a TCG Predictor</a>
+                        <a href="#section-pokemon" class="btn-main" style="margin-top: 0;" data-i18n="home.explore">Explorar Colecciones</a>
+                        <a href="mercado.php?game=pokemon" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white; box-shadow: 0 10px 25px rgba(59,130,246,0.3);" data-i18n="home.search_market">🔍 Buscar en el Mercado</a>
+                        <a href="apuestas.php" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); color: white; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);" data-i18n="home.predictor">🔮 Entrar a TCG Predictor</a>
                     </div>
                 </div>
             </div>
@@ -229,7 +229,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         <section class="cod-section">
             <div class="cod-inner">
                 <div class="cod-left">
-                    <div class="cod-eyebrow">Carta del día</div>
+                    <div class="cod-eyebrow" data-i18n="home.card_of_day">Carta del día</div>
                     <div class="cod-card-wrap" id="cod-card-wrap" onclick="codOpenModal()" style="cursor:pointer;">
                         <img id="cod-img" src="" alt="Carta del día">
                         <span class="cod-badge" id="cod-badge"></span>
@@ -243,7 +243,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                     </div>
                     <p class="cod-desc" id="cod-desc"></p>
                     <div class="cod-opinions-wrap">
-                        <div class="cod-opinions-label">Lo que dice la comunidad</div>
+                        <div class="cod-opinions-label" data-i18n="home.community_says">Lo que dice la comunidad</div>
                         <div class="cod-opinion-box" id="cod-opinion-box">
                             <div class="cod-opinion-text" id="cod-opinion-text"></div>
                             <div class="cod-opinion-author" id="cod-opinion-author"></div>
@@ -258,8 +258,8 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
         <section class="trending-section">
             <div class="trending-inner">
                 <div class="trending-header">
-                    <h2>🔥 Lo más buscado esta semana</h2>
-                    <a href="mercado.php?game=pokemon" class="trending-see-all">Ver todo el mercado →</a>
+                    <h2 data-i18n="home.trending">🔥 Lo más buscado esta semana</h2>
+                    <a href="mercado.php?game=pokemon" class="trending-see-all" data-i18n="home.see_all">Ver todo el mercado →</a>
                 </div>
                 <div class="trending-scroll">
                     <div class="trending-card" onclick="openModal({card_id:'base1-4',id:'base1-4',name:'Charizard Base Set',img:'https://images.pokemontcg.io/base1/4_hires.png',badge:'Pokémon',color:'#e63329',price:'420.00'})">
@@ -359,22 +359,22 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
             <div class="stats-inner">
                 <div class="stat-item">
                     <span class="stat-num">12.000+</span>
-                    <span class="stat-label">Cartas disponibles</span>
+                    <span class="stat-label" data-i18n="home.cards_available">Cartas disponibles</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
                     <span class="stat-num">4</span>
-                    <span class="stat-label">TCGs soportados</span>
+                    <span class="stat-label" data-i18n="home.tcgs_supported">TCGs soportados</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
                     <span class="stat-num">Real-time</span>
-                    <span class="stat-label">Precios actualizados</span>
+                    <span class="stat-label" data-i18n="home.prices_updated">Precios actualizados</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
                     <span class="stat-num">100%</span>
-                    <span class="stat-label">Gratis para coleccionistas</span>
+                    <span class="stat-label" data-i18n="home.free_collectors">Gratis para coleccionistas</span>
                 </div>
             </div>
         </section>
@@ -386,7 +386,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 </div>
                 <div id="pokemon-grid" class="cards-grid"></div>
                 <div class="load-more-container">
-                    <a href="mercado.php?game=pokemon" class="btn-load">Ver todo el catálogo y filtros</a>
+                    <a href="mercado.php?game=pokemon" class="btn-load" data-i18n="market.load_catalog">Ver todo el catálogo y filtros</a>
                 </div>
             </div>
 
@@ -396,7 +396,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 </div>
                 <div id="yugioh-grid" class="cards-grid"></div>
                 <div class="load-more-container">
-                    <a href="mercado.php?game=yugioh" class="btn-load">Ver todo el catálogo y filtros</a>
+                    <a href="mercado.php?game=yugioh" class="btn-load" data-i18n="market.load_catalog">Ver todo el catálogo y filtros</a>
                 </div>
             </div>
 
@@ -406,7 +406,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 </div>
                 <div id="magic-grid" class="cards-grid"></div>
                 <div class="load-more-container">
-                    <a href="mercado.php?game=magic" class="btn-load">Ver todo el catálogo y filtros</a>
+                    <a href="mercado.php?game=magic" class="btn-load" data-i18n="market.load_catalog">Ver todo el catálogo y filtros</a>
                 </div>
             </div>
 
@@ -416,7 +416,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 </div>
                 <div id="onepiece-grid" class="cards-grid"></div>
                 <div class="load-more-container">
-                    <a href="mercado.php?game=onepiece" class="btn-load">Ver todo el catálogo y filtros</a>
+                    <a href="mercado.php?game=onepiece" class="btn-load" data-i18n="market.load_catalog">Ver todo el catálogo y filtros</a>
                 </div>
             </div>
         </main>
@@ -431,7 +431,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <img id="modal-img" src="" alt="Carta" class="modal-img">
                         <div class="scan-line"></div>
                     </div>
-                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Añadir a favoritos</button>
+                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button" data-i18n="modal.add_fav">⭐ Añadir a favoritos</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">
@@ -441,7 +441,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                     </div>
                     <div class="price-chart-section">
                         <div class="price-chart-header">
-                            <span>📈 Histórico de Precios (30 días)</span>
+                            <span data-i18n="modal.price_history">📈 Histórico de Precios (30 días)</span>
                             <span id="price-chart-change" class="price-change-badge"></span>
                         </div>
                         <div style="position:relative;height:140px;">
@@ -449,20 +449,20 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         </div>
                     </div>
                     <div class="market-table-container">
-                        <h4>🛒 Ofertas de Vendedores</h4>
+                        <h4 data-i18n="modal.sellers">🛒 Ofertas de Vendedores</h4>
                         <table class="market-table">
                             <thead>
-                                <tr><th>Vendedor</th><th>Estado</th><th>Precio</th><th>Acción</th></tr>
+                                <tr><th data-i18n="modal.seller">Vendedor</th><th data-i18n="modal.condition">Estado</th><th data-i18n="modal.price">Precio</th><th data-i18n="modal.action">Acción</th></tr>
                             </thead>
                             <tbody id="market-list"></tbody>
                         </table>
                     </div>
-                    <button id="modal-add-best" class="btn-main full-width">Añadir mejor oferta al Carrito</button>
+                    <button id="modal-add-best" class="btn-main full-width" data-i18n="modal.add_best">Añadir mejor oferta al Carrito</button>
                 </div>
             </div>
         </div>
         <div class="related-section">
-            <h4>Cartas Relacionadas</h4>
+            <h4 data-i18n="modal.related">Cartas Relacionadas</h4>
             <div id="related-grid" class="cards-grid mini-grid"></div>
         </div>
     </div>

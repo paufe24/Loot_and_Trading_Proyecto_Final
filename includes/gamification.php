@@ -58,9 +58,8 @@ function runGamificationMigrations($conn): void {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
 
-    // Catálogo de logros (seed si está vacío)
-    $count = (int)$conn->query("SELECT COUNT(*) FROM achievements")->fetch_row()[0];
-    if ($count === 0) {
+    // Catálogo de logros (INSERT IGNORE — agrega nuevos sin duplicar existentes)
+    {
         $catalog = [
             ['bienvenido',          '¡Bienvenido!',          'Únete a Loot & Trading',                       '🎉', 20],
             ['primera_puja',        'Primera Puja',          'Realiza tu primera puja en una subasta',        '🔨', 10],
@@ -72,6 +71,23 @@ function runGamificationMigrations($conn): void {
             ['gran_coleccionista',  'Gran Coleccionista',    'Añade 20 cartas a favoritos',                   '💫', 50],
             ['nivel_5',             'Experto',               'Alcanza el nivel 5',                            '🚀', 0],
             ['nivel_10',            'Veterano',              'Alcanza el nivel 10',                           '🌟', 0],
+            // Insignias de colección por juego
+            ['col_pokemon_5',       'Entrenador Pokémon',        'Consigue 5 cartas de Pokémon',              '🔴', 25],
+            ['col_pokemon_10',      'Maestro Pokémon',           'Consigue 10 cartas de Pokémon',             '⚡', 60],
+            ['col_pokemon_20',      'Leyenda Pokémon',           'Consigue 20 cartas de Pokémon',             '🌟', 120],
+            ['col_yugioh_5',        'Duelista Yu-Gi-Oh!',        'Consigue 5 cartas de Yu-Gi-Oh!',            '🃏', 25],
+            ['col_yugioh_10',       'Rey de los Duelos',         'Consigue 10 cartas de Yu-Gi-Oh!',           '👁️', 60],
+            ['col_yugioh_20',       'Faraón Legendario',         'Consigue 20 cartas de Yu-Gi-Oh!',           '🏺', 120],
+            ['col_magic_5',         'Hechicero Aprendiz',        'Consigue 5 cartas de Magic',                '🔮', 25],
+            ['col_magic_10',        'Planeswalker',              'Consigue 10 cartas de Magic',               '✨', 60],
+            ['col_magic_20',        'Archimago',                 'Consigue 20 cartas de Magic',               '🧙', 120],
+            ['col_onepiece_5',      'Grumete',                   'Consigue 5 cartas de One Piece',            '⚓', 25],
+            ['col_onepiece_10',     'Capitán Pirata',            'Consigue 10 cartas de One Piece',           '🏴‍☠️', 60],
+            ['col_onepiece_20',     'Rey de los Piratas',        'Consigue 20 cartas de One Piece',           '👒', 120],
+            // Insignias de colección general
+            ['col_total_10',        'Colección Iniciada',        'Consigue 10 cartas en total',               '📦', 30],
+            ['col_total_25',        'Coleccionista Avanzado',    'Consigue 25 cartas en total',               '🗂️', 75],
+            ['col_total_50',        'Coleccionista Supremo',     'Consigue 50 cartas en total',               '💎', 150],
         ];
         $st = $conn->prepare("INSERT IGNORE INTO achievements (`key`, name, description, icon, xp_reward) VALUES (?,?,?,?,?)");
         foreach ($catalog as [$k, $n, $d, $ic, $xpR]) {
@@ -144,6 +160,52 @@ function checkAchievements($conn, int $user_id): void {
     $favs      = (int)$conn->query("SELECT COUNT(*) FROM user_favorites WHERE user_id=$user_id")->fetch_row()[0];
     $purchases = (int)$conn->query("SELECT COUNT(*) FROM cart_orders WHERE user_id=$user_id AND status='paid'")->fetch_row()[0];
 
+    // Contar cartas en colección por juego (compras + subastas ganadas con claim)
+    $cardsByGame = ['pokemon' => 0, 'yugioh' => 0, 'magic' => 0, 'onepiece' => 0];
+    $totalCards  = 0;
+
+    // Cartas de compras
+    $stCards = $conn->prepare(
+        "SELECT oi.card_game, SUM(oi.quantity) AS cnt
+         FROM cart_order_items oi
+         JOIN cart_orders o ON o.id = oi.order_id
+         WHERE o.user_id = ? AND o.status = 'paid'
+         GROUP BY oi.card_game"
+    );
+    if ($stCards) {
+        $stCards->bind_param("i", $user_id);
+        $stCards->execute();
+        $resCards = $stCards->get_result();
+        while ($r = $resCards->fetch_assoc()) {
+            $g = strtolower(trim($r['card_game']));
+            $c = (int)$r['cnt'];
+            if (isset($cardsByGame[$g])) $cardsByGame[$g] += $c;
+            $totalCards += $c;
+        }
+        $stCards->close();
+    }
+
+    // Cartas de subastas ganadas (claimed)
+    $stAuc = $conn->prepare(
+        "SELECT a.card_game, COUNT(*) AS cnt
+         FROM auctions a
+         JOIN auction_claims cl ON cl.auction_id = a.id AND cl.user_id = ?
+         WHERE a.current_winner_id = ?
+         GROUP BY a.card_game"
+    );
+    if ($stAuc) {
+        $stAuc->bind_param("ii", $user_id, $user_id);
+        $stAuc->execute();
+        $resAuc = $stAuc->get_result();
+        while ($r = $resAuc->fetch_assoc()) {
+            $g = strtolower(trim($r['card_game']));
+            $c = (int)$r['cnt'];
+            if (isset($cardsByGame[$g])) $cardsByGame[$g] += $c;
+            $totalCards += $c;
+        }
+        $stAuc->close();
+    }
+
     $conditions = [
         'bienvenido'         => true,
         'primera_puja'       => $bids      >= 1,
@@ -155,6 +217,23 @@ function checkAchievements($conn, int $user_id): void {
         'gran_coleccionista' => $favs      >= 20,
         'nivel_5'            => $level     >= 5,
         'nivel_10'           => $level     >= 10,
+        // Colección por juego
+        'col_pokemon_5'      => $cardsByGame['pokemon']  >= 5,
+        'col_pokemon_10'     => $cardsByGame['pokemon']  >= 10,
+        'col_pokemon_20'     => $cardsByGame['pokemon']  >= 20,
+        'col_yugioh_5'       => $cardsByGame['yugioh']   >= 5,
+        'col_yugioh_10'      => $cardsByGame['yugioh']   >= 10,
+        'col_yugioh_20'      => $cardsByGame['yugioh']   >= 20,
+        'col_magic_5'        => $cardsByGame['magic']    >= 5,
+        'col_magic_10'       => $cardsByGame['magic']    >= 10,
+        'col_magic_20'       => $cardsByGame['magic']    >= 20,
+        'col_onepiece_5'     => $cardsByGame['onepiece'] >= 5,
+        'col_onepiece_10'    => $cardsByGame['onepiece'] >= 10,
+        'col_onepiece_20'    => $cardsByGame['onepiece'] >= 20,
+        // Colección total
+        'col_total_10'       => $totalCards >= 10,
+        'col_total_25'       => $totalCards >= 25,
+        'col_total_50'       => $totalCards >= 50,
     ];
 
     foreach ($conditions as $key => $met) {

@@ -133,17 +133,17 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
     <!-- Sidebar filtros -->
     <aside class="mc-sidebar">
         <div class="mc-sidebar-box">
-            <h3>🔍 Filtros</h3>
+            <h3 data-i18n="market.filters">🔍 Filtros</h3>
 
             <div class="mc-filter-group">
-                <label>Buscar carta</label>
+                <label data-i18n="market.search_card">Buscar carta</label>
                 <input type="text" id="mc-search" placeholder="Ej: Charizard...">
             </div>
 
             <div class="mc-filter-group">
-                <label>Juego</label>
+                <label data-i18n="auctions.game">Juego</label>
                 <div class="mc-game-btns">
-                    <button class="mc-game-btn active" data-game="all">Todos los juegos</button>
+                    <button class="mc-game-btn active" data-game="all" data-i18n="mycards.all_games">Todos los juegos</button>
                     <button class="mc-game-btn" data-game="Pokémon">🟡 Pokémon</button>
                     <button class="mc-game-btn" data-game="Yu-Gi-Oh!">🟣 Yu-Gi-Oh!</button>
                     <button class="mc-game-btn" data-game="Magic">🔴 Magic: The Gathering</button>
@@ -152,9 +152,9 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
             </div>
 
             <div class="mc-filter-group">
-                <label>Estado envío</label>
+                <label data-i18n="mycards.shipping_status">Estado envío</label>
                 <div class="mc-status-btns">
-                    <button class="mc-status-btn active" data-status="all">Todos</button>
+                    <button class="mc-status-btn active" data-status="all" data-i18n="auctions.all">Todos</button>
                     <button class="mc-status-btn" data-status="pending">🟡 Recibido</button>
                     <button class="mc-status-btn" data-status="processing">🔵 Preparando</button>
                     <button class="mc-status-btn" data-status="shipped">🟣 Enviado</button>
@@ -167,10 +167,10 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
     <!-- Contenido principal -->
     <div>
         <div class="mc-header">
-            <h2>📦 Mis Cartas</h2>
+            <h2 data-i18n="mycards.title">📦 Mis Cartas</h2>
             <span class="mc-count" id="mc-count"></span>
         </div>
-        <div class="mc-refresh-note" id="mc-refresh-note">Actualiza el estado cada 5 min.</div>
+        <div class="mc-refresh-note" id="mc-refresh-note" data-i18n="mycards.refresh_note">Actualiza el estado cada 5 min.</div>
 
         <div class="mc-grid" id="mc-grid">
             <?php
@@ -213,9 +213,9 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
             if (empty($allItems)): ?>
                 <div class="mc-empty">
                     <div class="mc-empty-icon">🃏</div>
-                    <h3>Aún no tienes cartas</h3>
-                    <p>Compra en el mercado o gana una subasta para verlas aquí.</p>
-                    <a href="index.php" class="btn-main" style="margin-top:16px;display:inline-block;">Explorar cartas</a>
+                    <h3 data-i18n="mycards.no_cards">Aún no tienes cartas</h3>
+                    <p data-i18n="mycards.no_cards_desc">Compra en el mercado o gana una subasta para verlas aquí.</p>
+                    <a href="index.php" class="btn-main" style="margin-top:16px;display:inline-block;" data-i18n="cart.explore">Explorar cartas</a>
                 </div>
             <?php else:
                 foreach ($allItems as $it):

@@ -241,23 +241,23 @@ $username = $_SESSION['username'] ?? '';
 <?php include dirname(__DIR__) . '/includes/navbar.php'; ?>
 
 <div class="amigos-wrap">
-    <div class="amigos-title">Amigos</div>
+    <div class="amigos-title" data-i18n="friends.title">Amigos</div>
 
     <!-- Búsqueda -->
     <div class="search-row">
-        <input type="text" id="search-input" placeholder="Buscar usuario..." autocomplete="off">
-        <button onclick="doSearch()">Buscar</button>
+        <input type="text" id="search-input" placeholder="Buscar usuario..." data-i18n-placeholder="friends.search" autocomplete="off">
+        <button onclick="doSearch()" data-i18n="friends.search_btn">Buscar</button>
     </div>
     <div id="search-results"></div>
 
     <!-- Solicitudes pendientes -->
     <div id="requests-section" style="display:none;">
-        <div class="section-label">Solicitudes pendientes</div>
+        <div class="section-label" data-i18n="friends.requests">Solicitudes pendientes</div>
         <div id="requests-list"></div>
     </div>
 
     <!-- Mis amigos -->
-    <div class="section-label">Mis amigos</div>
+    <div class="section-label" data-i18n="friends.my_friends">Mis amigos</div>
     <div id="friends-list">
         <div class="empty-state"><div class="big-icon">⏳</div><p>Cargando...</p></div>
     </div>
@@ -433,9 +433,9 @@ $username = $_SESSION['username'] ?? '';
                 <h1 class="pm-pname" id="pm-name">Cargando...</h1>
                 <p class="pm-pusername" id="pm-user"></p>
                 <div class="pm-pstats">
-                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-cartas">—</div><div class="pm-pstat-l">Cartas</div></div>
-                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-cols">—</div><div class="pm-pstat-l">Colecciones</div></div>
-                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-pujas">—</div><div class="pm-pstat-l">Pujas</div></div>
+                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-cartas">—</div><div class="pm-pstat-l" data-i18n="profile.cards">Cartas</div></div>
+                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-cols">—</div><div class="pm-pstat-l" data-i18n="profile.collections">Colecciones</div></div>
+                    <div class="pm-pstat"><div class="pm-pstat-n" id="pm-stat-pujas">—</div><div class="pm-pstat-l" data-i18n="profile.bids">Pujas</div></div>
                 </div>
             </div>
         </div>
@@ -446,26 +446,26 @@ $username = $_SESSION['username'] ?? '';
         <div class="pm-profile-sections">
 
             <div class="pm-profile-section">
-                <h3 class="pm-section-title">📋 Información Personal</h3>
+                <h3 class="pm-section-title" data-i18n="profile.personal_info">📋 Información Personal</h3>
                 <div id="pm-info">
-                    <div class="pm-info-item"><span class="pm-info-label">Nombre</span><span class="pm-info-value" id="pm-info-nombre">—</span></div>
-                    <div class="pm-info-item"><span class="pm-info-label">Usuario</span><span class="pm-info-value" id="pm-info-usuario">—</span></div>
-                    <div class="pm-info-item"><span class="pm-info-label">Miembro desde</span><span class="pm-info-value" id="pm-info-fecha">—</span></div>
+                    <div class="pm-info-item"><span class="pm-info-label" data-i18n="profile.name">Nombre</span><span class="pm-info-value" id="pm-info-nombre">—</span></div>
+                    <div class="pm-info-item"><span class="pm-info-label" data-i18n="profile.username">Usuario</span><span class="pm-info-value" id="pm-info-usuario">—</span></div>
+                    <div class="pm-info-item"><span class="pm-info-label" data-i18n="profile.member_since">Miembro desde</span><span class="pm-info-value" id="pm-info-fecha">—</span></div>
                 </div>
             </div>
 
             <div class="pm-profile-section">
-                <h3 class="pm-section-title">🎯 Actividad Reciente</h3>
+                <h3 class="pm-section-title" data-i18n="profile.recent_activity">🎯 Actividad Reciente</h3>
                 <div id="pm-activity"></div>
             </div>
 
             <div class="pm-profile-section">
-                <h3 class="pm-section-title">🏆 Subastas Ganadas</h3>
+                <h3 class="pm-section-title" data-i18n="profile.won_auctions">🏆 Subastas Ganadas</h3>
                 <div id="pm-auctions"></div>
             </div>
 
             <div class="pm-profile-section">
-                <h3 class="pm-section-title">⭐ Favoritos</h3>
+                <h3 class="pm-section-title" data-i18n="profile.favorites">⭐ Favoritos</h3>
                 <div id="pm-favorites"></div>
             </div>
 
@@ -479,7 +479,17 @@ $username = $_SESSION['username'] ?? '';
 <script>
 const MY_ID = <?php echo $uid; ?>;
 
-function fixUrl(u) { return u && !u.startsWith('http') && !u.startsWith('/') ? '../' + u : (u || ''); }
+function fixUrl(u) {
+    if (!u) return '';
+    if (u.startsWith('avatar_shop:')) {
+        const key = u.substring(12);
+        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺️'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔️'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩️'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🃏'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
+        const d = AVDEFS[key];
+        if (d) return 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${d.c1}"/><stop offset="100%" style="stop-color:${d.c2}"/></linearGradient></defs><rect width="200" height="200" rx="100" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="80">${d.i}</text></svg>`);
+        return '';
+    }
+    return !u.startsWith('http') && !u.startsWith('/') ? '../' + u : u;
+}
 
 function toast(msg, type='info') {
     const c = document.getElementById('toast-container');

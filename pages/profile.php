@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';
+require_once dirname(__DIR__) . '/includes/avatar_helper.php';
 runGamificationMigrations($conn);
 
 // Otorgar logro 'bienvenido' si es el primer acceso
@@ -212,6 +213,48 @@ $allAchievements = [];
 $resAll = $conn->query("SELECT `key`, name, description, icon FROM achievements ORDER BY id");
 while ($row = $resAll->fetch_assoc()) $allAchievements[] = $row;
 $unlockedKeys = array_column($userAchievements, 'key');
+
+// Colección de cartas por juego (para la sección de insignias de colección)
+$collectionByGame = ['pokemon' => 0, 'yugioh' => 0, 'magic' => 0, 'onepiece' => 0];
+$collectionTotal  = 0;
+$stColBuy = $conn->prepare(
+    "SELECT oi.card_game, SUM(oi.quantity) AS cnt
+     FROM cart_order_items oi
+     JOIN cart_orders o ON o.id = oi.order_id
+     WHERE o.user_id = ? AND o.status = 'paid'
+     GROUP BY oi.card_game"
+);
+if ($stColBuy) {
+    $stColBuy->bind_param("i", $_SESSION['user_id']);
+    $stColBuy->execute();
+    $resCol = $stColBuy->get_result();
+    while ($r = $resCol->fetch_assoc()) {
+        $g = strtolower(trim($r['card_game']));
+        $c = (int)$r['cnt'];
+        if (isset($collectionByGame[$g])) $collectionByGame[$g] += $c;
+        $collectionTotal += $c;
+    }
+    $stColBuy->close();
+}
+$stColAuc = $conn->prepare(
+    "SELECT a.card_game, COUNT(*) AS cnt
+     FROM auctions a
+     JOIN auction_claims cl ON cl.auction_id = a.id AND cl.user_id = ?
+     WHERE a.current_winner_id = ?
+     GROUP BY a.card_game"
+);
+if ($stColAuc) {
+    $stColAuc->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
+    $stColAuc->execute();
+    $resCol2 = $stColAuc->get_result();
+    while ($r = $resCol2->fetch_assoc()) {
+        $g = strtolower(trim($r['card_game']));
+        $c = (int)$r['cnt'];
+        if (isset($collectionByGame[$g])) $collectionByGame[$g] += $c;
+        $collectionTotal += $c;
+    }
+    $stColAuc->close();
+}
 
 // Alertas de precio del usuario
 $userAlerts = [];
@@ -998,9 +1041,9 @@ $conn->close();
             <div class="hero-content">
                 <div class="profile-header">
                     <div class="avatar-container" onclick="document.getElementById('avatar-upload-input').click()" title="Cambiar foto">
-                        <?php if (!empty($user['avatar_url'])): ?>
-                            <?php $av = $user['avatar_url']; if (!str_starts_with($av,'/') && !str_starts_with($av,'http')) $av='../'.$av; ?>
-                            <img src="<?php echo htmlspecialchars($av); ?>?v=<?php echo time(); ?>" alt="Avatar" id="avatar-img">
+                        <?php $resolvedAv = resolveAvatarUrl($user['avatar_url'] ?? '', '../'); ?>
+                        <?php if ($resolvedAv): ?>
+                            <img src="<?php echo htmlspecialchars($resolvedAv); ?><?php echo !str_starts_with($user['avatar_url'] ?? '', 'avatar_shop:') ? '?v='.time() : ''; ?>" alt="Avatar" id="avatar-img">
                         <?php else: ?>
                             <span id="avatar-letter"><?php echo strtoupper(substr($user['username'], 0, 1)); ?></span>
                         <?php endif; ?>
@@ -1030,15 +1073,15 @@ $conn->close();
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $statsCartas; ?></div>
-                            <div class="stat-label">Cartas</div>
+                            <div class="stat-label" data-i18n="profile.cards">Cartas</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $statsColecciones; ?></div>
-                            <div class="stat-label">Colecciones</div>
+                            <div class="stat-label" data-i18n="profile.collections">Colecciones</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $statsIntercambios; ?></div>
-                            <div class="stat-label">Pujas</div>
+                            <div class="stat-label" data-i18n="profile.bids">Pujas</div>
                         </div>
                     </div>
                 </div>
@@ -1048,33 +1091,33 @@ $conn->close();
         <div class="profile-content">
             <div class="profile-sections">
                 <div class="profile-section">
-                    <h3 class="section-title">📋 Información Personal</h3>
+                    <h3 class="section-title" data-i18n="profile.personal_info">📋 Información Personal</h3>
                     <div class="info-item">
-                        <span class="info-label">Nombre</span>
+                        <span class="info-label" data-i18n="profile.name">Nombre</span>
                         <span class="info-value"><?php echo htmlspecialchars($user['name']); ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Usuario</span>
+                        <span class="info-label" data-i18n="profile.username">Usuario</span>
                         <span class="info-value">@<?php echo htmlspecialchars($user['username']); ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Email</span>
+                        <span class="info-label" data-i18n="profile.email">Email</span>
                         <span class="info-value"><?php echo htmlspecialchars($user['email']); ?></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Miembro desde</span>
+                        <span class="info-label" data-i18n="profile.member_since">Miembro desde</span>
                         <span class="info-value"><?php echo date('d/m/Y', strtotime($user['created_at'])); ?></span>
                     </div>
-                    <button class="btn-edit" onclick="openEditModal()">✏️ Editar Perfil</button>
+                    <button class="btn-edit" onclick="openEditModal()" data-i18n="profile.edit">✏️ Editar Perfil</button>
                 </div>
 
                 <div class="profile-section">
-                    <h3 class="section-title">🎯 Actividad Reciente</h3>
+                    <h3 class="section-title" data-i18n="profile.recent_activity">🎯 Actividad Reciente</h3>
                     <?php if (count($recentActivity) === 0): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">📚</div>
-                            <p>Aún no tienes actividad</p>
-                            <small>Comienza explorando el catálogo de cartas</small>
+                            <p data-i18n="profile.no_activity">Aún no tienes actividad</p>
+                            <small data-i18n="profile.no_activity_desc">Comienza explorando el catálogo de cartas</small>
                         </div>
                     <?php else: ?>
                         <div class="activity-list" id="activity-list-short">
@@ -1143,12 +1186,12 @@ $conn->close();
 
                 <!-- Subastas ganadas + envíos -->
                 <div class="profile-section">
-                    <h3 class="section-title">🏆 Subastas Ganadas</h3>
+                    <h3 class="section-title" data-i18n="profile.won_auctions">🏆 Subastas Ganadas</h3>
                     <?php if (empty($wonAuctions)): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">🎯</div>
-                            <p>Aún no has ganado ninguna subasta</p>
-                            <small><a href="apuestas.php" style="color:var(--accent-blue);">Explorar subastas</a></small>
+                            <p data-i18n="profile.no_auctions">Aún no has ganado ninguna subasta</p>
+                            <small><a href="apuestas.php" style="color:var(--accent-blue);" data-i18n="profile.explore_auctions">Explorar subastas</a></small>
                         </div>
                     <?php else: ?>
                         <div class="won-list<?php echo count($wonAuctions) > 3 ? ' collapsed' : ''; ?>" id="won-list">
@@ -1190,7 +1233,7 @@ $conn->close();
                 ?>
                 <?php if (!empty($shipmentsWon)): ?>
                 <div class="profile-section">
-                    <h3 class="section-title">📦 Mis Envíos</h3>
+                    <h3 class="section-title" data-i18n="profile.orders">📦 Mis Envíos</h3>
                     <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px;">
                         <?php foreach ($shipmentsWon as $s): ?>
                             <?php
@@ -1234,7 +1277,7 @@ $conn->close();
 
                 <!-- Mis Pedidos -->
                 <div class="profile-section">
-                    <h3 class="section-title">🛒 Mis Pedidos</h3>
+                    <h3 class="section-title" data-i18n="profile.orders">🛒 Mis Pedidos</h3>
                     <?php
                     $shipSteps  = ['pending'=>1,'processing'=>2,'shipped'=>3,'delivered'=>4,'done'=>4];
                     $shipLabels = ['Recibido','Preparando','Enviado','Entregado'];
@@ -1244,8 +1287,8 @@ $conn->close();
                     <?php if (empty($myOrders)): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">🛍️</div>
-                            <p>Aún no has realizado ningún pedido</p>
-                            <small><a href="mercado.php?game=pokemon" style="color:var(--accent-blue);">Explorar el mercado</a></small>
+                            <p data-i18n="profile.no_orders">Aún no has realizado ningún pedido</p>
+                            <small><a href="mercado.php?game=pokemon" style="color:var(--accent-blue);" data-i18n="profile.explore_market">Explorar el mercado</a></small>
                         </div>
                     <?php else: ?>
                         <div id="orders-list" class="<?php echo count($myOrders) > 3 ? 'orders-collapsed' : ''; ?>">
@@ -1310,12 +1353,12 @@ $conn->close();
                 </div>
 
                 <div class="profile-section">
-                    <h3 class="section-title">⭐ Favoritos</h3>
+                    <h3 class="section-title" data-i18n="profile.favorites">⭐ Favoritos</h3>
                     <?php if (count($favorites) === 0): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">💝</div>
-                            <p>No tienes cartas favoritas</p>
-                            <small>Añade cartas a tus favoritos para verlas aquí</small>
+                            <p data-i18n="profile.no_favorites">No tienes cartas favoritas</p>
+                            <small data-i18n="profile.no_favorites_desc">Añade cartas a tus favoritos para verlas aquí</small>
                         </div>
                     <?php else: ?>
                         <div class="favorites-grid">
@@ -1340,11 +1383,67 @@ $conn->close();
                     <?php endif; ?>
                 </div>
 
+                <!-- Insignias de Colección -->
+                <div class="profile-section" style="grid-column:1/-1;">
+                    <h3 class="section-title" data-i18n="profile.collection_badges">🏅 Insignias de Colección
+                        <span style="font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-left:8px;">
+                            <?php echo $collectionTotal; ?> <span data-i18n="profile.cards_collected">cartas</span>
+                        </span>
+                    </h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:10px;">
+                        <?php
+                        $colGames = [
+                            'pokemon'  => ['name' => 'Pokémon',   'icon' => '🔴', 'color' => '#ef4444'],
+                            'yugioh'   => ['name' => 'Yu-Gi-Oh!', 'icon' => '🃏', 'color' => '#8b5cf6'],
+                            'magic'    => ['name' => 'Magic',     'icon' => '🔮', 'color' => '#3b82f6'],
+                            'onepiece' => ['name' => 'One Piece', 'icon' => '⚓', 'color' => '#f59e0b'],
+                        ];
+                        foreach ($colGames as $gKey => $gInfo):
+                            $count = $collectionByGame[$gKey];
+                            $nextMilestone = $count >= 20 ? 20 : ($count >= 10 ? 20 : ($count >= 5 ? 10 : 5));
+                            $progress = min(100, (int)(($count / $nextMilestone) * 100));
+                            $completed = $count >= 20;
+                        ?>
+                        <div style="background:<?php echo $completed ? 'rgba('.implode(',',sscanf(ltrim($gInfo['color'],'#'),'%02x%02x%02x')).',.08)' : 'var(--card-bg)'; ?>;border:2px solid <?php echo $completed ? $gInfo['color'] : 'var(--border-color)'; ?>;border-radius:16px;padding:16px;position:relative;overflow:hidden;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                                <span style="font-size:1.5rem;"><?php echo $gInfo['icon']; ?></span>
+                                <div>
+                                    <div style="font-weight:800;font-size:.9rem;"><?php echo $gInfo['name']; ?></div>
+                                    <div style="font-size:.78rem;color:var(--text-secondary);"><?php echo $count; ?> / <?php echo $nextMilestone; ?> <span data-i18n="profile.cards_short">cartas</span></div>
+                                </div>
+                                <?php if ($completed): ?>
+                                <span style="margin-left:auto;font-size:1.2rem;" title="¡Colección máxima!">👑</span>
+                                <?php endif; ?>
+                            </div>
+                            <div style="height:6px;border-radius:3px;background:rgba(0,0,0,.08);overflow:hidden;">
+                                <div style="height:100%;width:<?php echo $progress; ?>%;background:<?php echo $gInfo['color']; ?>;border-radius:3px;transition:width .3s;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                                <span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:<?php echo $count>=5?$gInfo['color']:'rgba(0,0,0,.06)'; ?>;color:<?php echo $count>=5?'#fff':'var(--text-secondary)'; ?>;">5 ✓</span>
+                                <span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:<?php echo $count>=10?$gInfo['color']:'rgba(0,0,0,.06)'; ?>;color:<?php echo $count>=10?'#fff':'var(--text-secondary)'; ?>;">10 ✓</span>
+                                <span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:<?php echo $count>=20?$gInfo['color']:'rgba(0,0,0,.06)'; ?>;color:<?php echo $count>=20?'#fff':'var(--text-secondary)'; ?>;">20 ✓</span>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <!-- Total collection -->
+                    <div style="background:var(--card-bg);border:2px solid var(--border-color);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
+                        <span style="font-size:1.4rem;">📦</span>
+                        <div style="flex:1;">
+                            <div style="font-weight:800;font-size:.88rem;" data-i18n="profile.total_collection">Colección Total</div>
+                            <div style="height:5px;border-radius:3px;background:rgba(0,0,0,.08);margin-top:6px;overflow:hidden;">
+                                <div style="height:100%;width:<?php echo min(100,(int)(($collectionTotal/50)*100)); ?>%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:3px;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight:800;font-size:.9rem;color:var(--text-secondary);"><?php echo $collectionTotal; ?> / 50</div>
+                    </div>
+                </div>
+
                 <!-- Logros e Insignias -->
                 <div class="profile-section" style="grid-column:1/-1;">
-                    <h3 class="section-title">🏆 Logros e Insignias
+                    <h3 class="section-title" data-i18n="profile.achievements">🏅 Logros e Insignias
                         <span style="font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-left:8px;">
-                            <?php echo count($userAchievements); ?> / <?php echo count($allAchievements); ?> desbloqueados
+                            <?php echo count($userAchievements); ?> / <?php echo count($allAchievements); ?> <span data-i18n="av.unlocked">desbloqueados</span>
                         </span>
                     </h3>
                     <div class="achievements-grid">
@@ -1362,7 +1461,7 @@ $conn->close();
                             <?php if ($isUnlocked && $unlockData): ?>
                                 <div class="ach-date"><?php echo date('d/m/Y', strtotime($unlockData['unlocked_at'])); ?></div>
                             <?php else: ?>
-                                <div class="ach-date">Bloqueado</div>
+                                <div class="ach-date" data-i18n="profile.locked">Bloqueado</div>
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
@@ -1371,12 +1470,12 @@ $conn->close();
 
                 <!-- Alertas de Precio -->
                 <div class="profile-section" style="grid-column:1/-1;">
-                    <h3 class="section-title">🔔 Mis Alertas de Precio</h3>
+                    <h3 class="section-title" data-i18n="profile.price_alerts">🔔 Mis Alertas de Precio</h3>
                     <?php if (count($userAlerts) === 0): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">🔕</div>
-                            <p>No tienes alertas configuradas</p>
-                            <small>Crea alertas desde la página de Subastas para recibir notificaciones cuando aparezca una carta a tu precio</small>
+                            <p data-i18n="profile.no_alerts">No tienes alertas configuradas</p>
+                            <small data-i18n="profile.no_alerts_desc">Crea alertas desde la página de Subastas para recibir notificaciones cuando aparezca una carta a tu precio</small>
                         </div>
                     <?php else: ?>
                         <?php foreach ($userAlerts as $al): ?>
@@ -1406,25 +1505,25 @@ $conn->close();
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <button class="close-button" onclick="closeEditModal()" aria-label="Cerrar">×</button>
-            <h2>Editar Perfil</h2>
+            <h2 data-i18n="profile.edit">Editar Perfil</h2>
             <form id="editProfileForm">
                 <div class="form-group">
-                    <label for="editName">Nombre</label>
+                    <label for="editName" data-i18n="profile.name">Nombre</label>
                     <input type="text" id="editName" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="editUsername">Usuario</label>
+                    <label for="editUsername" data-i18n="profile.username">Usuario</label>
                     <input type="text" id="editUsername" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="editEmail">Email</label>
+                    <label for="editEmail" data-i18n="profile.email">Email</label>
                     <input type="email" id="editEmail" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="editAddress">Dirección de envío</label>
+                    <label for="editAddress" data-i18n="profile.address">Dirección de envío</label>
                     <input type="text" id="editAddress" name="address" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" placeholder="Calle, ciudad, código postal">
                 </div>
-                <button type="submit" class="btn-main full-width">Guardar Cambios</button>
+                <button type="submit" class="btn-main full-width" data-i18n="common.save">Guardar Cambios</button>
             </form>
         </div>
     </div>
