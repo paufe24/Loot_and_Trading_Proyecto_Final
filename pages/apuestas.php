@@ -191,7 +191,7 @@ if ($logged_in) {
     <div class="auctions-hero-content">
         <div class="auctions-hero-card">
             <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--accent-blue);margin-bottom:8px;">Loot&Trading</div>
-            <div class="auctions-title">Subastas <span>en vivo</span></div>
+            <div class="auctions-title" data-i18n="auctions.title">Subastas en vivo</div>
             <?php if ($logged_in): ?>
             <div class="balance-pill" style="margin-top:20px;align-self:center;">
                 <img src="../img/lujanito.svg" alt="Lujanito" style="width:76px;height:76px;border-radius:50%;">
@@ -201,7 +201,7 @@ if ($logged_in) {
                 </div>
             </div>
             <?php else: ?>
-            <a href="auth.php" class="btn-main" style="margin-top:20px;">Inicia sesión para pujar</a>
+            <a href="auth.php" class="btn-main" style="margin-top:20px;" data-i18n="nav.login">Inicia sesión para pujar</a>
             <?php endif; ?>
         </div>
     </div>
@@ -211,21 +211,21 @@ if ($logged_in) {
 
     <!-- Selector Modo -->
     <div class="mode-selector">
-        <button class="mode-btn active" id="mode-buy-btn"  onclick="setMode('buy',  this)">🛒 Comprar</button>
-        <button class="mode-btn"        id="mode-sell-btn" onclick="setMode('sell', this)">📤 Vender</button>
+        <button class="mode-btn active" id="mode-buy-btn"  onclick="setMode('buy',  this)">🛒 <span data-i18n="lj.buy">Comprar</span></button>
+        <button class="mode-btn"        id="mode-sell-btn" onclick="setMode('sell', this)" data-i18n="auctions.sell">📤 Vender</button>
         <?php if ($logged_in): ?>
-        <button class="mode-btn"        id="mode-mine-btn" onclick="setMode('mine', this)">👤 Mis Subastas</button>
+        <button class="mode-btn"        id="mode-mine-btn" onclick="setMode('mine', this)">👤 <span data-i18n="auctions.my_auctions">Mis Subastas</span></button>
         <?php endif; ?>
     </div>
 
     <!-- ===== PANEL COMPRAR ===== -->
     <div id="panel-buy">
         <div class="auction-tabs">
-            <button class="auction-tab active" onclick="filterTab('active', this)">⚡ Activas</button>
-            <button class="auction-tab"        onclick="filterTab('ended',  this)">✅ Terminadas</button>
+            <button class="auction-tab active" onclick="filterTab('active', this)" data-i18n="auctions.active_tab">⚡ Activas</button>
+            <button class="auction-tab"        onclick="filterTab('ended',  this)" data-i18n="auctions.ended_tab">✅ Terminadas</button>
         </div>
         <div class="auction-filters" id="auction-filters">
-            <button class="filter-btn active" onclick="filterGame('all',      this)">Todos</button>
+            <button class="filter-btn active" onclick="filterGame('all',      this)" data-i18n="auctions.all">Todos</button>
             <button class="filter-btn"        onclick="filterGame('Pokémon',  this)">Pokémon</button>
             <button class="filter-btn"        onclick="filterGame('Yu-Gi-Oh!',this)">Yu-Gi-Oh!</button>
             <button class="filter-btn"        onclick="filterGame('Magic',    this)">Magic</button>
@@ -241,17 +241,17 @@ if ($logged_in) {
     <!-- ===== PANEL VENDER ===== -->
     <div id="panel-sell" style="display:none;">
         <div class="sell-panel">
-            <h2 class="sell-panel-title">📤 Poner carta en subasta</h2>
-            <p class="sell-panel-desc">Elige la carta, establece el precio de salida y cuánto tiempo durará la subasta. Todos los usuarios podrán pujar.</p>
+            <h2 class="sell-panel-title" data-i18n="auctions.sell_title">📤 Poner carta en subasta</h2>
+            <p class="sell-panel-desc" data-i18n="auctions.sell_desc">Elige la carta, establece el precio de salida y cuánto tiempo durará la subasta. Todos los usuarios podrán pujar.</p>
 
             <form id="sell-form" class="sell-form">
                 <div class="sell-form-grid">
                     <div class="sell-field">
-                        <label>Nombre de la carta *</label>
+                        <label data-i18n="auctions.card_name">Nombre de la carta *</label>
                         <input type="text" id="sf-name" placeholder="Ej: Charizard Base Set" required>
                     </div>
                     <div class="sell-field">
-                        <label>Imagen de la carta</label>
+                        <label data-i18n="auctions.card_image">Imagen de la carta</label>
                         <div style="display:flex;gap:8px;align-items:center;">
                             <input type="url" id="sf-image" placeholder="https://... o sube un archivo" oninput="previewSellCard()" style="flex:1;">
                             <label for="sf-file-input" id="sf-file-btn" style="padding:13px 14px;border-radius:14px;background:var(--accent-blue);color:#fff;font-weight:800;cursor:pointer;font-size:.9rem;white-space:nowrap;transition:.2s;" title="Subir imagen desde galería">📁 Galería</label>
@@ -259,7 +259,7 @@ if ($logged_in) {
                         </div>
                     </div>
                     <div class="sell-field">
-                        <label>Juego *</label>
+                        <label data-i18n="auctions.game">Juego *</label>
                         <select id="sf-game" onchange="updateSellBadge()">
                             <option value="Pokémon"  data-color="#eab308">Pokémon</option>
                             <option value="Yu-Gi-Oh!" data-color="#a855f7">Yu-Gi-Oh!</option>
@@ -268,11 +268,11 @@ if ($logged_in) {
                         </select>
                     </div>
                     <div class="sell-field">
-                        <label>Precio base (Lujanitos) *</label>
+                        <label data-i18n="auctions.base_price">Precio base (Lujanitos) *</label>
                         <input type="number" id="sf-price" min="10" max="999999" value="100" required>
                     </div>
                     <div class="sell-field">
-                        <label>Duración</label>
+                        <label data-i18n="auctions.duration">Duración</label>
                         <select id="sf-duration">
                             <option value="1">1 hora</option>
                             <option value="6">6 horas</option>
@@ -286,7 +286,7 @@ if ($logged_in) {
                 </div>
 
                 <div class="sell-preview" id="sell-preview">
-                    <div class="sell-preview-label">Vista previa</div>
+                    <div class="sell-preview-label" data-i18n="auctions.preview">Vista previa</div>
                     <div class="sell-preview-card" id="sell-preview-card">
                         <div class="sell-preview-img-wrap">
                             <img id="sp-img" src="https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg" alt="">
@@ -300,11 +300,11 @@ if ($logged_in) {
                 </div>
 
                 <?php if ($logged_in): ?>
-                <button type="submit" class="btn-main" style="width:100%;margin-top:20px;padding:16px;">
-                    Publicar subasta
+                <button type="submit" class="btn-main" style="width:100%;margin-top:20px;padding:16px;" data-i18n="auctions.publish">
+                    🚀 Publicar subasta
                 </button>
                 <?php else: ?>
-                <a href="auth.php" class="btn-main" style="display:block;text-align:center;margin-top:20px;">
+                <a href="auth.php" class="btn-main" style="display:block;text-align:center;margin-top:20px;" data-i18n="auctions.login_bid">
                     Inicia sesión para publicar
                 </a>
                 <?php endif; ?>
@@ -316,8 +316,8 @@ if ($logged_in) {
     <?php if ($logged_in): ?>
     <div id="panel-mine" style="display:none;">
         <div class="mine-tabs">
-            <button class="mine-tab active" onclick="filterMineTab('bids',this)">📋 Mis Pujas Activas</button>
-            <button class="mine-tab"        onclick="filterMineTab('wins',this)">🏆 Subastas Ganadas</button>
+            <button class="mine-tab active" onclick="filterMineTab('bids',this)" data-i18n="auctions.my_bids">📋 Mis Pujas Activas</button>
+            <button class="mine-tab"        onclick="filterMineTab('wins',this)" data-i18n="profile.won_auctions">🏆 Subastas Ganadas</button>
         </div>
 
         <div id="mine-bids-section">

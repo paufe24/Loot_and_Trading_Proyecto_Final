@@ -15,6 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/gamification.php';
 
 $userId = (int)$_SESSION['user_id'];
 $lastCartError = '';
@@ -278,6 +279,11 @@ function checkout($userId) {
         );
 
         $conn->commit();
+
+        // XP por compra + verificar logros de colección
+        addXP($conn, $userId, 10);
+        checkAchievements($conn, $userId);
+
         return ['ok' => true, 'message' => 'Pedido completado', 'order_number' => $orderNumber, 'lj_spent' => $totalLJ];
     } catch (Throwable $e) {
         $conn->rollback();
@@ -408,13 +414,13 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
         <div class="cart-container">
             <div class="cart-header">
                 <div class="cart-title">
-                    <h1>Tu Carrito</h1>
+                    <h1 data-i18n="cart.title">Tu Carrito</h1>
                 </div>
                 <div class="cart-actions">
-                    <a class="btn-main" href="index.php">Seguir comprando</a>
+                    <a class="btn-main" href="index.php" data-i18n="cart.continue">Seguir comprando</a>
                     <form method="post" action="cart.php" class="cart-inline-form">
                         <input type="hidden" name="action" value="clear">
-                        <button class="btn-cart" type="submit">Vaciar</button>
+                        <button class="btn-cart" type="submit" data-i18n="cart.clear">Vaciar</button>
                     </form>
                 </div>
             </div>
@@ -428,9 +434,9 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
             <?php if (count($items) === 0): ?>
                 <div class="cart-empty">
                     <div class="cart-empty-icon">🛒</div>
-                    <div class="cart-empty-title">Tu carrito está vacío</div>
-                    <div class="cart-empty-subtitle">Explora el marketplace y añade tu primera carta.</div>
-                    <a class="btn-main" href="index.php">Explorar cartas</a>
+                    <div class="cart-empty-title" data-i18n="cart.empty">Tu carrito está vacío</div>
+                    <div class="cart-empty-subtitle" data-i18n="cart.empty_sub">Explora el marketplace y añade tu primera carta.</div>
+                    <a class="btn-main" href="index.php" data-i18n="cart.explore">Explorar cartas</a>
                 </div>
             <?php else: ?>
                 <div class="cart-grid">
@@ -452,12 +458,12 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                                     <div class="cart-qty-form">
                                         <input class="cart-qty" type="number" min="1"
                                                value="<?php echo (int)$it['quantity']; ?>">
-                                        <button class="btn-cart" type="button" onclick="cartUpdate(this)">Actualizar</button>
+                                        <button class="btn-cart" type="button" onclick="cartUpdate(this)" data-i18n="cart.update">Actualizar</button>
                                     </div>
 
                                     <div class="cart-item-subtotal">
                                         <div class="cart-item-subtotal-value"><?php echo (int)$it['quantity'] * $it['_price_lj']; ?> LJ</div>
-                                        <button class="btn-cart danger" type="button" onclick="cartRemove(this)">Eliminar</button>
+                                        <button class="btn-cart danger" type="button" onclick="cartRemove(this)" data-i18n="cart.remove">Eliminar</button>
                                     </div>
                                 </div>
                             </div>
@@ -465,13 +471,13 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                     </div>
 
                     <aside class="cart-summary">
-                        <div class="cart-summary-header">Resumen</div>
+                        <div class="cart-summary-header" data-i18n="cart.summary">Resumen</div>
                         <div class="cart-summary-row">
-                            <span>Tu saldo</span>
+                            <span data-i18n="cart.your_balance">Tu saldo</span>
                             <span id="user-coins-display" style="color:#f59e0b;font-weight:800;">💰 <?php echo number_format($userCoinsDisplay); ?> LJ</span>
                         </div>
                         <div class="cart-summary-row">
-                            <span>Total a pagar</span>
+                            <span data-i18n="cart.total_pay">Total a pagar</span>
                             <strong id="cart-total" style="color:#0f172a;"><?php echo number_format($totalLJ); ?> LJ</strong>
                         </div>
                         <?php if ($userCoinsDisplay < $totalLJ): ?>
@@ -481,9 +487,9 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                         <?php endif; ?>
                         <form method="post" action="cart.php" class="cart-summary-actions">
                             <input type="hidden" name="action" value="checkout">
-                            <button class="btn-main full-width" type="submit" <?php echo $userCoinsDisplay < $totalLJ ? 'disabled' : ''; ?>>Finalizar compra</button>
+                            <button class="btn-main full-width" type="submit" <?php echo $userCoinsDisplay < $totalLJ ? 'disabled' : ''; ?> data-i18n="cart.finish">Finalizar compra</button>
                         </form>
-                        <div class="cart-summary-note">Se descuentan Lujanitos de tu saldo. 1€ = 1 LJ.</div>
+                        <div class="cart-summary-note" data-i18n="cart.note">Se descuentan Lujanitos de tu saldo. 1€ = 1 LJ.</div>
                     </aside>
                 </div>
             <?php endif; ?>

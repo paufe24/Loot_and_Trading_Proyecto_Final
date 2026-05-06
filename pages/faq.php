@@ -28,8 +28,8 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <circle cx="12" cy="12" r="10"/>
                     </svg>
                 </div>
-                <h1 class="faq-title">Preguntas Frecuentes</h1>
-                <p class="faq-subtitle">Todo lo que necesitas saber sobre Loot&Trading, el marketplace de cartas coleccionables.</p>
+                <h1 class="faq-title" data-i18n="faq.title">Preguntas Frecuentes</h1>
+                <p class="faq-subtitle" data-i18n="faq.subtitle">Todo lo que necesitas saber sobre Loot&Trading, el marketplace de cartas coleccionables.</p>
             </div>
 
             <!-- Categoría: Plataforma General -->

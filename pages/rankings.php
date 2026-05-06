@@ -2,6 +2,7 @@
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';
+require_once dirname(__DIR__) . '/includes/avatar_helper.php';
 
 // Ensure XP column exists
 try { $conn->query("ALTER TABLE users ADD COLUMN xp INT NOT NULL DEFAULT 0"); } catch (Exception $e) {}
@@ -253,22 +254,22 @@ function getMedalBg(int $pos): string {
 <?php include dirname(__DIR__) . '/includes/navbar.php'; ?>
 
 <div class="rank-hero">
-    <h1>Rankings</h1>
-    <p>Los mejores coleccionistas de Loot &amp; Trading</p>
+    <h1 data-i18n="rank.title">Rankings</h1>
+    <p data-i18n="rank.subtitle">Los mejores coleccionistas de Loot &amp; Trading</p>
 </div>
 
 <div class="rank-tabs">
     <button class="rank-tab active" onclick="showTab('xp', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        Top Nivel
+        <span data-i18n="rank.by_level">Top Nivel</span>
     </button>
     <button class="rank-tab" onclick="showTab('lc', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
-        Top Lujanitos
+        <span data-i18n="rank.by_lujanitos">Top Lujanitos</span>
     </button>
     <button class="rank-tab" onclick="showTab('cards', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z"/></svg>
-        Cartas Más Vendidas
+        <span data-i18n="rank.by_cards">Cartas Más Vendidas</span>
     </button>
 </div>
 
@@ -286,8 +287,9 @@ function getMedalBg(int $pos): string {
         ?>
         <div class="rank-row" style="background-color:<?= $mbg ?>">
             <div class="rank-pos" style="background:<?= $mc ?>20;color:<?= $mc ?>;"><?= $pos ?></div>
-            <?php if ($u['avatar_url']): ?>
-                <img class="rank-avatar" src="<?= htmlspecialchars($u['avatar_url']) ?>" alt="">
+            <?php $rav = resolveAvatarUrl($u['avatar_url'] ?? '', '../'); ?>
+            <?php if ($rav): ?>
+                <img class="rank-avatar" src="<?= htmlspecialchars($rav) ?>" alt="">
             <?php else: ?>
                 <div class="rank-avatar-placeholder"><?= strtoupper(mb_substr($u['username'], 0, 1)) ?></div>
             <?php endif; ?>
@@ -315,8 +317,9 @@ function getMedalBg(int $pos): string {
         ?>
         <div class="rank-row" style="background-color:<?= $mbg ?>">
             <div class="rank-pos" style="background:<?= $mc ?>20;color:<?= $mc ?>;"><?= $pos ?></div>
-            <?php if ($u['avatar_url']): ?>
-                <img class="rank-avatar" src="<?= htmlspecialchars($u['avatar_url']) ?>" alt="">
+            <?php $rav = resolveAvatarUrl($u['avatar_url'] ?? '', '../'); ?>
+            <?php if ($rav): ?>
+                <img class="rank-avatar" src="<?= htmlspecialchars($rav) ?>" alt="">
             <?php else: ?>
                 <div class="rank-avatar-placeholder"><?= strtoupper(mb_substr($u['username'], 0, 1)) ?></div>
             <?php endif; ?>

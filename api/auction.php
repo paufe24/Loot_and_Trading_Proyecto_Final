@@ -509,6 +509,9 @@ function claimWin($conn) {
 
         $conn->commit();
 
+        // Verificar logros de colección tras reclamar carta
+        checkAchievements($conn, $user_id);
+
         $b = $conn->prepare("SELECT lootcoins FROM users WHERE id=?");
         $b->bind_param("i", $user_id);
         $b->execute();

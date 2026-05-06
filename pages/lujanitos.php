@@ -212,8 +212,8 @@ if ($logged_in) {
     <div class="lj-page">
         <div class="lj-hero">
             <img class="lj-hero-icon" src="../img/lujanito.svg" alt="Lujanito" onerror="this.src='../img/pokemon.png'">
-            <h1>Tienda de Lujanitos 💰</h1>
-            <p>Consigue Lujanitos para pujar en subastas, comprar cartas y participar en el mercado. 1€ = 1 Lujanito.</p>
+            <h1 data-i18n="lj.title">Tienda de Lujanitos 💰</h1>
+            <p data-i18n="lj.desc">Consigue Lujanitos para pujar en subastas, comprar cartas y participar en el mercado. 1€ = 1 Lujanito.</p>
         </div>
 
         <?php if ($logged_in): ?>
@@ -223,7 +223,7 @@ if ($logged_in) {
         </div>
         <?php else: ?>
         <div style="text-align:center;margin-bottom:40px;">
-            <a href="auth.php" class="btn-main">Inicia sesión para comprar</a>
+            <a href="auth.php" class="btn-main" data-i18n="lj.login_to_buy">Inicia sesión para comprar</a>
         </div>
         <?php endif; ?>
 
@@ -235,19 +235,19 @@ if ($logged_in) {
                 <div class="lj-pkg-label">Lujanitos</div>
                 <div class="lj-pkg-price">1 €</div>
                 <div class="lj-pkg-rate">1 LJ / €</div>
-                <button class="btn-buy" onclick="buy(100, this)" <?php echo !$logged_in ? 'disabled' : ''; ?>>
+                <button class="btn-buy" onclick="buy(100, this)" <?php echo !$logged_in ? 'disabled' : ''; ?> data-i18n="lj.buy">
                     Comprar
                 </button>
             </div>
             <!-- 500 LJ -->
             <div class="lj-pkg popular">
-                <div class="lj-pkg-badge">Popular</div>
+                <div class="lj-pkg-badge" data-i18n="lj.popular">Popular</div>
                 <img class="lj-pkg-icon" src="../img/lujanito.svg" alt="LJ" onerror="this.src='../img/pokemon.png'">
                 <div class="lj-pkg-amount">500</div>
                 <div class="lj-pkg-label">Lujanitos</div>
                 <div class="lj-pkg-price">5 €</div>
                 <div class="lj-pkg-rate">1 LJ / €</div>
-                <button class="btn-buy" onclick="buy(500, this)" <?php echo !$logged_in ? 'disabled' : ''; ?>>
+                <button class="btn-buy" onclick="buy(500, this)" <?php echo !$logged_in ? 'disabled' : ''; ?> data-i18n="lj.buy">
                     Comprar
                 </button>
             </div>
@@ -258,7 +258,7 @@ if ($logged_in) {
                 <div class="lj-pkg-label">Lujanitos</div>
                 <div class="lj-pkg-price">10 €</div>
                 <div class="lj-pkg-rate">1 LJ / €</div>
-                <button class="btn-buy" onclick="buy(1000, this)" <?php echo !$logged_in ? 'disabled' : ''; ?>>
+                <button class="btn-buy" onclick="buy(1000, this)" <?php echo !$logged_in ? 'disabled' : ''; ?> data-i18n="lj.buy">
                     Comprar
                 </button>
             </div>
@@ -269,19 +269,19 @@ if ($logged_in) {
                 <div class="lj-pkg-label">Lujanitos</div>
                 <div class="lj-pkg-price">50 €</div>
                 <div class="lj-pkg-rate">1 LJ / €</div>
-                <button class="btn-buy" onclick="buy(5000, this)" <?php echo !$logged_in ? 'disabled' : ''; ?>>
+                <button class="btn-buy" onclick="buy(5000, this)" <?php echo !$logged_in ? 'disabled' : ''; ?> data-i18n="lj.buy">
                     Comprar
                 </button>
             </div>
         </div>
 
         <div class="lj-info">
-            <h3>¿Qué son los Lujanitos?</h3>
-            <div class="lj-info-row"><span class="lj-dot"></span>La moneda oficial de Loot&amp;Trading. Úsalos para pujar en subastas y comprar cartas en el mercado.</div>
-            <div class="lj-info-row"><span class="lj-dot"></span>Al registrarte recibes <strong>1.000 LJ de bienvenida</strong> sin coste.</div>
-            <div class="lj-info-row"><span class="lj-dot"></span>Cambio fijo: <strong>1 € = 1 Lujanito</strong>. Lo que ves es lo que pagas.</div>
-            <div class="lj-info-row"><span class="lj-dot"></span>Los Lujanitos se añaden al instante a tu saldo después de confirmar.</div>
-            <div class="lj-info-row"><span class="lj-dot"></span>Compra simulada — no se realiza ningún cargo real.</div>
+            <h3 data-i18n="lj.what_are">¿Qué son los Lujanitos?</h3>
+            <div class="lj-info-row"><span class="lj-dot"></span><span data-i18n-html="lj.info_row1">La moneda oficial de Loot&amp;Trading. Úsalos para pujar en subastas y comprar cartas en el mercado.</span></div>
+            <div class="lj-info-row"><span class="lj-dot"></span><span data-i18n-html="lj.info_row2">Al registrarte recibes <strong>1.000 LJ de bienvenida</strong> sin coste.</span></div>
+            <div class="lj-info-row"><span class="lj-dot"></span><span data-i18n-html="lj.info_row3">Cambio fijo: <strong>1 € = 1 Lujanito</strong>. Lo que ves es lo que pagas.</span></div>
+            <div class="lj-info-row"><span class="lj-dot"></span><span data-i18n-html="lj.info_row4">Los Lujanitos se añaden al instante a tu saldo después de confirmar.</span></div>
+            <div class="lj-info-row"><span class="lj-dot"></span><span data-i18n-html="lj.info_row5">Compra simulada — no se realiza ningún cargo real.</span></div>
         </div>
     </div>
 
