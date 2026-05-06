@@ -395,7 +395,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             <div class="stat-card">
                 <div class="stat-icon pink"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg></div>
                 <div class="stat-value"><?php echo number_format($totalCoins); ?></div>
-                <div class="stat-label">LootCoins totales</div>
+                <div class="stat-label">Lujanitos totales</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon teal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg></div>
@@ -455,7 +455,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
         <!-- Rankings -->
         <div class="ranking-grid">
             <div class="ranking-card">
-                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.896m0 0a6.042 6.042 0 0 1-2.77-.896"/></svg> Top Usuarios por LootCoins</h3>
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.896m0 0a6.042 6.042 0 0 1-2.77-.896"/></svg> Top Usuarios por Lujanitos</h3>
                 <div id="rankingCoins"><div class="chart-loading">Cargando...</div></div>
             </div>
             <div class="ranking-card">
@@ -499,7 +499,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                         <th>Usuario</th>
                         <th>Nombre</th>
                         <th>Email</th>
-                        <th>LootCoins</th>
+                        <th>Lujanitos</th>
                         <th>Nivel</th>
                         <th>Rol</th>
                         <th>Registro</th>
@@ -613,7 +613,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                         <td style="color:var(--text-secondary)"><?php echo $a['id']; ?></td>
                         <td style="font-weight:700"><?php echo htmlspecialchars($a['card_name']); ?></td>
                         <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($a['card_game']); ?></td>
-                        <td><?php echo number_format((int)$a['current_bid']); ?> LC</td>
+                        <td><?php echo number_format((int)$a['current_bid']); ?> LJ</td>
                         <td><?php echo htmlspecialchars($a['seller'] ?? '—'); ?></td>
                         <td>
                             <span class="<?php echo $a['status'] === 'active' ? 'badge-active' : 'badge-ended'; ?>">
@@ -747,7 +747,7 @@ async function setCoins(uid) {
     const row = document.getElementById('user-row-' + uid);
     if (data.ok) {
         if (row) { row.classList.add('row-flash-green'); setTimeout(() => row.classList.remove('row-flash-green'), 900); }
-        if (typeof showToast === 'function') showToast('LootCoins actualizados', 'success');
+        if (typeof showToast === 'function') showToast('Lujanitos actualizados', 'success');
     } else {
         if (row) { row.classList.add('row-flash-red'); setTimeout(() => row.classList.remove('row-flash-red'), 900); }
         if (typeof showToast === 'function') showToast('Error al actualizar', 'error');
@@ -807,7 +807,7 @@ function filterAuctions() {
 // ── Export CSV ──
 function exportUsersCSV() {
     const users = window._adminUsers || {};
-    const rows = [['ID','Usuario','Nombre','Email','LootCoins','XP','Admin','Registro']];
+    const rows = [['ID','Usuario','Nombre','Email','Lujanitos','XP','Admin','Registro']];
     Object.values(users).forEach(u => {
         rows.push([u.id, u.username, u.name, u.email, u.lootcoins, u.xp, u.is_admin ? 'Sí' : 'No', u.created_at]);
     });
@@ -835,7 +835,7 @@ function openUserModal(uid) {
         <div class="umodal-username">@${u.username} · ${u.is_admin ? '🛡️ Admin' : 'Usuario'}</div>
         <div class="umodal-grid">
             <div class="umodal-stat">
-                <div class="umodal-stat-label">LootCoins</div>
+                <div class="umodal-stat-label">Lujanitos</div>
                 <div class="umodal-stat-value" style="color:#f59e0b">💰 ${u.lootcoins.toLocaleString()}</div>
             </div>
             <div class="umodal-stat">
@@ -1088,14 +1088,14 @@ async function fetchStat(stat) {
         data: {
             labels: aucRev.map(r => fmtMonth(r.mes)),
             datasets: [{
-                label: 'LootCoins ganados',
+                label: 'Lujanitos ganados',
                 data: aucRev.map(r => +r.total_bid),
                 backgroundColor: 'rgba(245,158,11,.65)',
                 borderRadius: 8,
                 barPercentage: 0.6
             }]
         },
-        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + ' LC' } } } }
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + ' LJ' } } } }
     });
 
     // 9. Top users coins ranking
@@ -1106,7 +1106,7 @@ async function fetchStat(stat) {
             <div class="ranking-item">
                 <div class="ranking-pos ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</div>
                 <div class="ranking-name">${u.username}</div>
-                <div class="ranking-value">${(+u.lootcoins).toLocaleString()} LC</div>
+                <div class="ranking-value">${(+u.lootcoins).toLocaleString()} LJ</div>
             </div>
         `).join('');
 

@@ -170,7 +170,7 @@ $game = $_GET['game'] ?? 'pokemon';
                         <div class="scan-line"></div>
                     </div>
                     <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button">⭐ Añadir a favoritos</button>
-                    <button onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;">🔔 Alerta de precio</button>
+                    <button id="modal-alert-inject" onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;">🔔 Alerta de precio</button>
                 </div>
                 <div class="modal-right">
                     <div class="modal-header">
@@ -211,7 +211,7 @@ $game = $_GET['game'] ?? 'pokemon';
             <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
                 Te notificaremos cuando <strong id="market-alert-name"></strong> aparezca en subasta a tu precio objetivo o menos.
             </p>
-            <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LC)</label>
+            <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LJ)</label>
             <input type="number" id="market-alert-price" min="1" placeholder="Ej: 300"
                    style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:'Outfit',sans-serif;box-sizing:border-box;">
             <div style="display:flex;gap:10px;">

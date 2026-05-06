@@ -295,8 +295,8 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                             </div>
                         </div>
                     </div>
-                    <div class="trending-card" onclick="openModal({card_id:'OP05-119',id:'OP05-119',name:'Luffy Manga Alt Art',img:'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png',badge:'One Piece',color:'#f97316',price:'2100.00'})">
-                        <img src="https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png" alt="Luffy Manga">
+                    <div class="trending-card" onclick="openModal({card_id:'OP05-119',id:'OP05-119',name:'Luffy Manga Alt Art',img:'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png',badge:'One Piece',color:'#f97316',price:'2100.00'})">
+                        <img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png" alt="Luffy Manga">
                         <div class="trending-info">
                             <span class="trending-badge" style="background:#ffedd5;color:#c2410c;">One Piece</span>
                             <p class="trending-name">Luffy Manga Alt Art</p>
@@ -317,8 +317,8 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                             </div>
                         </div>
                     </div>
-                    <div class="trending-card" onclick="openModal({card_id:'OP06-118',id:'OP06-118',name:'Zoro Manga Alt Art',img:'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png',badge:'One Piece',color:'#f97316',price:'980.00'})">
-                        <img src="https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png" alt="Zoro Manga">
+                    <div class="trending-card" onclick="openModal({card_id:'OP06-118',id:'OP06-118',name:'Zoro Manga Alt Art',img:'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png',badge:'One Piece',color:'#f97316',price:'980.00'})">
+                        <img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png" alt="Zoro Manga">
                         <div class="trending-info">
                             <span class="trending-badge" style="background:#ffedd5;color:#c2410c;">One Piece</span>
                             <p class="trending-name">Zoro Manga Alt Art</p>

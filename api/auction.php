@@ -181,7 +181,7 @@ function placeBid($conn) {
 
     $min_bid = max($auction['base_price'], $auction['current_bid'] + 10);
     if ($amount < $min_bid) {
-        echo json_encode(['ok' => false, 'message' => "La puja mínima es {$min_bid} LC"]);
+        echo json_encode(['ok' => false, 'message' => "La puja mínima es {$min_bid} LJ"]);
         return;
     }
 
@@ -197,7 +197,7 @@ function placeBid($conn) {
     $user = $balStmt->get_result()->fetch_assoc();
 
     if ($user['lootcoins'] < $amount) {
-        echo json_encode(['ok' => false, 'message' => 'No tienes suficientes LootCoins']);
+        echo json_encode(['ok' => false, 'message' => 'No tienes suficientes Lujanitos']);
         return;
     }
 

@@ -88,10 +88,12 @@ function runGamificationMigrations($conn): void {
         target_price INT NOT NULL,
         is_active TINYINT(1) NOT NULL DEFAULT 1,
         triggered_at TIMESTAMP NULL DEFAULT NULL,
+        read_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_active_card (is_active, card_name),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
+    try { $conn->query("ALTER TABLE price_alerts ADD COLUMN read_at TIMESTAMP NULL DEFAULT NULL"); } catch (Exception $e) {}
 }
 
 /* Suma XP a un usuario; registra actividad si sube de nivel. */
@@ -211,7 +213,7 @@ function checkPriceAlerts($conn, string $card_name, int $base_price): void {
         // Notificar al usuario en actividad
         $type  = 'price_alert';
         $title = "Alerta de precio: $card_name";
-        $desc  = "¡Hay una subasta de \"$card_name\" por $base_price LC o menos!";
+        $desc  = "¡Hay una subasta de \"$card_name\" por $base_price LJ o menos!";
         $ins   = $conn->prepare(
             "INSERT INTO user_activity (user_id, activity_type, title, description) VALUES (?,?,?,?)"
         );

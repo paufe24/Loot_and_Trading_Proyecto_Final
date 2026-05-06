@@ -16,7 +16,7 @@ $topXp = $conn->query("
     LIMIT 10
 ")->fetch_all(MYSQLI_ASSOC);
 
-// Top 10 por LootCoins
+// Top 10 por Lujanitos
 $topLC = $conn->query("
     SELECT id, username, avatar_url, lootcoins
     FROM users
@@ -264,7 +264,7 @@ function getMedalBg(int $pos): string {
     </button>
     <button class="rank-tab" onclick="showTab('lc', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
-        Top LootCoins
+        Top Lujanitos
     </button>
     <button class="rank-tab" onclick="showTab('cards', this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z"/></svg>
@@ -302,11 +302,11 @@ function getMedalBg(int $pos): string {
     </div>
 </section>
 
-<!-- TOP LOOTCOINS -->
+<!-- TOP LUJANITOS -->
 <section class="rank-section" id="tab-lc">
     <div class="rank-list">
     <?php if (empty($topLC)): ?>
-        <div class="rank-empty"><span>💰</span>Todavía no hay datos de LootCoins.</div>
+        <div class="rank-empty"><span>💰</span>Todavía no hay datos de Lujanitos.</div>
     <?php else: ?>
         <?php foreach ($topLC as $i => $u):
             $pos = $i + 1;
@@ -322,9 +322,9 @@ function getMedalBg(int $pos): string {
             <?php endif; ?>
             <div class="rank-info">
                 <a class="rank-name" href="profile.php?user=<?= $u['id'] ?>"><?= htmlspecialchars($u['username']) ?></a>
-                <div class="rank-sub">LootCoins en balance</div>
+                <div class="rank-sub">Lujanitos en balance</div>
             </div>
-            <div class="rank-badge" style="color:#f59e0b"><?= number_format($u['lootcoins']) ?> LC</div>
+            <div class="rank-badge" style="color:#f59e0b"><?= number_format($u['lootcoins']) ?> LJ</div>
         </div>
         <?php endforeach; ?>
     <?php endif; ?>

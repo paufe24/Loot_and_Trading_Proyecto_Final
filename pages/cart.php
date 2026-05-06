@@ -212,19 +212,31 @@ function checkout($userId) {
         return ['ok' => false, 'message' => 'No se pudo leer el carrito'];
     }
 
-    $items = [];
-    $total = 0.0;
+    $items    = [];
+    $total    = 0.0;
+    $totalLJ  = 0;
     while ($row = $itemsRes->fetch_assoc()) {
-        $qty = (int)$row['quantity'];
-        $price = (float)$row['card_price'];
+        $qty      = (int)$row['quantity'];
+        $price    = (float)$row['card_price'];
+        $priceLJ  = max(1, (int)round($price)); // 1€ = 1 LJ, mínimo 1
         $subtotal = $qty * $price;
-        $row['_subtotal'] = $subtotal;
+        $row['_subtotal']  = $subtotal;
+        $row['_price_lj']  = $priceLJ;
         $items[] = $row;
-        $total += $subtotal;
+        $total   += $subtotal;
+        $totalLJ += $qty * $priceLJ;
     }
 
     if (count($items) === 0) {
         return ['ok' => false, 'message' => 'El carrito está vacío'];
+    }
+
+    // Verificar saldo de Lujanitos
+    try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
+    $balRes   = $conn->query("SELECT lootcoins FROM users WHERE id=$userId");
+    $userCoins = $balRes ? (int)$balRes->fetch_assoc()['lootcoins'] : 0;
+    if ($userCoins < $totalLJ) {
+        return ['ok' => false, 'message' => "Lujanitos insuficientes. Necesitas {$totalLJ} LJ pero tienes {$userCoins} LJ. <a href='lujanitos.php' style='color:#f59e0b;font-weight:700;'>Consigue más →</a>"];
     }
 
     $conn->begin_transaction();
@@ -232,31 +244,26 @@ function checkout($userId) {
         ensureCheckoutTables();
         ensureActivityTable();
 
+        // Descontar Lujanitos del saldo
+        $conn->query("UPDATE users SET lootcoins = lootcoins - $totalLJ WHERE id = $userId");
+
         $orderNumber = 'ORD-' . date('Ymd-His') . '-' . $userId;
         $orderStmt = $conn->prepare('INSERT INTO cart_orders (user_id, order_number, total_amount, status) VALUES (?, ?, ?, \'paid\')');
-        if (!$orderStmt) {
-            throw new Exception($conn->error);
-        }
-        $orderStmt->bind_param('isd', $userId, $orderNumber, $total);
-        if (!$orderStmt->execute()) {
-            throw new Exception($orderStmt->error);
-        }
+        if (!$orderStmt) throw new Exception($conn->error);
+        $totalLJFloat = (float)$totalLJ;
+        $orderStmt->bind_param('isd', $userId, $orderNumber, $totalLJFloat);
+        if (!$orderStmt->execute()) throw new Exception($orderStmt->error);
 
-        $orderId = (int)$conn->insert_id;
-
+        $orderId  = (int)$conn->insert_id;
         $itemStmt = $conn->prepare('INSERT INTO cart_order_items (order_id, card_id, card_name, card_image, card_price, card_game, quantity, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        if (!$itemStmt) {
-            throw new Exception($conn->error);
-        }
+        if (!$itemStmt) throw new Exception($conn->error);
 
         foreach ($items as $it) {
-            $qty = (int)$it['quantity'];
-            $price = (float)$it['card_price'];
-            $subtotal = (float)$it['_subtotal'];
-            $itemStmt->bind_param('isssdsid', $orderId, $it['card_id'], $it['card_name'], $it['card_image'], $price, $it['card_game'], $qty, $subtotal);
-            if (!$itemStmt->execute()) {
-                throw new Exception($itemStmt->error);
-            }
+            $qty      = (int)$it['quantity'];
+            $priceLJ  = (float)$it['_price_lj'];
+            $subtotal = (float)($qty * $it['_price_lj']);
+            $itemStmt->bind_param('isssdsid', $orderId, $it['card_id'], $it['card_name'], $it['card_image'], $priceLJ, $it['card_game'], $qty, $subtotal);
+            if (!$itemStmt->execute()) throw new Exception($itemStmt->error);
         }
 
         clearCart($userId);
@@ -265,13 +272,13 @@ function checkout($userId) {
             $userId,
             'order',
             'Pedido realizado',
-            'Pedido ' . $orderNumber . ' · Total $' . number_format($total, 2),
+            'Pedido ' . $orderNumber . ' · -' . $totalLJ . ' LJ',
             $orderId,
-            $total
+            $totalLJ
         );
 
         $conn->commit();
-        return ['ok' => true, 'message' => 'Pedido completado', 'order_number' => $orderNumber];
+        return ['ok' => true, 'message' => 'Pedido completado', 'order_number' => $orderNumber, 'lj_spent' => $totalLJ];
     } catch (Throwable $e) {
         $conn->rollback();
         return ['ok' => false, 'message' => $e->getMessage()];
@@ -349,23 +356,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
             exit;
         }
 
-        $msg = $result['ok'] ? 'Checkout realizado: ' . ($result['order_number'] ?? '') : ('Error: ' . ($result['message'] ?? ''));
+        $msg = $result['ok']
+            ? '✅ Pedido ' . ($result['order_number'] ?? '') . ' · -' . ($result['lj_spent'] ?? 0) . ' LJ'
+            : ('❌ ' . ($result['message'] ?? ''));
         header('Location: cart.php?msg=' . urlencode($msg));
         exit;
     }
 }
 
+// Saldo de Lujanitos del usuario
+try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
+$userCoinsDisplay = 0;
+$coinsRow = $conn->query("SELECT lootcoins FROM users WHERE id=$userId");
+if ($coinsRow) $userCoinsDisplay = (int)$coinsRow->fetch_assoc()['lootcoins'];
+
 $itemsRes = getCartItems($userId);
-$items = [];
-$total = 0.0;
+$items   = [];
+$total   = 0.0;
+$totalLJ = 0;
 if ($itemsRes) {
     while ($row = $itemsRes->fetch_assoc()) {
-        $qty = (int)$row['quantity'];
-        $price = (float)$row['card_price'];
+        $qty     = (int)$row['quantity'];
+        $price   = (float)$row['card_price'];
+        $priceLJ = max(1, (int)round($price));
         $subtotal = $qty * $price;
         $row['_subtotal'] = $subtotal;
-        $items[] = $row;
-        $total += $subtotal;
+        $row['_price_lj'] = $priceLJ;
+        $items[]  = $row;
+        $total   += $subtotal;
+        $totalLJ += $qty * $priceLJ;
     }
 }
 
@@ -426,7 +445,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                                     <div class="cart-item-meta">
                                         <?php echo htmlspecialchars($it['card_game']); ?> · <?php echo htmlspecialchars($it['condition']); ?> · <?php echo htmlspecialchars($it['seller']); ?>
                                     </div>
-                                    <div class="cart-item-price">$<?php echo number_format((float)$it['card_price'], 2); ?></div>
+                                    <div class="cart-item-price"><?php echo $it['_price_lj']; ?> LJ</div>
                                 </div>
 
                                 <div class="cart-item-controls">
@@ -437,7 +456,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                                     </div>
 
                                     <div class="cart-item-subtotal">
-                                        <div class="cart-item-subtotal-value">$<?php echo number_format((float)$it['_subtotal'], 2); ?></div>
+                                        <div class="cart-item-subtotal-value"><?php echo (int)$it['quantity'] * $it['_price_lj']; ?> LJ</div>
                                         <button class="btn-cart danger" type="button" onclick="cartRemove(this)">Eliminar</button>
                                     </div>
                                 </div>
@@ -448,14 +467,23 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                     <aside class="cart-summary">
                         <div class="cart-summary-header">Resumen</div>
                         <div class="cart-summary-row">
-                            <span>Total</span>
-                            <strong id="cart-total">$<?php echo number_format($total, 2); ?></strong>
+                            <span>Tu saldo</span>
+                            <span id="user-coins-display" style="color:#f59e0b;font-weight:800;">💰 <?php echo number_format($userCoinsDisplay); ?> LJ</span>
                         </div>
+                        <div class="cart-summary-row">
+                            <span>Total a pagar</span>
+                            <strong id="cart-total" style="color:#0f172a;"><?php echo number_format($totalLJ); ?> LJ</strong>
+                        </div>
+                        <?php if ($userCoinsDisplay < $totalLJ): ?>
+                        <div style="background:#fef2f2;border-radius:12px;padding:10px 14px;font-size:.82rem;color:#dc2626;font-weight:700;margin-bottom:12px;">
+                            ⚠️ Saldo insuficiente. <a href="lujanitos.php" style="color:#f59e0b;">Conseguir Lujanitos →</a>
+                        </div>
+                        <?php endif; ?>
                         <form method="post" action="cart.php" class="cart-summary-actions">
                             <input type="hidden" name="action" value="checkout">
-                            <button class="btn-main full-width" type="submit">Finalizar compra</button>
+                            <button class="btn-main full-width" type="submit" <?php echo $userCoinsDisplay < $totalLJ ? 'disabled' : ''; ?>>Finalizar compra</button>
                         </form>
-                        <div class="cart-summary-note">Pago simulado. Se genera un pedido y se vacía el carrito.</div>
+                        <div class="cart-summary-note">Se descuentan Lujanitos de tu saldo. 1€ = 1 LJ.</div>
                     </aside>
                 </div>
             <?php endif; ?>
@@ -465,15 +493,19 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
     <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
     <script>
+    function priceLJ(euroPrice) {
+        return Math.max(1, Math.round(parseFloat(euroPrice) || 0));
+    }
+
     function cartRecalcTotal() {
-        let total = 0;
+        let totalLJ = 0;
         document.querySelectorAll('.cart-item').forEach(row => {
-            const price = parseFloat(row.dataset.price) || 0;
-            const qty   = parseInt(row.querySelector('.cart-qty').value) || 0;
-            total += price * qty;
+            const lj  = priceLJ(row.dataset.price);
+            const qty = parseInt(row.querySelector('.cart-qty').value) || 0;
+            totalLJ  += lj * qty;
         });
         const el = document.getElementById('cart-total');
-        if (el) el.textContent = '$' + total.toFixed(2);
+        if (el) el.textContent = totalLJ.toLocaleString('es-ES') + ' LJ';
     }
 
     async function cartUpdate(btn) {
@@ -500,7 +532,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
             const data = await res.json();
             if (data.ok) {
                 row.querySelector('.cart-item-subtotal-value').textContent =
-                    '$' + (price * qty).toFixed(2);
+                    (priceLJ(price) * qty).toLocaleString('es-ES') + ' LJ';
                 cartRecalcTotal();
                 if (typeof showToast === 'function') showToast('Cantidad actualizada', 'success');
             }

@@ -45,7 +45,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Loot&Trading es un marketplace online especializado en cartas coleccionables de los juegos más populares: <strong>Pokémon TCG</strong>, <strong>Yu-Gi-Oh!</strong>, <strong>Magic: The Gathering</strong> y <strong>One Piece TCG</strong>. Ofrecemos precios en tiempo real, un sistema de subastas, gamificación con XP y LootCoins, y herramientas sociales para conectar con otros coleccionistas.</p>
+                        <p>Loot&Trading es un marketplace online especializado en cartas coleccionables de los juegos más populares: <strong>Pokémon TCG</strong>, <strong>Yu-Gi-Oh!</strong>, <strong>Magic: The Gathering</strong> y <strong>One Piece TCG</strong>. Ofrecemos precios en tiempo real, un sistema de subastas, gamificación con XP y Lujanitos, y herramientas sociales para conectar con otros coleccionistas.</p>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Sí, registrarse y navegar por el catálogo de cartas es completamente gratuito. Al crear tu cuenta recibes <strong>1.000 LootCoins</strong> de bienvenida que puedes usar para participar en subastas y comprar cartas en el mercado.</p>
+                        <p>Sí, registrarse y navegar por el catálogo de cartas es completamente gratuito. Al crear tu cuenta recibes <strong>1.000 Lujanitos</strong> de bienvenida que puedes usar para participar en subastas y comprar cartas en el mercado.</p>
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Al hacer checkout, se genera un pedido con el total en LootCoins. El pedido pasa al equipo de envíos que gestiona la preparación y el envío de las cartas. Puedes seguir el estado de tus pedidos desde tu perfil.</p>
+                        <p>Al hacer checkout, se genera un pedido con el total en Lujanitos. El pedido pasa al equipo de envíos que gestiona la preparación y el envío de las cartas. Puedes seguir el estado de tus pedidos desde tu perfil.</p>
                     </div>
                 </div>
 
@@ -203,7 +203,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Actualmente las transacciones dentro de la plataforma se realizan con <strong>LootCoins</strong>, la moneda virtual de Loot&Trading. Recibes LootCoins al registrarte y puedes ganar más participando en actividades, subiendo de nivel y ganando logros.</p>
+                        <p>Actualmente las transacciones dentro de la plataforma se realizan con <strong>Lujanitos</strong>, la moneda virtual de Loot&Trading. Recibes Lujanitos al registrarte y puedes ganar más participando en actividades, subiendo de nivel y ganando logros.</p>
                     </div>
                 </div>
             </div>
@@ -231,7 +231,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Sí. Desde la sección de <strong>Subastas</strong> puedes crear una nueva subasta seleccionando una carta de tu colección, estableciendo el precio de salida y la duración. Otros usuarios podrán pujar por tu carta y recibirás los LootCoins cuando la subasta termine.</p>
+                        <p>Sí. Desde la sección de <strong>Subastas</strong> puedes crear una nueva subasta seleccionando una carta de tu colección, estableciendo el precio de salida y la duración. Otros usuarios podrán pujar por tu carta y recibirás los Lujanitos cuando la subasta termine.</p>
                     </div>
                 </div>
 
@@ -241,7 +241,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Si eres el mayor postor cuando la subasta finaliza, se te deducen los LootCoins de tu puja y la carta se añade a tu colección. Además, ganarás <strong>XP extra</strong> por haber ganado la subasta, lo que te ayuda a subir de nivel.</p>
+                        <p>Si eres el mayor postor cuando la subasta finaliza, se te deducen los Lujanitos de tu puja y la carta se añade a tu colección. Además, ganarás <strong>XP extra</strong> por haber ganado la subasta, lo que te ayuda a subir de nivel.</p>
                     </div>
                 </div>
 
@@ -266,20 +266,20 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                 </div>
             </div>
 
-            <!-- Categoría: Gamificación y LootCoins -->
+            <!-- Categoría: Gamificación y Lujanitos -->
             <div class="faq-category">
                 <h2 class="faq-category-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>
-                    Gamificación y LootCoins
+                    Gamificación y Lujanitos
                 </h2>
 
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
-                        <strong>¿Qué son los LootCoins?</strong>
+                        <strong>¿Qué son los Lujanitos?</strong>
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p><strong>LootCoins</strong> son la moneda virtual de la plataforma. Se usan para comprar cartas en el mercado y pujar en subastas. Al registrarte recibes 1.000 LootCoins de bienvenida. Puedes ganar más completando logros, subiendo de nivel y participando activamente en la plataforma.</p>
+                        <p><strong>Lujanitos</strong> son la moneda virtual de la plataforma. Se usan para comprar cartas en el mercado y pujar en subastas. Al registrarte recibes 1.000 Lujanitos de bienvenida. Puedes ganar más completando logros, subiendo de nivel y participando activamente en la plataforma.</p>
                     </div>
                 </div>
 
@@ -306,7 +306,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Los logros son metas que puedes completar realizando acciones específicas en la plataforma. Por ejemplo, el logro <strong>"Bienvenido"</strong> se desbloquea al acceder por primera vez a tu perfil. Cada logro completado te otorga XP y LootCoins adicionales. Puedes ver tus logros en tu página de perfil.</p>
+                        <p>Los logros son metas que puedes completar realizando acciones específicas en la plataforma. Por ejemplo, el logro <strong>"Bienvenido"</strong> se desbloquea al acceder por primera vez a tu perfil. Cada logro completado te otorga XP y Lujanitos adicionales. Puedes ver tus logros en tu página de perfil.</p>
                     </div>
                 </div>
 
@@ -316,7 +316,7 @@ $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
                         <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Sí. El panel de administración muestra rankings de los usuarios con más LootCoins y más XP. Tu nivel y progreso también son visibles en tu perfil público, donde otros usuarios pueden ver tus estadísticas y logros.</p>
+                        <p>Sí. El panel de administración muestra rankings de los usuarios con más Lujanitos y más XP. Tu nivel y progreso también son visibles en tu perfil público, donde otros usuarios pueden ver tus estadísticas y logros.</p>
                     </div>
                 </div>
             </div>

@@ -1383,7 +1383,7 @@ $conn->close();
                         <div class="alert-item">
                             <div>
                                 <div class="alert-card-name"><?php echo htmlspecialchars($al['card_name']); ?></div>
-                                <div class="alert-price">Precio objetivo: <?php echo number_format((int)$al['target_price']); ?> LC &nbsp;·&nbsp; <?php echo htmlspecialchars($al['card_game']); ?></div>
+                                <div class="alert-price">Precio objetivo: <?php echo number_format((int)$al['target_price']); ?> LJ &nbsp;·&nbsp; <?php echo htmlspecialchars($al['card_game']); ?></div>
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <?php if ($al['is_active']): ?>
@@ -1563,6 +1563,14 @@ async function deleteAlert(id, btn) {
     if (data.ok) btn.closest('.alert-item').remove();
     else alert(data.message || 'Error al eliminar');
 }
+
+// Marcar alertas como leídas al abrir el perfil y ocultar el punto rojo
+fetch('../api/notifications.php?action=mark_read', { method: 'POST' })
+    .then(() => {
+        const dot = document.getElementById('nav-notif-dot');
+        if (dot) dot.classList.remove('visible');
+    })
+    .catch(() => {});
 </script>
 
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>

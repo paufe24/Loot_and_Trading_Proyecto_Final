@@ -387,7 +387,7 @@ if ($logged_in) {
         <div class="bid-input-label">Tu puja</div>
         <div class="bid-input-wrap">
             <input type="number" id="bm-amount" placeholder="0" min="0" step="10">
-            <span class="bid-input-suffix">LC</span>
+            <span class="bid-input-suffix">LJ</span>
         </div>
         <div class="bid-quick-row" id="bm-quick-row"></div>
 
@@ -497,7 +497,7 @@ function buildAuctionCard(a) {
             <div class="auction-price-section">
                 <div>
                     <div class="auction-price-label">${hasAnyBid ? 'Puja actual' : 'Precio base'}</div>
-                    <div class="auction-current-price">${(hasAnyBid ? a.current_bid : a.base_price).toLocaleString('es-ES')} <span style="font-size:.7rem;font-weight:700">LC</span></div>
+                    <div class="auction-current-price">${(hasAnyBid ? a.current_bid : a.base_price).toLocaleString('es-ES')} <span style="font-size:.7rem;font-weight:700">LJ</span></div>
                 </div>
                 ${hasAnyBid ? `<div class="auction-base-price">Base: ${parseInt(a.base_price).toLocaleString('es-ES')} LJ</div>` : ''}
             </div>
@@ -932,7 +932,7 @@ async function confirmClaim() {
         <p style="color:#64748b;font-size:.88rem;margin-bottom:18px;">
             Te notificaremos cuando <strong id="alert-card-preview"></strong> aparezca en subasta a tu precio objetivo o menos.
         </p>
-        <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LC)</label>
+        <label style="font-size:.82rem;font-weight:700;color:#0f172a;">Precio objetivo (LJ)</label>
         <input type="number" id="alert-price-input" min="1" placeholder="Ej: 300"
                style="width:100%;margin:6px 0 18px;padding:12px 14px;border-radius:12px;border:1px solid #e2e8f0;font-size:1rem;font-family:'Outfit',sans-serif;box-sizing:border-box;">
         <div style="display:flex;gap:10px;">

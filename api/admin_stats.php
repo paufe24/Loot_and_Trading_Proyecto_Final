@@ -115,7 +115,7 @@ switch ($stat) {
         echo json_encode(['ok' => true, 'data' => $rows]);
         break;
 
-    // ── Top usuarios por LootCoins ──
+    // ── Top usuarios por Lujanitos ──
     case 'top_users_coins':
         $rows = [];
         $r = $conn->query("

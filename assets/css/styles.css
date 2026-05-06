@@ -557,7 +557,7 @@ body.dark .cart-item:hover { box-shadow: 0 18px 30px rgba(0,0,0,0.35); }
 body.dark .cart-item-image { border-color: rgba(255,255,255,0.12); }
 
 .cart-item-subtotal { display: flex; align-items: center; gap: 12px; }
-.cart-item-subtotal-value { font-weight: 900; font-size: 1.12rem; }
+.cart-item-subtotal-value { font-weight: 900; font-size: 1rem; white-space: nowrap; color: #f59e0b; }
 
 .cart-empty {
     background: #fff;

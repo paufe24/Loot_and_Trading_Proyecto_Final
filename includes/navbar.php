@@ -32,6 +32,37 @@ body.dark .nav-cart-btn { background:#334155;color:#e2e8f0; }
 .nav-user-btn:hover, .nav-user-btn.active { background:#3b82f6;color:#fff; }
 body.dark .nav-user-btn { background:#334155;color:#e2e8f0; }
 
+/* Punto rojo de notificación (en user btn) */
+.nav-user-wrap { position:relative; }
+.nav-notif-dot { position:absolute;top:2px;right:2px;width:10px;height:10px;background:#ef4444;border-radius:50%;border:2px solid #fff;display:none;pointer-events:none;z-index:10; }
+.nav-notif-dot.visible { display:block; }
+body.dark .nav-notif-dot { border-color:#1e293b; }
+
+/* Campana de notificaciones */
+.nav-bell-wrap { position:relative; }
+.nav-bell-btn { display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:none;background:#f1f5f9;cursor:pointer;color:#64748b;transition:all .2s;position:relative;font-family:'Outfit',sans-serif; }
+.nav-bell-btn:hover { background:#e2e8f0;color:#0f172a; }
+body.dark .nav-bell-btn { background:#334155;color:#94a3b8; }
+body.dark .nav-bell-btn:hover { background:#475569;color:#e2e8f0; }
+.nav-bell-badge { position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;background:#ef4444;border-radius:50%;border:2px solid #fff;display:none;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:#fff;padding:0 2px; }
+.nav-bell-badge.visible { display:flex; }
+body.dark .nav-bell-badge { border-color:#1e293b; }
+.nav-bell-dd { display:none;position:absolute;top:calc(100% + 8px);right:0;width:320px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.14);z-index:9999;flex-direction:column;overflow:hidden; }
+.nav-bell-dd.open { display:flex; }
+body.dark .nav-bell-dd { background:#1e293b;border-color:#334155; }
+.nav-bell-dd-header { padding:14px 16px 10px;font-weight:800;font-size:.9rem;border-bottom:1px solid #e2e8f0;color:#0f172a; }
+body.dark .nav-bell-dd-header { border-color:#334155;color:#e2e8f0; }
+.nav-bell-dd-list { max-height:320px;overflow-y:auto; }
+.nav-bell-item { padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:.82rem; }
+body.dark .nav-bell-item { border-color:#334155; }
+.nav-bell-item:last-child { border-bottom:none; }
+.nav-bell-item.unread { background:#fef9ec; }
+body.dark .nav-bell-item.unread { background:rgba(245,158,11,.08); }
+.nav-bell-item-title { font-weight:700;color:#0f172a;margin-bottom:2px; }
+body.dark .nav-bell-item-title { color:#e2e8f0; }
+.nav-bell-item-sub { color:#64748b;font-size:.78rem; }
+.nav-bell-empty { padding:28px 16px;text-align:center;color:#94a3b8;font-size:.85rem; }
+
 /* Dropdown */
 .nav-user-wrap { position:relative; }
 .nav-dd {
@@ -104,11 +135,24 @@ body.dark .nav-dd hr { border-color:#334155; }
     </button>
 
     <?php if ($_nav_logged_in): ?>
+    <div class="nav-bell-wrap" id="nav-bell-wrap">
+        <button class="nav-bell-btn" id="nav-bell-btn" onclick="toggleBellMenu(event)" title="Notificaciones">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+            <span class="nav-bell-badge" id="nav-bell-badge"></span>
+        </button>
+        <div class="nav-bell-dd" id="nav-bell-dd">
+            <div class="nav-bell-dd-header">🔔 Notificaciones</div>
+            <div class="nav-bell-dd-list" id="nav-bell-list">
+                <div class="nav-bell-empty">Cargando…</div>
+            </div>
+        </div>
+    </div>
     <a href="cart.php" class="nav-item nav-cart-btn" title="Carrito">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
         Carrito
     </a>
     <div class="nav-user-wrap" id="nav-user-wrap">
+        <span class="nav-notif-dot" id="nav-notif-dot"></span>
         <button class="nav-user-btn" id="nav-user-btn" onclick="toggleUserMenu(event)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
             <?php echo htmlspecialchars($_SESSION['username']); ?>
@@ -131,6 +175,10 @@ body.dark .nav-dd hr { border-color:#334155; }
             <a href="amigos.php">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
                 Amigos
+            </a>
+            <a href="lujanitos.php" style="color:#d97706;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
+                Comprar Lujanitos
             </a>
             <?php if ($_nav_is_envios): ?>
             <hr>
@@ -170,10 +218,66 @@ function toggleUserMenu(e) {
     const open = dd.classList.toggle('open');
     btn.classList.toggle('active', open);
 }
-document.addEventListener('click', function() {
+// Punto rojo en botón usuario + badge campana
+(function checkNotifDot() {
+    const dot   = document.getElementById('nav-notif-dot');
+    const badge = document.getElementById('nav-bell-badge');
+    if (!dot && !badge) return;
+    fetch('../api/notifications.php?action=count')
+        .then(r => r.json())
+        .then(d => {
+            if (d.unread > 0) {
+                if (dot)   dot.classList.add('visible');
+                if (badge) { badge.textContent = d.unread > 9 ? '9+' : d.unread; badge.classList.add('visible'); }
+            }
+        })
+        .catch(() => {});
+})();
+
+function toggleBellMenu(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('nav-bell-dd');
+    if (!dd) return;
+    const isOpen = dd.classList.toggle('open');
+    if (isOpen) loadNotifications();
+}
+
+function loadNotifications() {
+    const list  = document.getElementById('nav-bell-list');
+    const badge = document.getElementById('nav-bell-badge');
+    const dot   = document.getElementById('nav-notif-dot');
+    if (!list) return;
+    fetch('../api/notifications.php?action=list')
+        .then(r => r.json())
+        .then(d => {
+            if (!d.items || d.items.length === 0) {
+                list.innerHTML = '<div class="nav-bell-empty">Sin notificaciones todavía</div>';
+            } else {
+                list.innerHTML = d.items.map(n => {
+                    const isUnread = !n.read_at;
+                    const date = new Date(n.triggered_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                    return `<div class="nav-bell-item${isUnread ? ' unread' : ''}">
+                        <div class="nav-bell-item-title">🔔 ${n.card_name}</div>
+                        <div class="nav-bell-item-sub">Subastada a ${n.target_price} LJ o menos · ${date}</div>
+                    </div>`;
+                }).join('');
+            }
+            // Marcar como leídas y ocultar badges
+            if (d.unread > 0) {
+                fetch('../api/notifications.php?action=mark_read', { method: 'POST' }).catch(() => {});
+                if (badge) badge.classList.remove('visible');
+                if (dot)   dot.classList.remove('visible');
+            }
+        })
+        .catch(() => { list.innerHTML = '<div class="nav-bell-empty">Error al cargar</div>'; });
+}
+
+document.addEventListener('click', function(e) {
     const dd  = document.getElementById('nav-dd');
     const btn = document.getElementById('nav-user-btn');
-    if (dd)  dd.classList.remove('open');
-    if (btn) btn.classList.remove('active');
+    const bellDd = document.getElementById('nav-bell-dd');
+    if (dd)     dd.classList.remove('open');
+    if (btn)    btn.classList.remove('active');
+    if (bellDd) bellDd.classList.remove('open');
 });
 </script>

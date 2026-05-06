@@ -242,7 +242,7 @@ const BACKUPS = {
     pokemon: 'https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg',
     yugioh: 'https://upload.wikimedia.org/wikipedia/en/2/2b/Yugioh_Card_Back.jpg',
     magic: 'https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg',
-    onepiece: 'https://asia-en.onepiece-cardgame.com/images/common/back.jpg'
+    onepiece: 'https://en.onepiece-cardgame.com/images/common/back.jpg'
 };
 
 function createCardHTML(data) {
@@ -847,8 +847,8 @@ const PREDICTOR_POOL = [
     { id: 'y3', name: 'Red-Eyes Black Dragon', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/74677422.jpg', currentPrice: 75.00 },
     { id: 'm1', name: 'Black Lotus', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', currentPrice: 15000.00 },
     { id: 'm2', name: 'Mox Diamond', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/0/b/0b6d2745-b46d-4959-b1d5-8d59174f89d3.jpg', currentPrice: 650.00 },
-    { id: 'o1', name: 'Monkey D. Luffy (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', currentPrice: 2500.00 },
-    { id: 'o2', name: 'Roronoa Zoro (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', currentPrice: 1100.00 }
+    { id: 'o1', name: 'Monkey D. Luffy (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', currentPrice: 2500.00 },
+    { id: 'o2', name: 'Roronoa Zoro (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', currentPrice: 1100.00 }
 ];
 
 function initArena() {
@@ -939,7 +939,7 @@ function openBetModal(cardId, type) {
     const typeColor = type === 'bull' ? '#10b981' : '#ef4444';
 
     document.getElementById('bet-modal-title').innerHTML = `Apostar a <span style="color:${typeColor}">${activeBetType === 'bull' ? 'ALZA' : 'BAJA'}</span>`;
-    document.getElementById('bet-modal-desc').innerHTML = `¿Cuántas LootCoins apuestas a que <b>${activeBetCard.name}</b> ${typeText}?`;
+    document.getElementById('bet-modal-desc').innerHTML = `¿Cuántos Lujanitos apuestas a que <b>${activeBetCard.name}</b> ${typeText}?`;
     document.getElementById('bet-amount').value = '';
 
     const betModal = document.getElementById('bet-modal');
@@ -999,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return; 
                 }
                 if (amount > currentUserBalance) { 
-                    if(typeof showToast === 'function') showToast('No tienes suficientes LootCoins', 'error');
+                    if(typeof showToast === 'function') showToast('No tienes suficientes Lujanitos', 'error');
                     return; 
                 }
 
@@ -1027,22 +1027,22 @@ document.addEventListener('DOMContentLoaded', () => {
    ONE PIECE - DATOS ESTÁTICOS (API caída)
    ======================================== */
 const ONEPIECE_STATIC = [
-    { cardname: 'Monkey D. Luffy', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-060.png', marketprice: '45.00' },
-    { cardname: 'Shanks', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-016.png', marketprice: '120.00' },
-    { cardname: 'Roronoa Zoro', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-025.png', marketprice: '30.00' },
-    { cardname: 'Nico Robin', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-120.png', marketprice: '18.00' },
-    { cardname: 'Sanji', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-121.png', marketprice: '22.00' },
-    { cardname: 'Yamato', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-060.png', marketprice: '55.00' },
-    { cardname: 'Luffy Manga Alt', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', marketprice: '2500.00' },
-    { cardname: 'Zoro Manga Alt', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', marketprice: '1100.00' },
-    { cardname: 'Portgas D. Ace', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP02-013.png', marketprice: '65.00' },
-    { cardname: 'Marco', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP02-016.png', marketprice: '25.00' },
-    { cardname: 'Boa Hancock', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP03-040.png', marketprice: '35.00' },
-    { cardname: 'Trafalgar Law', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP03-060.png', marketprice: '40.00' },
-    { cardname: 'Whitebeard', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP02-004.png', marketprice: '90.00' },
-    { cardname: 'Kaido', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP04-001.png', marketprice: '150.00' },
-    { cardname: 'Dracule Mihawk', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP04-035.png', marketprice: '60.00' },
-    { cardname: 'Jewelry Bonney', cardimage: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-088.png', marketprice: '20.00' }
+    { cardname: 'Monkey D. Luffy', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-060.png', marketprice: '45.00' },
+    { cardname: 'Shanks', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-016.png', marketprice: '120.00' },
+    { cardname: 'Roronoa Zoro', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-025.png', marketprice: '30.00' },
+    { cardname: 'Nico Robin', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-120.png', marketprice: '18.00' },
+    { cardname: 'Sanji', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-121.png', marketprice: '22.00' },
+    { cardname: 'Yamato', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-060.png', marketprice: '55.00' },
+    { cardname: 'Luffy Manga Alt', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', marketprice: '2500.00' },
+    { cardname: 'Zoro Manga Alt', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', marketprice: '1100.00' },
+    { cardname: 'Portgas D. Ace', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP02-013.png', marketprice: '65.00' },
+    { cardname: 'Marco', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP02-016.png', marketprice: '25.00' },
+    { cardname: 'Boa Hancock', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP03-040.png', marketprice: '35.00' },
+    { cardname: 'Trafalgar Law', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP03-060.png', marketprice: '40.00' },
+    { cardname: 'Whitebeard', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP02-004.png', marketprice: '90.00' },
+    { cardname: 'Kaido', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP04-001.png', marketprice: '150.00' },
+    { cardname: 'Dracule Mihawk', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP04-035.png', marketprice: '60.00' },
+    { cardname: 'Jewelry Bonney', cardimage: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-088.png', marketprice: '20.00' }
 ];
 
 async function loadOnePieceCards(gridId) {
@@ -1174,11 +1174,11 @@ const COD_CARD_POOL = [
       desc: 'La carta más valiosa de Magic: The Gathering. Baneada en todos los formatos modernos. Una Alpha PSA 10 se vendió por 540.000$. Eso lo dice todo.',
       card_id: 'bd8fa327', game: 'magic' },
     { name: 'Luffy Manga Alt Art', badge: 'One Piece', color: '#f97316',
-      img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', price: '$2.100', trend: '+31%', up: true,
+      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', price: '$2.100', trend: '+31%', up: true,
       desc: 'La carta más buscada del One Piece TCG. El arte directo del manga de Eiichiro Oda en formato holo. Precio en subida constante desde su salida.',
       card_id: 'OP05-119', game: 'onepiece' },
     { name: 'Zoro Manga Alt Art', badge: 'One Piece', color: '#f97316',
-      img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', price: '$980', trend: '+22%', up: true,
+      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', price: '$980', trend: '+22%', up: true,
       desc: 'Roronoa Zoro con arte del manga original. Una de las cartas más escasas del One Piece TCG, especialmente en condición Near Mint o superior.',
       card_id: 'OP06-118', game: 'onepiece' },
 ];
@@ -1323,12 +1323,12 @@ function codOpenModal() {
           desc: 'La carta más cara y baneada de Magic. Una Alpha PSA 10 llegó a los 540.000$.',
           card_id: 'bd8fa327' },
         { name: 'Luffy Manga Alt Art', badge: 'One Piece', color: '#f97316',
-          img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png',
+          img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png',
           price: '$2.100', trend: '+31%', up: true,
           desc: 'Arte directo del manga de Oda. La carta más buscada del One Piece TCG.',
           card_id: 'OP05-119' },
         { name: 'Shanks', badge: 'One Piece', color: '#f97316',
-          img: 'https://asia-en.onepiece-cardgame.com/images/cardlist/card/OP01-016.png',
+          img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-016.png',
           price: '$120', trend: '+8%', up: true,
           desc: 'El personaje más querido del manga. Pull rate muy bajo en los boosters originales.',
           card_id: 'OP01-016' },
