@@ -273,7 +273,7 @@ function createCardHTML(data) {
         <div class="tcg-info">
             <span class="card-badge" style="background-color: ${data.color}">${data.badge}</span>
             <div class="card-name">${data.name}</div>
-            <div class="card-price">${(parseFloat(data.price) > 0) ? '$' + data.price : 'Sin precio'}</div>
+            <div class="card-price">${(parseFloat(data.price) > 0) ? '€' + parseFloat(data.price).toFixed(2) : 'Sin precio'}</div>
         </div>
     `;
 
@@ -294,7 +294,8 @@ function openModal(data) {
     document.getElementById('modal-title').textContent = data.name;
     document.getElementById('modal-badge').textContent = data.badge;
     document.getElementById('modal-badge').style.backgroundColor = data.color;
-    document.getElementById('modal-price').textContent = (parseFloat(data.price) > 0) ? '$' + data.price : 'Sin precio';
+    const _eur = parseFloat(data.price);
+    document.getElementById('modal-price').textContent = (_eur > 0) ? `€${_eur.toFixed(2)} · ${Math.round(_eur)} LJ` : 'Sin precio';
 
     refreshFavoriteStatus(MODAL_CARD.card_id);
 
@@ -343,7 +344,7 @@ function openModal(data) {
                         ${c.r}/10 ${c.label}
                     </span>
                 </td>
-                <td style="color:#16a34a;font-weight:800;">$${finalPrice}</td>
+                <td style="color:#16a34a;font-weight:800;">€${finalPrice} <span style="color:#6366f1;font-size:.8em;">${Math.round(finalPrice)} LJ</span></td>
                 <td>
                     <button class="btn-buy-small js-add-to-cart"
                         data-card-id="${encodeURIComponent(data.card_id || data.id || data.name)}"
@@ -572,7 +573,7 @@ async function loadYugiohCards(gridId) {
         const sbImagesYgo = await fetchSupabaseImages(ygoNames, 'yugioh');
         json.data.forEach(card => {
             const p = card.card_prices?.[0] || {};
-            const realPrice = [p.tcgplayer_price, p.cardmarket_price, p.ebay_price, p.coolstuffinc_price]
+            const realPrice = [p.cardmarket_price, p.tcgplayer_price, p.ebay_price, p.coolstuffinc_price]
                 .map(v => parseFloat(v)).find(v => v > 0) || null;
             grid.appendChild(createCardHTML({
                 badge: 'Yu-Gi-Oh!', color: '#a855f7', name: card.name,
@@ -600,7 +601,7 @@ async function loadMagicCards(gridId) {
         const mtgNames = items.map(c => c.name);
         const sbImagesMtg = await fetchSupabaseImages(mtgNames, 'magic');
         items.forEach(card => {
-            let realPrice = card.prices?.usd || card.prices?.usd_foil;
+            let realPrice = card.prices?.eur || card.prices?.eur_foil || card.prices?.usd || card.prices?.usd_foil;
             grid.appendChild(createCardHTML({
                 badge: 'Magic', color: '#ef4444', name: card.name,
                 img: sbImagesMtg[card.name] || card.image_uris.normal, price: realPrice ? parseFloat(realPrice).toFixed(2) : null
@@ -657,7 +658,7 @@ function renderFeaturedCard(containerId, data) {
             <div class="featured-card-body">
                 <span class="featured-card-badge" style="background:${data.color}">${data.badge}</span>
                 <div class="featured-card-name">${data.name}</div>
-                <div class="featured-card-price">${data.price ? '$' + data.price : 'Sin stock'}</div>
+                <div class="featured-card-price">${data.price ? '€' + parseFloat(data.price).toFixed(2) : 'Sin stock'}</div>
             </div>
         `;
         container.style.cursor = 'pointer';
@@ -839,16 +840,16 @@ let activePredictorCards = [];
 
 // Base de datos de cartas Premium para apostar
 const PREDICTOR_POOL = [
-    { id: 'p1', name: 'Umbreon VMAX (Alt Art)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/swsh7/215_hires.png', currentPrice: 950.00 },
-    { id: 'p2', name: 'Charizard ex (SIR)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/sv3/223_hires.png', currentPrice: 110.50 },
-    { id: 'p3', name: 'Lugia V (Alt Art)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/swsh12/186_hires.png', currentPrice: 180.00 },
-    { id: 'y1', name: 'Blue-Eyes White Dragon', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/89631139.jpg', currentPrice: 85.00 },
-    { id: 'y2', name: 'Dark Magician Girl', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/38033121.jpg', currentPrice: 120.00 },
-    { id: 'y3', name: 'Red-Eyes Black Dragon', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/74677422.jpg', currentPrice: 75.00 },
-    { id: 'm1', name: 'Black Lotus', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', currentPrice: 15000.00 },
-    { id: 'm2', name: 'Mox Diamond', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/0/b/0b6d2745-b46d-4959-b1d5-8d59174f89d3.jpg', currentPrice: 650.00 },
-    { id: 'o1', name: 'Monkey D. Luffy (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', currentPrice: 2500.00 },
-    { id: 'o2', name: 'Roronoa Zoro (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', currentPrice: 1100.00 }
+    { id: 'p1', name: 'Umbreon VMAX (Alt Art)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/swsh7/215_hires.png', currentPrice: 175.00 },
+    { id: 'p2', name: 'Charizard ex (SIR)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/sv3/223_hires.png', currentPrice: 98.00 },
+    { id: 'p3', name: 'Lugia V (Alt Art)', game: 'Pokémon', badgeColor: '#eab308', img: 'https://images.pokemontcg.io/swsh12/186_hires.png', currentPrice: 165.00 },
+    { id: 'y1', name: 'Blue-Eyes White Dragon', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/89631139.jpg', currentPrice: 78.00 },
+    { id: 'y2', name: 'Dark Magician Girl', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/38033121.jpg', currentPrice: 110.00 },
+    { id: 'y3', name: 'Red-Eyes Black Dragon', game: 'Yu-Gi-Oh!', badgeColor: '#a855f7', img: 'https://images.ygoprodeck.com/images/cards/74677422.jpg', currentPrice: 68.00 },
+    { id: 'm1', name: 'Black Lotus', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', currentPrice: 14200.00 },
+    { id: 'm2', name: 'Mox Diamond', game: 'Magic', badgeColor: '#ef4444', img: 'https://cards.scryfall.io/large/front/0/b/0b6d2745-b46d-4959-b1d5-8d59174f89d3.jpg', currentPrice: 580.00 },
+    { id: 'o1', name: 'Monkey D. Luffy (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', currentPrice: 1950.00 },
+    { id: 'o2', name: 'Roronoa Zoro (Manga)', game: 'One Piece', badgeColor: '#f97316', img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', currentPrice: 910.00 }
 ];
 
 function initArena() {
@@ -889,7 +890,7 @@ function renderArenaGrid() {
                 <div class="bet-item-info">
                     <span class="card-badge" style="background-color: ${card.badgeColor}; width: fit-content; margin: 0 auto 10px; color: white;">${card.game}</span>
                     <div class="bet-item-title">${card.name}</div>
-                    <div class="bet-item-price">$${card.currentPrice.toFixed(2)}</div>
+                    <div class="bet-item-price">€${card.currentPrice.toFixed(2)} · ${Math.round(card.currentPrice)} LJ</div>
                     <div class="bet-buttons">
                         <button class="btn-bull" onclick="openBetModal('${card.id}', 'bull')">Sube 📈</button>
                         <button class="btn-bear" onclick="openBetModal('${card.id}', 'bear')">Baja 📉</button>
@@ -1158,27 +1159,27 @@ async function fetchRandomOnePiece() {
    ======================================== */
 const COD_CARD_POOL = [
     { name: 'Umbreon VMAX Alt Art', badge: 'Pokémon', color: '#e63329',
-      img: 'https://images.pokemontcg.io/swsh7/215_hires.png', price: '$189.00', trend: '+18%', up: true,
+      img: 'https://images.pokemontcg.io/swsh7/215_hires.png', price: '175.00', trend: '+18%', up: true,
       desc: 'Una de las cartas más buscadas de la era Sword & Shield. El arte alternativo de Umbreon VMAX es considerado el mejor de toda la generación.',
       card_id: 'swsh7-215', game: 'pokemon' },
     { name: 'Charizard Base Set', badge: 'Pokémon', color: '#e63329',
-      img: 'https://images.pokemontcg.io/base1/4_hires.png', price: '$420.00', trend: '+5%', up: true,
+      img: 'https://images.pokemontcg.io/base1/4_hires.png', price: '390.00', trend: '+5%', up: true,
       desc: 'La carta más icónica de la historia del TCG. Una copia en Near Mint sin gradear puede cambiar de manos por cientos de euros. La que empezó todo.',
       card_id: 'base1-4', game: 'pokemon' },
     { name: 'Blue-Eyes White Dragon', badge: 'Yu-Gi-Oh!', color: '#7c3aed',
-      img: 'https://images.ygoprodeck.com/images/cards/89631139.jpg', price: '$85.00', trend: '+3%', up: true,
+      img: 'https://images.ygoprodeck.com/images/cards/89631139.jpg', price: '78.00', trend: '+3%', up: true,
       desc: 'El dragón blanco de ojos azules. 3000 de ATK. La carta que definió una generación entera de jugadores. Las primeras ediciones valen una fortuna.',
       card_id: '89631139', game: 'yugioh' },
     { name: 'Black Lotus', badge: 'Magic', color: '#1d7b4e',
-      img: 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', price: '$15.000', trend: '+2%', up: true,
-      desc: 'La carta más valiosa de Magic: The Gathering. Baneada en todos los formatos modernos. Una Alpha PSA 10 se vendió por 540.000$. Eso lo dice todo.',
+      img: 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', price: '14200.00', trend: '+2%', up: true,
+      desc: 'La carta más valiosa de Magic: The Gathering. Baneada en todos los formatos modernos. Una Alpha PSA 10 se vendió por 540.000€. Eso lo dice todo.',
       card_id: 'bd8fa327', game: 'magic' },
     { name: 'Luffy Manga Alt Art', badge: 'One Piece', color: '#f97316',
-      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', price: '$2.100', trend: '+31%', up: true,
+      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png', price: '1950.00', trend: '+31%', up: true,
       desc: 'La carta más buscada del One Piece TCG. El arte directo del manga de Eiichiro Oda en formato holo. Precio en subida constante desde su salida.',
       card_id: 'OP05-119', game: 'onepiece' },
     { name: 'Zoro Manga Alt Art', badge: 'One Piece', color: '#f97316',
-      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', price: '$980', trend: '+22%', up: true,
+      img: 'https://en.onepiece-cardgame.com/images/cardlist/card/OP06-118.png', price: '910.00', trend: '+22%', up: true,
       desc: 'Roronoa Zoro con arte del manga original. Una de las cartas más escasas del One Piece TCG, especialmente en condición Near Mint o superior.',
       card_id: 'OP06-118', game: 'onepiece' },
 ];
@@ -1250,7 +1251,8 @@ function codOpenModal() {
 
     imgEl.src = card.img;
     nameEl.textContent = card.name;
-    priceEl.textContent = card.price;
+    const _p = parseFloat(card.price);
+    priceEl.textContent = _p > 0 ? `€${_p.toFixed(2)} · ${Math.round(_p)} LJ` : (card.price || 'Sin precio');
     trendEl.textContent = (card.up ? '↑ ' : '↓ ') + card.trend + ' esta semana';
     trendEl.className = 'cod-trend ' + (card.up ? 'up' : 'down');
     descEl.textContent = card.desc;
