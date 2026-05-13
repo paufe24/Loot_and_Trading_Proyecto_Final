@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/csrf.php';
@@ -110,10 +110,10 @@ function spawnDefaultAuctions($conn) {
         ['Charizard ex', 'https://images.pokemontcg.io/sv3pt5/54_hires.png',       'pokemon',  '#ef4444', 500],
         ['Blue-Eyes White Dragon', 'https://images.ygoprodeck.com/images/cards/89631139.jpg', 'yugioh', '#3b82f6', 400],
         ['Black Lotus', 'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg', 'magic', '#8b5cf6', 800],
-        ['Monkey D. Luffy OP01', 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-060.png', 'onepiece', '#f97316', 350],
+        ['Monkey D. Luffy OP01', 'https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/OP01/OP01-060_w.webp', 'onepiece', '#f97316', 350],
         ['Pikachu V', 'https://images.pokemontcg.io/swsh45sv/44_hires.png',        'pokemon',  '#facc15', 300],
         ['Dark Magician', 'https://images.ygoprodeck.com/images/cards/46986414.jpg', 'yugioh',  '#6366f1', 250],
-        ['Roronoa Zoro OP01', 'https://en.onepiece-cardgame.com/images/cardlist/card/OP01-001.png', 'onepiece', '#10b981', 300],
+        ['Roronoa Zoro OP01', 'https://limitlesstcg.nyc3.cdn.digitaloceanspaces.com/one-piece/OP01/OP01-001_w.webp', 'onepiece', '#10b981', 300],
         ['Mewtwo ex', 'https://images.pokemontcg.io/sv3pt5/205_hires.png',         'pokemon',  '#a855f7', 600],
     ];
 

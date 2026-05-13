@@ -44,7 +44,7 @@
             'home.subtitle':       'El mercado definitivo de TCGs con precios en tiempo real.',
             'home.explore':        'Explorar Colecciones',
             'home.search_market':  '🔍 Buscar en el Mercado',
-            'home.predictor':      '🔮 Entrar a TCG Predictor',
+            'home.auctions':       '🏷️ Subastas en vivo',
             'home.card_of_day':    'Carta del día',
             'home.community_says': 'Lo que dice la comunidad',
             'home.trending':       '🔥 Lo más buscado esta semana',
@@ -321,7 +321,7 @@
 
             // ── Auctions extras ──
             'auctions.active_tab': '⚡ Activas',
-            'auctions.ended_tab':  '✅ Terminadas',
+            'auctions.ended_tab':  '🏁 Terminadas',
             'auctions.all':        'Todos',
             'auctions.sell':       '📤 Vender',
             'auctions.sell_title': '📤 Poner carta en subasta',
@@ -335,9 +335,10 @@
             'auctions.publish':    '🚀 Publicar subasta',
             'auctions.gallery':    '📁 Galería',
             'auctions.login_bid':  'Inicia sesión para pujar',
-            'auctions.hour':       'hora',
-            'auctions.hours':      'horas',
-            'auctions.days':       'días',
+            'auctions.hour':        'hora',
+            'auctions.hours':       'horas',
+            'auctions.days':        'días',
+            'auctions.hero_subtitle': 'Puja en tiempo real con Lujanitos en cartas TCG.',
 
             // ── Lujanitos extras ──
             'lj.your_balance':     'Tu saldo:',
@@ -441,7 +442,7 @@
             'home.subtitle':       'The ultimate TCG marketplace with real-time prices.',
             'home.explore':        'Explore Collections',
             'home.search_market':  '🔍 Search the Market',
-            'home.predictor':      '🔮 Enter TCG Predictor',
+            'home.auctions':        '🏷️ Auctions Live',
             'home.card_of_day':    'Card of the day',
             'home.community_says': 'What the community says',
             'home.trending':       '🔥 Trending this week',
@@ -718,7 +719,7 @@
 
             // ── Auctions extras ──
             'auctions.active_tab': '⚡ Active',
-            'auctions.ended_tab':  '✅ Ended',
+            'auctions.ended_tab':  '🏁 Ended',
             'auctions.all':        'All',
             'auctions.sell':       '📤 Sell',
             'auctions.sell_title': '📤 List card for auction',
@@ -732,9 +733,10 @@
             'auctions.publish':    '🚀 Publish auction',
             'auctions.gallery':    '📁 Gallery',
             'auctions.login_bid':  'Log in to bid',
-            'auctions.hour':       'hour',
-            'auctions.hours':      'hours',
-            'auctions.days':       'days',
+            'auctions.hour':        'hour',
+            'auctions.hours':       'hours',
+            'auctions.days':        'days',
+            'auctions.hero_subtitle': 'Bid in real time with Lujanitos on TCG cards.',
 
             // ── Lujanitos extras ──
             'lj.your_balance':     'Your balance:',

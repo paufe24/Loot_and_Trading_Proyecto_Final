@@ -377,21 +377,23 @@ $conn->close();
 
         .favorites-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
             margin-top: 10px;
         }
 
         .favorite-card {
             background: rgba(255,255,255,0.75);
             border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 12px;
-            display: grid;
-            grid-template-columns: 52px 1fr;
-            gap: 12px;
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            gap: 8px;
+            transition: transform .2s, box-shadow .2s;
         }
+        .favorite-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.12); }
 
         body.dark .favorite-card {
             background: rgba(30,41,59,0.75);
@@ -399,12 +401,12 @@ $conn->close();
         }
 
         .favorite-thumb {
-            width: 52px;
-            height: 72px;
-            border-radius: 12px;
+            width: 100%;
+            aspect-ratio: 2/3;
+            border-radius: 10px;
             object-fit: cover;
             border: 1px solid rgba(0,0,0,0.06);
-            background: #fff;
+            background: #f1f5f9;
         }
 
         body.dark .favorite-thumb {
@@ -414,33 +416,36 @@ $conn->close();
 
         .favorite-name {
             font-weight: 900;
-            margin-bottom: 4px;
+            margin-bottom: 0;
             line-height: 1.2;
+            font-size: .76rem;
+            text-align: center;
         }
 
         .favorite-game {
             color: var(--text-secondary);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: .68rem;
+            text-align: center;
         }
 
-        .favorite-link { text-decoration: none; color: inherit; }
-        .favorite-link:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,0.10); transition: 0.2s; }
+        .favorite-link { text-decoration: none; color: inherit; display: block; }
 
         .profile-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.10);
             border: 1px solid rgba(255,255,255,0.2);
             text-align: center;
             margin-bottom: 40px;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
         .profile-header:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.13);
         }
 
         .avatar-container {
@@ -520,14 +525,15 @@ $conn->close();
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .profile-section:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
         }
 
         .section-title {
@@ -831,9 +837,9 @@ $conn->close();
         /* ── Subastas ganadas ── */
         .won-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
         .won-list.collapsed { max-height: 340px; overflow: hidden; }
-        .won-item { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; background: rgba(255,255,255,0.75); border: 1px solid var(--border-color); border-radius: 16px; padding: 12px; }
+        .won-item { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center; background: rgba(255,255,255,0.75); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; }
         body.dark .won-item { background: rgba(30,41,59,0.75); border-color: #334155; }
-        .won-item img { width: 52px; height: 72px; border-radius: 10px; object-fit: cover; }
+        .won-item img { width: 72px; height: 100px; border-radius: 10px; object-fit: cover; }
         .won-item-name { font-weight: 900; margin-bottom: 4px; }
         .won-item-meta { color: var(--text-secondary); font-size: .85rem; margin-bottom: 4px; }
         .won-item-badge { font-size: .78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
@@ -1243,19 +1249,22 @@ $conn->close();
                                 $statusColors = ['pending'=>'#f59e0b','processing'=>'#3b82f6','shipped'=>'#8b5cf6','delivered'=>'#10b981','done'=>'#10b981'];
                                 $color = $statusColors[$s['claim_status']] ?? '#94a3b8';
                             ?>
-                            <div style="background:rgba(255,255,255,0.75);border:1px solid var(--border-color);border-radius:16px;padding:16px;">
+                            <div class="won-shipment-item" data-auction-id="<?php echo $s['id']; ?>" data-status="<?php echo $s['claim_status']; ?>" style="background:rgba(255,255,255,0.75);border:1px solid var(--border-color);border-radius:16px;padding:16px;">
                                 <div style="display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;margin-bottom:16px;">
                                     <img src="<?php echo htmlspecialchars($s['card_image']); ?>" alt="" style="width:52px;height:72px;border-radius:10px;object-fit:cover;">
                                     <div>
                                         <div style="font-weight:900;margin-bottom:4px;"><?php echo htmlspecialchars($s['card_name']); ?></div>
-                                        <div style="color:var(--text-secondary);font-size:.85rem;"><?php echo htmlspecialchars($s['address']); ?></div>
+                                        <span class="ship-status-badge" style="font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:20px;background:<?php echo $color; ?>22;color:<?php echo $color; ?>;">
+                                            <?php $claimLbls=['pending'=>'Pendiente','processing'=>'Preparando','shipped'=>'Enviado','delivered'=>'Entregado','done'=>'Completado']; echo $claimLbls[$s['claim_status']] ?? 'Pendiente'; ?>
+                                        </span>
+                                        <div style="color:var(--text-secondary);font-size:.82rem;margin-top:4px;"><?php echo htmlspecialchars($s['address']); ?></div>
                                     </div>
                                 </div>
                                 <div style="display:flex;gap:0;position:relative;">
                                     <?php foreach ($labels as $i => $lbl): ?>
                                         <?php $done = ($i + 1) <= $step; ?>
                                         <div style="flex:1;text-align:center;position:relative;">
-                                            <div style="width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;
+                                            <div class="ship-dot" style="width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;
                                                 background:<?php echo $done ? $color : 'var(--border-color)'; ?>;
                                                 color:<?php echo $done ? '#fff' : 'var(--text-secondary)'; ?>;">
                                                 <?php echo $done ? '✓' : ($i+1); ?>
@@ -1264,7 +1273,7 @@ $conn->close();
                                                 <?php echo $lbl; ?>
                                             </div>
                                             <?php if ($i < 3): ?>
-                                            <div style="position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:<?php echo ($i+1 < $step) ? $color : 'var(--border-color)'; ?>;"></div>
+                                            <div class="ship-line" style="position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:<?php echo ($i+1 < $step) ? $color : 'var(--border-color)'; ?>;"></div>
                                             <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
@@ -1298,7 +1307,7 @@ $conn->close();
                             $step  = $shipSteps[$ss]  ?? 1;
                             $firstImg = $ord['items'][0]['card_image'] ?? '';
                         ?>
-                        <div class="order-item">
+                        <div class="order-item" data-order-id="<?php echo $ord['id']; ?>" data-status="<?php echo $ss; ?>">
                             <div class="order-header">
                                 <?php if ($firstImg): ?>
                                     <img src="<?php echo htmlspecialchars($firstImg); ?>" alt="">
@@ -1319,7 +1328,7 @@ $conn->close();
                                             </span>
                                         <?php endforeach; ?>
                                     </div>
-                                    <span style="font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:20px;background:<?php echo $color; ?>22;color:<?php echo $color; ?>;">
+                                    <span class="ship-status-badge" style="font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:20px;background:<?php echo $color; ?>22;color:<?php echo $color; ?>;">
                                         <?php echo $shipNames[$ss] ?? $ss; ?>
                                     </span>
                                 </div>
@@ -1651,6 +1660,55 @@ $conn->close();
 
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
 <script>
+// ── Polling de estados de envío en tiempo real ────────────────
+const SHIP_COLORS = {pending:'#f59e0b',processing:'#3b82f6',shipped:'#8b5cf6',delivered:'#10b981',done:'#10b981'};
+const SHIP_STEPS  = {pending:1,processing:2,shipped:3,delivered:4,done:4};
+const SHIP_NAMES  = {pending:'Pendiente',processing:'Preparando',shipped:'Enviado',delivered:'Entregado',done:'Completado'};
+
+function applyShipStatus(container, status) {
+    const color = SHIP_COLORS[status] || '#94a3b8';
+    const step  = SHIP_STEPS[status]  || 1;
+    const name  = SHIP_NAMES[status]  || status;
+    container.dataset.status = status;
+
+    const badge = container.querySelector('.ship-status-badge');
+    if (badge) { badge.textContent = name; badge.style.background = color + '22'; badge.style.color = color; }
+
+    container.querySelectorAll('.ship-dot').forEach((dot, i) => {
+        const done = (i + 1) <= step;
+        dot.style.background = done ? color : 'var(--border-color)';
+        dot.style.color      = done ? '#fff' : 'var(--text-secondary)';
+        dot.textContent      = done ? '✓' : (i + 1);
+    });
+    container.querySelectorAll('.ship-line').forEach((line, i) => {
+        line.style.background = (i + 1 < step) ? color : 'var(--border-color)';
+    });
+}
+
+async function pollShipments() {
+    try {
+        const res  = await fetch('../api/shipments.php');
+        const data = await res.json();
+        if (!data.ok) return;
+
+        data.cart.forEach(item => {
+            const el = document.querySelector(`.order-item[data-order-id="${item.order_id}"]`);
+            if (!el || el.dataset.status === item.shipment_status) return;
+            applyShipStatus(el, item.shipment_status);
+            if (typeof showToast === 'function') showToast('📦 Estado de pedido actualizado', 'info');
+        });
+
+        data.auctions.forEach(item => {
+            const el = document.querySelector(`.won-shipment-item[data-auction-id="${item.auction_id}"]`);
+            if (!el || el.dataset.status === item.shipment_status) return;
+            applyShipStatus(el, item.shipment_status);
+            if (typeof showToast === 'function') showToast('📦 Estado de envío actualizado', 'info');
+        });
+    } catch(e) {}
+}
+
+setInterval(pollShipments, 10000);
+
 async function deleteAlert(id, btn) {
     if (!confirm('¿Eliminar esta alerta?')) return;
     const fd = new FormData();

@@ -21,7 +21,7 @@ $game = $_GET['game'] ?? 'pokemon';
         .price-change-badge.down { background: #fee2e2; color: #dc2626; }
         .cond-rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; }
 
-        /* ===== POKÉBALLS FONDO FLOTANTE ===== */
+        /* ===== FONDO FLOTANTE (todos los juegos) ===== */
         .main-wrapper.mercado-page { position: relative; z-index: 1; }
         .poke-float-bg {
             position: absolute;
@@ -38,6 +38,11 @@ $game = $_GET['game'] ?? 'pokemon';
             clip-path: circle(46%);
             opacity: 0;
             filter: blur(2px);
+        }
+        /* Yugioh y One Piece son PNGs con fondo transparente: mostramos la forma real */
+        .yugioh-float-bg .pfb, .onepiece-float-bg .pfb {
+            clip-path: none;
+            filter: blur(1px);
         }
         /* Esquina izquierda → sube hacia la derecha */
         .pfb-1  { width:120px; height:120px; left: 0%;  bottom:  3%; animation: pokeFloatL 14s   linear -2s  infinite; }
@@ -105,6 +110,87 @@ $game = $_GET['game'] ?? 'pokemon';
             <img class="pfb pfb-18" src="../img/pokeanimations/pokeballrojabuena.jpg" alt="">
             <img class="pfb pfb-19" src="../img/pokeanimations/pokeballazul.png"      alt="">
             <img class="pfb pfb-20" src="../img/pokeanimations/pokeballnegra.png"     alt="">
+        </div>
+        <?php elseif ($game === 'yugioh'): ?>
+        <div class="poke-float-bg yugioh-float-bg">
+            <?php $yImg = '../img/yugiohanimations/yu-gi-oh-trading-card-game-magic-the-gathering-collectible-card-game-playing-card-the-dollar-removebg-preview.png'; ?>
+            <img class="pfb pfb-1"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-2"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-3"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-4"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-5"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-6"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-7"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-8"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-9"  src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-10" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-11" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-12" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-13" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-14" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-15" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-16" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-17" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-18" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-19" src="<?= $yImg ?>" alt="">
+            <img class="pfb pfb-20" src="<?= $yImg ?>" alt="">
+        </div>
+        <?php elseif ($game === 'magic'): ?>
+        <div class="poke-float-bg">
+            <?php
+            $mImgs = [
+                '../img/magicanimations/5riqd2z9woq81.jpg',
+                '../img/magicanimations/5riqd2z9woq81%20-%20copia.jpg',
+                '../img/magicanimations/5riqd2z9woq81%20-%20copia%20(2).jpg',
+                '../img/magicanimations/5riqd2z9woq81%20-%20copia%20(3).jpg',
+                '../img/magicanimations/5riqd2z9woq81%20-%20copia%20(4).jpg',
+            ];
+            $m = $mImgs;
+            ?>
+            <img class="pfb pfb-1"  src="<?= $m[0] ?>" alt="">
+            <img class="pfb pfb-2"  src="<?= $m[1] ?>" alt="">
+            <img class="pfb pfb-3"  src="<?= $m[2] ?>" alt="">
+            <img class="pfb pfb-4"  src="<?= $m[3] ?>" alt="">
+            <img class="pfb pfb-5"  src="<?= $m[4] ?>" alt="">
+            <img class="pfb pfb-6"  src="<?= $m[0] ?>" alt="">
+            <img class="pfb pfb-7"  src="<?= $m[1] ?>" alt="">
+            <img class="pfb pfb-8"  src="<?= $m[2] ?>" alt="">
+            <img class="pfb pfb-9"  src="<?= $m[3] ?>" alt="">
+            <img class="pfb pfb-10" src="<?= $m[4] ?>" alt="">
+            <img class="pfb pfb-11" src="<?= $m[0] ?>" alt="">
+            <img class="pfb pfb-12" src="<?= $m[1] ?>" alt="">
+            <img class="pfb pfb-13" src="<?= $m[2] ?>" alt="">
+            <img class="pfb pfb-14" src="<?= $m[3] ?>" alt="">
+            <img class="pfb pfb-15" src="<?= $m[4] ?>" alt="">
+            <img class="pfb pfb-16" src="<?= $m[0] ?>" alt="">
+            <img class="pfb pfb-17" src="<?= $m[1] ?>" alt="">
+            <img class="pfb pfb-18" src="<?= $m[2] ?>" alt="">
+            <img class="pfb pfb-19" src="<?= $m[3] ?>" alt="">
+            <img class="pfb pfb-20" src="<?= $m[4] ?>" alt="">
+        </div>
+        <?php elseif ($game === 'onepiece'): ?>
+        <div class="poke-float-bg onepiece-float-bg">
+            <?php $oImg = '../img/onepieceanimations/cartoon-pirate-skull-with-hat-free-png-removebg-preview.png'; ?>
+            <img class="pfb pfb-1"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-2"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-3"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-4"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-5"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-6"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-7"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-8"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-9"  src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-10" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-11" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-12" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-13" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-14" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-15" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-16" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-17" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-18" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-19" src="<?= $oImg ?>" alt="">
+            <img class="pfb pfb-20" src="<?= $oImg ?>" alt="">
         </div>
         <?php endif; ?>
         <div class="mercado-layout">

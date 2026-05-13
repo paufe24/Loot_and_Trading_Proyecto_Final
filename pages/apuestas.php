@@ -31,7 +31,7 @@ if ($logged_in) {
 
 <?php include dirname(__DIR__) . '/includes/navbar.php'; ?>
 
-<header class="auctions-hero">
+<header class="hero">
     <div class="card-wall-bg">
         <div class="wall-column col-up">
             <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
@@ -188,33 +188,40 @@ if ($logged_in) {
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
         </div>
     </div>
-    <div class="auctions-hero-content">
-        <div class="auctions-hero-card">
-            <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--accent-blue);margin-bottom:8px;">Loot&Trading</div>
-            <div class="auctions-title" data-i18n="auctions.title">Subastas en vivo</div>
+    <div class="hero-content" style="margin: 0 auto;">
+        <div class="hero-text">
             <?php if ($logged_in): ?>
-            <div class="balance-pill" style="margin-top:20px;align-self:center;">
-                <img src="../img/lujanito.svg" alt="Lujanito" style="width:76px;height:76px;border-radius:50%;">
+            <div class="balance-pill" style="margin:0 auto 8px;">
+                <img src="../img/lujanito.svg" alt="LJ" style="width:28px;height:28px;border-radius:50%;">
                 <div>
-                    <div style="font-size:.6rem;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:1px;">Lujanitos</div>
+                    <div style="font-size:.58rem;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:1px;">Tus Lujanitos</div>
                     <div class="balance-amount" id="balance-display"><?php echo number_format($lootcoins); ?></div>
                 </div>
             </div>
-            <?php else: ?>
-            <a href="auth.php" class="btn-main" style="margin-top:20px;" data-i18n="nav.login">Inicia sesión para pujar</a>
             <?php endif; ?>
+            <h1>Subastas<br><span>en vivo.</span></h1>
+            <p data-i18n="auctions.hero_subtitle">Puja en tiempo real con Lujanitos en cartas TCG.</p>
+            <div style="display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;">
+                <a href="#" class="btn-main" style="margin-top:0;" onclick="setMode('buy',document.getElementById('mode-buy-btn'));return false;">🛒 <span data-i18n="lj.buy">Comprar</span></a>
+                <a href="#" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#8b5cf6,#d946ef);box-shadow:0 10px 25px rgba(139,92,246,.3);" onclick="setMode('sell',document.getElementById('mode-sell-btn'));return false;" data-i18n="auctions.sell">📤 Vender</a>
+                <?php if ($logged_in): ?>
+                <a href="#" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 10px 25px rgba(5,150,105,.3);" onclick="setMode('mine',document.getElementById('mode-mine-btn'));return false;">👤 <span data-i18n="auctions.my_auctions">Mis Subastas</span></a>
+                <?php else: ?>
+                <a href="auth.php" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#8b5cf6,#d946ef);box-shadow:0 10px 25px rgba(139,92,246,.3);" data-i18n="nav.login">Inicia sesión para pujar</a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </header>
 
 <div class="auctions-wrap">
 
-    <!-- Selector Modo -->
-    <div class="mode-selector">
-        <button class="mode-btn active" id="mode-buy-btn"  onclick="setMode('buy',  this)">🛒 <span data-i18n="lj.buy">Comprar</span></button>
-        <button class="mode-btn"        id="mode-sell-btn" onclick="setMode('sell', this)" data-i18n="auctions.sell">📤 Vender</button>
+    <!-- Botones de modo (ocultos, usados por JS para tracking de estado) -->
+    <div style="display:none;">
+        <button id="mode-buy-btn"  class="mode-btn active" onclick="setMode('buy',  this)"></button>
+        <button id="mode-sell-btn" class="mode-btn"        onclick="setMode('sell', this)"></button>
         <?php if ($logged_in): ?>
-        <button class="mode-btn"        id="mode-mine-btn" onclick="setMode('mine', this)">👤 <span data-i18n="auctions.my_auctions">Mis Subastas</span></button>
+        <button id="mode-mine-btn" class="mode-btn"        onclick="setMode('mine', this)"></button>
         <?php endif; ?>
     </div>
 
@@ -222,7 +229,7 @@ if ($logged_in) {
     <div id="panel-buy">
         <div class="auction-tabs">
             <button class="auction-tab active" onclick="filterTab('active', this)" data-i18n="auctions.active_tab">⚡ Activas</button>
-            <button class="auction-tab"        onclick="filterTab('ended',  this)" data-i18n="auctions.ended_tab">✅ Terminadas</button>
+            <button class="auction-tab"        onclick="filterTab('ended',  this)" data-i18n="auctions.ended_tab">🏁 Terminadas</button>
         </div>
         <div class="auction-filters" id="auction-filters">
             <button class="filter-btn active" onclick="filterGame('all',      this)" data-i18n="auctions.all">Todos</button>

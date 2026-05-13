@@ -10,6 +10,31 @@ require_once dirname(__DIR__) . '/includes/avatar_helper.php';
 // Migraciones
 try { $conn->query("ALTER TABLE users ADD COLUMN is_admin TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e) {}
 try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
+try { $conn->query("CREATE TABLE IF NOT EXISTS events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    location VARCHAR(255),
+    event_date DATE NOT NULL,
+    event_time VARCHAR(30) DEFAULT '',
+    participants VARCHAR(100) DEFAULT '',
+    game_type VARCHAR(50) DEFAULT 'multi',
+    event_type VARCHAR(50) DEFAULT 'quedada',
+    we_participate TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)"); } catch (Exception $e) {}
+
+// Seed por defecto si la tabla está vacía
+$chk = $conn->query("SELECT COUNT(*) as c FROM events");
+if ($chk && $chk->fetch_assoc()['c'] == 0) {
+    $conn->query("INSERT INTO events (title, description, location, event_date, event_time, participants, game_type, event_type, we_participate) VALUES
+        ('Barcelona TCG Open 2025', 'Torneo oficial Pokémon VGC formato Regulación H. Premios en metálico y packs exclusivos para el top 8.', 'Fira Barcelona, Pabellón 3', '2026-05-17', '10:00h – 20:00h', '128 participantes', 'pokemon', 'torneo', 1),
+        ('Quedada Magic: Draft Commander', 'Draft de Commander informal. Trae tus mazos o únete al draft exprés que organizamos. Entrada libre.', 'GameZone Madrid, Calle Mayor 12', '2026-05-24', '16:00h – 22:00h', '~30 jugadores', 'magic', 'quedada', 0),
+        ('One Piece TCG Regional Valencia', 'Regional oficial One Piece Card Game. Clasificatorio para el Championship europeo. Formato estándar OP09.', 'Palau Velòdrom, Valencia', '2026-05-31', '09:00h – 19:00h', '64 participantes', 'onepiece', 'torneo', 1),
+        ('Quedada Intercambio TCG Barcelona', 'Jornada de intercambio multijuego: Pokémon, Yu-Gi-Oh!, Magic y One Piece. Trae tus cartas duplicadas y llévate lo que necesitas.', 'Biblioteca Jaume Fuster, Barcelona', '2026-06-07', '13:00h – 18:00h', 'Entrada libre', 'yugioh', 'intercambio', 0)
+    ");
+}
+
 
 // ── Acciones POST ──────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -50,6 +75,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'add_event') {
+        $title        = trim($_POST['title'] ?? '');
+        $description  = trim($_POST['description'] ?? '');
+        $location     = trim($_POST['location'] ?? '');
+        $event_date   = trim($_POST['event_date'] ?? '');
+        $event_time   = trim($_POST['event_time'] ?? '');
+        $participants = trim($_POST['participants'] ?? '');
+        $game_type    = trim($_POST['game_type'] ?? 'multi');
+        $event_type   = trim($_POST['event_type'] ?? 'quedada');
+        $we_participate = (int)($_POST['we_participate'] ?? 0);
+        if ($title === '' || $event_date === '') {
+            echo json_encode(['ok' => false, 'message' => 'Título y fecha son obligatorios']); exit;
+        }
+        $s = $conn->prepare("INSERT INTO events (title,description,location,event_date,event_time,participants,game_type,event_type,we_participate) VALUES (?,?,?,?,?,?,?,?,?)");
+        $s->bind_param("ssssssssi", $title, $description, $location, $event_date, $event_time, $participants, $game_type, $event_type, $we_participate);
+        $s->execute();
+        echo json_encode(['ok' => true, 'id' => $conn->insert_id]);
+        exit;
+    }
+
+    if ($action === 'delete_event') {
+        $eid = (int)($_POST['event_id'] ?? 0);
+        $s = $conn->prepare("DELETE FROM events WHERE id = ?");
+        $s->bind_param("i", $eid);
+        $s->execute();
+        echo json_encode(['ok' => $conn->affected_rows > 0]);
+        exit;
+    }
+
     echo json_encode(['ok' => false, 'message' => 'Acción desconocida']);
     exit;
 }
@@ -87,6 +141,11 @@ $r = $conn->query("SELECT a.id, a.card_name, a.card_game, a.current_bid, a.statu
                    LEFT JOIN users u ON u.id = a.seller_id
                    ORDER BY a.id DESC LIMIT 20");
 while ($row = $r->fetch_assoc()) $auctions[] = $row;
+
+// ── Eventos ───────────────────────────────────────────────────────────────────
+$events = [];
+$r = $conn->query("SELECT * FROM events ORDER BY event_date ASC");
+if ($r) while ($row = $r->fetch_assoc()) $events[] = $row;
 
 // ── Actividad reciente global ──────────────────────────────────────────────────
 $activity = [];
@@ -313,6 +372,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 <button class="admin-tab" data-tab="users" data-i18n="admin.users">Usuarios</button>
                 <button class="admin-tab" data-tab="auctions" data-i18n="admin.auctions_tab">Subastas</button>
                 <button class="admin-tab" data-tab="activity" data-i18n="admin.activity">Actividad</button>
+                <button class="admin-tab" data-tab="events">📅 Eventos</button>
             </div>
             <button class="btn-action" onclick="exportUsersCSV()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
@@ -688,6 +748,109 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             </div>
             <?php endif; ?>
         </div>
+    </div>
+
+    <!-- ===================== TAB: EVENTOS ===================== -->
+    <div class="tab-panel" id="panel-events">
+
+        <!-- Formulario añadir evento -->
+        <div class="admin-section">
+            <div class="admin-section-header">
+                <h2>➕ Añadir evento</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" id="event-form">
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Título *</label>
+                    <input id="ev-title" type="text" placeholder="Ej. Barcelona TCG Open 2025" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Ubicación</label>
+                    <input id="ev-location" type="text" placeholder="Ej. Fira Barcelona, Pabellón 3" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Fecha *</label>
+                    <input id="ev-date" type="date" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Horario</label>
+                    <input id="ev-time" type="text" placeholder="Ej. 10:00h – 20:00h" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Juego</label>
+                    <select id="ev-game" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                        <option value="multi">Multijuego</option>
+                        <option value="pokemon">Pokémon</option>
+                        <option value="yugioh">Yu-Gi-Oh!</option>
+                        <option value="magic">Magic</option>
+                        <option value="onepiece">One Piece</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Tipo</label>
+                    <select id="ev-type" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                        <option value="torneo">Torneo</option>
+                        <option value="quedada">Quedada</option>
+                        <option value="intercambio">Intercambio</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Participantes</label>
+                    <input id="ev-participants" type="text" placeholder="Ej. 128 participantes" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;background:var(--bg-main)">
+                </div>
+                <div style="display:flex;align-items:flex-end;gap:12px;">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:700;cursor:pointer;padding-bottom:2px;">
+                        <input id="ev-we" type="checkbox" style="width:16px;height:16px;cursor:pointer;">
+                        ⭐ Nosotros participamos
+                    </label>
+                </div>
+                <div style="grid-column:1/-1;">
+                    <label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:4px;">Descripción</label>
+                    <textarea id="ev-desc" rows="2" placeholder="Descripción del evento..." style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-color);font-family:'Outfit',sans-serif;font-size:.88rem;box-sizing:border-box;resize:vertical;background:var(--bg-main)"></textarea>
+                </div>
+                <div style="grid-column:1/-1;display:flex;justify-content:flex-end;">
+                    <button onclick="addEvent()" style="padding:11px 28px;border-radius:12px;background:#3b82f6;color:#fff;border:none;font-weight:800;font-size:.9rem;cursor:pointer;font-family:'Outfit',sans-serif;">Añadir evento</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de eventos -->
+        <div class="admin-section">
+            <div class="admin-section-header">
+                <h2>📅 Eventos publicados</h2>
+                <span class="section-badge" id="events-count"><?php echo count($events); ?> eventos</span>
+            </div>
+            <div id="events-list">
+            <?php if (empty($events)): ?>
+                <div class="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+                    <div class="empty-state-title">No hay eventos</div>
+                    <div class="empty-state-sub">Usa el formulario de arriba para añadir el primero.</div>
+                </div>
+            <?php else: ?>
+            <div style="overflow-x:auto;">
+            <table class="admin-table" id="events-table">
+                <thead>
+                    <tr><th>Fecha</th><th>Título</th><th>Juego</th><th>Tipo</th><th>Ubicación</th><th>Nosotros</th><th>Acción</th></tr>
+                </thead>
+                <tbody>
+                <?php foreach ($events as $ev): ?>
+                <tr id="event-row-<?php echo $ev['id']; ?>">
+                    <td style="font-weight:700;white-space:nowrap"><?php echo date('d/m/Y', strtotime($ev['event_date'])); ?></td>
+                    <td style="font-weight:700"><?php echo htmlspecialchars($ev['title']); ?></td>
+                    <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($ev['game_type']); ?></td>
+                    <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($ev['event_type']); ?></td>
+                    <td style="color:var(--text-secondary);font-size:.82rem"><?php echo htmlspecialchars($ev['location']); ?></td>
+                    <td><?php echo $ev['we_participate'] ? '<span class="badge-active">⭐ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'; ?></td>
+                    <td><button class="btn-xs red" onclick="deleteEvent(<?php echo $ev['id']; ?>, this)">Eliminar</button></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            </div>
+            <?php endif; ?>
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -1159,6 +1322,67 @@ async function fetchStat(stat) {
     }
 
 })();
+
+// ── Eventos CRUD ──
+async function addEvent() {
+    const title    = document.getElementById('ev-title').value.trim();
+    const date     = document.getElementById('ev-date').value;
+    if (!title || !date) { showToast('Título y fecha son obligatorios', 'error'); return; }
+
+    const data = await adminPost({
+        action:       'add_event',
+        title,
+        description:  document.getElementById('ev-desc').value.trim(),
+        location:     document.getElementById('ev-location').value.trim(),
+        event_date:   date,
+        event_time:   document.getElementById('ev-time').value.trim(),
+        participants: document.getElementById('ev-participants').value.trim(),
+        game_type:    document.getElementById('ev-game').value,
+        event_type:   document.getElementById('ev-type').value,
+        we_participate: document.getElementById('ev-we').checked ? 1 : 0
+    });
+
+    if (!data.ok) { showToast(data.message || 'Error', 'error'); return; }
+
+    showToast('Evento añadido', 'success');
+
+    // Resetear formulario
+    ['ev-title','ev-desc','ev-location','ev-time','ev-participants'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ev-we').checked = false;
+
+    // Añadir fila a la tabla sin recargar
+    const tbody = document.querySelector('#events-table tbody');
+    const emptyState = document.querySelector('#events-list .empty-state');
+    if (emptyState) {
+        document.getElementById('events-list').innerHTML = '<div style="overflow-x:auto;"><table class="admin-table" id="events-table"><thead><tr><th>Fecha</th><th>Título</th><th>Juego</th><th>Tipo</th><th>Ubicación</th><th>Nosotros</th><th>Acción</th></tr></thead><tbody></tbody></table></div>';
+    }
+    const tb = document.querySelector('#events-table tbody');
+    const d  = new Date(date + 'T00:00:00');
+    const fmt = d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const tr = document.createElement('tr');
+    tr.id = 'event-row-' + data.id;
+    tr.innerHTML = `<td style="font-weight:700">${fmt}</td><td style="font-weight:700">${title}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-game').value}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-type').value}</td><td style="color:var(--text-secondary);font-size:.82rem">${document.getElementById('ev-location').value}</td><td>${document.getElementById('ev-we').checked ? '<span class="badge-active">⭐ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'}</td><td><button class="btn-xs red" onclick="deleteEvent(${data.id},this)">Eliminar</button></td>`;
+    tb.appendChild(tr);
+
+    const badge = document.getElementById('events-count');
+    if (badge) badge.textContent = (parseInt(badge.textContent) || 0) + 1 + ' eventos';
+}
+
+async function deleteEvent(eid, btn) {
+    if (!confirm('¿Eliminar este evento?')) return;
+    btn.disabled = true;
+    const data = await adminPost({ action: 'delete_event', event_id: eid });
+    if (data.ok) {
+        const row = document.getElementById('event-row-' + eid);
+        if (row) { row.classList.add('row-flash-red'); setTimeout(() => row.remove(), 500); }
+        const badge = document.getElementById('events-count');
+        if (badge) badge.textContent = Math.max(0, (parseInt(badge.textContent) || 1) - 1) + ' eventos';
+        showToast('Evento eliminado', 'success');
+    } else {
+        btn.disabled = false;
+        showToast('Error al eliminar', 'error');
+    }
+}
 </script>
 </body>
 </html>
