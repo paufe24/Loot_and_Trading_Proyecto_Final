@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_id'])) { header('Location: auth.php'); exit; }
 require_once dirname(__DIR__) . '/includes/db.php';
@@ -224,6 +224,73 @@ $username = $_SESSION['username'] ?? '';
         .pm-empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
         .pm-empty-state .pm-empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: .6; }
 
+        /* ── Botón valorar ── */
+        .btn-rate { background: #fff7ed; color: #ea580c; border-color: #fed7aa; }
+        .btn-rate:hover { background: #ffedd5; }
+        body.dark .btn-rate { background: rgba(234,88,12,.1); color: #fb923c; border-color: rgba(234,88,12,.3); }
+
+        /* ── Rating stars display ── */
+        .ucard-rating { font-size: .72rem; color: #f59e0b; font-weight: 700; margin-top: 3px; }
+
+        /* ── Modal de valoración ── */
+        .review-modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 9000;
+            background: rgba(15,23,42,.7); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center;
+        }
+        .review-modal-overlay.open { display: flex; }
+        .review-modal-box {
+            background: #fff; border-radius: 24px; padding: 32px;
+            width: 90%; max-width: 420px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.22);
+            animation: revModalIn .25s ease;
+        }
+        body.dark .review-modal-box { background: #1e293b; }
+        @keyframes revModalIn {
+            from { opacity:0; transform: scale(.94) translateY(16px); }
+            to   { opacity:1; transform: scale(1)  translateY(0); }
+        }
+        .review-modal-box h3 {
+            font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; color: #0f172a;
+        }
+        body.dark .review-modal-box h3 { color: #e2e8f0; }
+        .review-modal-box .rev-sub {
+            font-size: .82rem; color: var(--text-secondary); margin-bottom: 20px;
+        }
+        /* Estrellas interactivas */
+        .star-row { display: flex; gap: 8px; margin-bottom: 18px; }
+        .star-btn {
+            font-size: 2rem; background: none; border: none; cursor: pointer;
+            color: #e2e8f0; transition: color .15s, transform .12s;
+            padding: 0; line-height: 1;
+        }
+        body.dark .star-btn { color: #334155; }
+        .star-btn.active, .star-btn:hover { color: #f59e0b; transform: scale(1.15); }
+        .star-btn:hover ~ .star-btn { color: #e2e8f0 !important; transform: none !important; }
+        /* Textarea comentario */
+        .review-modal-box textarea {
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border-color);
+            border-radius: 14px; font-family: 'Outfit',sans-serif; font-size: .9rem;
+            resize: none; background: #f8fafc; color: var(--text-primary);
+            box-sizing: border-box; transition: border-color .2s;
+        }
+        body.dark .review-modal-box textarea { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+        .review-modal-box textarea:focus { outline: none; border-color: var(--accent-blue); }
+        .review-modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+        .btn-rev-cancel {
+            flex:1; padding: 12px; border-radius: 12px; border: 2px solid var(--border-color);
+            background: none; font-weight: 700; cursor: pointer; font-family: 'Outfit',sans-serif;
+            color: var(--text-secondary); transition: all .18s;
+        }
+        .btn-rev-cancel:hover { border-color: #94a3b8; color: var(--text-primary); }
+        .btn-rev-submit {
+            flex:2; padding: 12px; border-radius: 12px; border: none;
+            background: #3b82f6; color: #fff; font-weight: 800; cursor: pointer;
+            font-family: 'Outfit',sans-serif; font-size: .95rem; transition: background .18s;
+        }
+        .btn-rev-submit:hover { background: #2563eb; }
+        .btn-rev-submit:disabled { opacity: .6; cursor: default; }
+
         @media (max-width: 768px) {
             .pm-profile-content { padding: 20px 15px 40px; }
             .pm-profile-header { padding: 30px 20px; }
@@ -259,7 +326,7 @@ $username = $_SESSION['username'] ?? '';
     <!-- Mis amigos -->
     <div class="section-label" data-i18n="friends.my_friends">Mis amigos</div>
     <div id="friends-list">
-        <div class="empty-state"><div class="big-icon">⏳</div><p>Cargando...</p></div>
+        <div class="empty-state"><div class="big-icon">â³</div><p>Cargando...</p></div>
     </div>
 </div>
 
@@ -318,13 +385,13 @@ $username = $_SESSION['username'] ?? '';
                 <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
             </div>
@@ -385,13 +452,13 @@ $username = $_SESSION['username'] ?? '';
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
             </div>
             <div class="wall-column col-up">
-                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
-                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                 <div class="wall-img" style="background-image:url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                 <div class="wall-img" style="background-image:url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
@@ -465,7 +532,7 @@ $username = $_SESSION['username'] ?? '';
             </div>
 
             <div class="pm-profile-section">
-                <h3 class="pm-section-title" data-i18n="profile.favorites">⭐ Favoritos</h3>
+                <h3 class="pm-section-title" data-i18n="profile.favorites">â­ Favoritos</h3>
                 <div id="pm-favorites"></div>
             </div>
 
@@ -476,6 +543,26 @@ $username = $_SESSION['username'] ?? '';
 
 <div class="toast-container" id="toast-container"></div>
 
+<!-- ── Modal valorar usuario ── -->
+<div class="review-modal-overlay" id="review-modal-overlay">
+    <div class="review-modal-box">
+        <h3 id="rev-modal-title">Valorar usuario</h3>
+        <div class="rev-sub" id="rev-modal-sub">Deja una puntuación y comentario</div>
+        <div class="star-row" id="rev-star-row">
+            <button class="star-btn" data-val="1" onclick="setRevStar(1)">★</button>
+            <button class="star-btn" data-val="2" onclick="setRevStar(2)">★</button>
+            <button class="star-btn" data-val="3" onclick="setRevStar(3)">★</button>
+            <button class="star-btn" data-val="4" onclick="setRevStar(4)">★</button>
+            <button class="star-btn" data-val="5" onclick="setRevStar(5)">★</button>
+        </div>
+        <textarea id="rev-comment" rows="3" placeholder="Escribe un comentario (opcional)..."></textarea>
+        <div class="review-modal-actions">
+            <button class="btn-rev-cancel" onclick="closeRevModal()">Cancelar</button>
+            <button class="btn-rev-submit" id="rev-submit-btn" onclick="submitUserReview()">Enviar valoración</button>
+        </div>
+    </div>
+</div>
+
 <script>
 const MY_ID = <?php echo $uid; ?>;
 
@@ -483,7 +570,7 @@ function fixUrl(u) {
     if (!u) return '';
     if (u.startsWith('avatar_shop:')) {
         const key = u.substring(12);
-        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺️'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔️'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩️'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🃏'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
+        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺ï¸'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔ï¸'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩ï¸'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🎴'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
         const d = AVDEFS[key];
         if (d) return 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${d.c1}"/><stop offset="100%" style="stop-color:${d.c2}"/></linearGradient></defs><rect width="200" height="200" rx="100" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="80">${d.i}</text></svg>`);
         return '';
@@ -495,7 +582,7 @@ function toast(msg, type='info') {
     const c = document.getElementById('toast-container');
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    t.innerHTML = `<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span>${msg}`;
+    t.innerHTML = `<span>${{success:'✅',error:'âŒ',info:'ℹï¸'}[type]||'ℹï¸'}</span>${msg}`;
     c.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }
@@ -541,17 +628,23 @@ async function loadFriends() {
 function buildFriendCard(f) {
     const div = document.createElement('div');
     div.className = 'user-card';
+    div.setAttribute('data-uid', f.id);
     const avHtml = f.avatar_url
-        ? `<img src="${escHtml(fixUrl(f.avatar_url))}" alt="" onerror="this.style.display='none'">`
+        ? `<img src=”${escHtml(fixUrl(f.avatar_url))}” alt=”” onerror=”this.style.display='none'”>`
         : (f.username||'?').charAt(0).toUpperCase();
+    const ratingHtml = f.avg_rating
+        ? `<div class=”ucard-rating”>${'★'.repeat(Math.round(f.avg_rating))}${'☆'.repeat(5-Math.round(f.avg_rating))} ${f.avg_rating} (${f.review_count})</div>`
+        : '';
     div.innerHTML = `
-        <div class="ucard-av">${avHtml}</div>
-        <div class="ucard-info">
-            <div class="ucard-name">${escHtml(f.name || f.username)}</div>
-            <div class="ucard-user">@${escHtml(f.username)}</div>
+        <div class=”ucard-av”>${avHtml}</div>
+        <div class=”ucard-info”>
+            <div class=”ucard-name”>${escHtml(f.name || f.username)}</div>
+            <div class=”ucard-user”>@${escHtml(f.username)}</div>
+            ${ratingHtml}
         </div>
-        <div class="ucard-actions">
-            <button class="btn-sm btn-profile" onclick="openProfile(${f.id})">Ver perfil</button>
+        <div class=”ucard-actions”>
+            <button class=”btn-sm btn-profile” onclick=”openProfile(${f.id})”>Ver perfil</button>
+            <button class=”btn-sm btn-rate” onclick=”openRevModal(${f.id},'${escHtml(f.username)}')”>⭐ Valorar</button>
         </div>`;
     return div;
 }
@@ -561,17 +654,17 @@ function buildRequestCard(r) {
     div.className = 'user-card';
     div.id = `rrow-${r.id}`;
     const avHtml = r.avatar_url
-        ? `<img src="${escHtml(fixUrl(r.avatar_url))}" alt="">`
+        ? `<img src=”${escHtml(fixUrl(r.avatar_url))}” alt=””>`
         : (r.username||'?').charAt(0).toUpperCase();
     div.innerHTML = `
-        <div class="ucard-av">${avHtml}</div>
-        <div class="ucard-info">
-            <div class="ucard-name">${escHtml(r.name || r.username)}</div>
-            <div class="ucard-user">Quiere ser tu amigo</div>
+        <div class=”ucard-av”>${avHtml}</div>
+        <div class=”ucard-info”>
+            <div class=”ucard-name”>${escHtml(r.name || r.username)}</div>
+            <div class=”ucard-user”>Quiere ser tu amigo</div>
         </div>
-        <div class="ucard-actions">
-            <button class="btn-sm btn-accept" onclick="acceptReq(${r.friendship_id},this)">✓ Aceptar</button>
-            <button class="btn-sm btn-reject" onclick="rejectReq(${r.friendship_id},this)">✗</button>
+        <div class=”ucard-actions”>
+            <button class=”btn-sm btn-accept” onclick=”acceptReq(${r.friendship_id},this)”>✔ Aceptar</button>
+            <button class=”btn-sm btn-reject” onclick=”rejectReq(${r.friendship_id},this)”>✗</button>
         </div>`;
     return div;
 }
@@ -606,23 +699,31 @@ async function doSearch() {
         const req = parseInt(u.requester_id)||0;
         let actions = '';
         if (!st) {
-            actions = `<button class="btn-sm btn-add" onclick="sendReq(${u.id},this)">+ Añadir</button>`;
+            actions = `<button class=”btn-sm btn-add” onclick=”sendReq(${u.id},this)”>+ Añadir</button>`;
         } else if (st === 'pending' && req === MY_ID) {
-            actions = `<span class="status-sent">Solicitud enviada</span>`;
+            actions = `<span class=”status-sent”>Solicitud enviada</span>`;
         } else if (st === 'pending' && req !== MY_ID) {
             actions = `
-                <button class="btn-sm btn-accept" onclick="acceptReq(${u.friendship_id||0},this)">✓</button>
-                <button class="btn-sm btn-reject" onclick="rejectReq(${u.friendship_id||0},this)">✗</button>`;
+                <button class=”btn-sm btn-accept” onclick=”acceptReq(${u.friendship_id||0},this)”>✔</button>
+                <button class=”btn-sm btn-reject” onclick=”rejectReq(${u.friendship_id||0},this)”>✗</button>`;
         } else if (st === 'accepted') {
-            actions = `<button class="btn-sm btn-profile" onclick="openProfile(${u.id})">Ver perfil</button>`;
+            actions = `<button class=”btn-sm btn-profile” onclick=”openProfile(${u.id})”>Ver perfil</button>`;
         }
+        const rateBtn = u.id !== MY_ID
+            ? `<button class=”btn-sm btn-rate” onclick=”openRevModal(${u.id},'${escHtml(u.username)}')”>⭐ Valorar</button>`
+            : '';
+        const ratingHtml = u.avg_rating
+            ? `<div class=”ucard-rating”>${'★'.repeat(Math.round(u.avg_rating))}${'☆'.repeat(5-Math.round(u.avg_rating))} ${u.avg_rating} (${u.review_count})</div>`
+            : '';
+        div.setAttribute('data-uid', u.id);
         div.innerHTML = `
-            <div class="ucard-av">${avHtml}</div>
-            <div class="ucard-info">
-                <div class="ucard-name">${escHtml(u.name||u.username)}</div>
-                <div class="ucard-user">@${escHtml(u.username)}</div>
+            <div class=”ucard-av”>${avHtml}</div>
+            <div class=”ucard-info”>
+                <div class=”ucard-name”>${escHtml(u.name||u.username)}</div>
+                <div class=”ucard-user”>@${escHtml(u.username)}</div>
+                ${ratingHtml}
             </div>
-            <div class="ucard-actions">${actions}</div>`;
+            <div class=”ucard-actions”>${actions}${rateBtn}</div>`;
         box.appendChild(div);
     });
 }
@@ -684,9 +785,9 @@ async function openProfile(userId) {
     document.getElementById('pm-info-nombre').textContent  = '—';
     document.getElementById('pm-info-usuario').textContent = '—';
     document.getElementById('pm-info-fecha').textContent   = '—';
-    document.getElementById('pm-activity').innerHTML  = emptyState('⏳','Cargando...');
-    document.getElementById('pm-auctions').innerHTML  = emptyState('⏳','Cargando...');
-    document.getElementById('pm-favorites').innerHTML = emptyState('⏳','Cargando...');
+    document.getElementById('pm-activity').innerHTML  = emptyState('â³','Cargando...');
+    document.getElementById('pm-auctions').innerHTML  = emptyState('â³','Cargando...');
+    document.getElementById('pm-favorites').innerHTML = emptyState('â³','Cargando...');
 
     const res  = await fetch(`../api/friends.php?action=profile&user_id=${userId}`);
     const data = await res.json();
@@ -779,6 +880,76 @@ function closeProfile() {
     document.getElementById('pm-close-btn').style.display = 'none';
     document.body.style.overflow = '';
 }
+
+/* ── Sistema de valoraciones ──────────────────────────── */
+let revTargetId   = 0;
+let revTargetName = '';
+let revSelectedStar = 0;
+
+async function openRevModal(userId, username) {
+    revTargetId   = userId;
+    revTargetName = username;
+    revSelectedStar = 0;
+    document.getElementById('rev-modal-title').textContent = `Valorar a @${username}`;
+    document.getElementById('rev-modal-sub').textContent   = 'Deja una puntuación y comentario';
+    document.getElementById('rev-comment').value = '';
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+
+    // Cargar valoración previa si existe
+    try {
+        const res  = await fetch(`../api/user_review.php?action=get&user_id=${userId}`);
+        const data = await res.json();
+        if (data.ok && data.my_review) {
+            setRevStar(data.my_review.rating);
+            document.getElementById('rev-comment').value = data.my_review.comment || '';
+            document.getElementById('rev-modal-sub').textContent = 'Ya has valorado a este usuario. Puedes actualizar tu valoración.';
+        }
+    } catch(e) {}
+
+    document.getElementById('review-modal-overlay').classList.add('open');
+}
+
+function setRevStar(val) {
+    revSelectedStar = val;
+    document.querySelectorAll('.star-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.val) <= val);
+    });
+}
+
+function closeRevModal() {
+    document.getElementById('review-modal-overlay').classList.remove('open');
+}
+
+async function submitUserReview() {
+    if (!revSelectedStar) { toast('Selecciona una puntuación','error'); return; }
+    const btn = document.getElementById('rev-submit-btn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    const fd = new FormData();
+    fd.append('action', 'submit');
+    fd.append('reviewed_user_id', revTargetId);
+    fd.append('rating',  revSelectedStar);
+    fd.append('comment', document.getElementById('rev-comment').value.trim());
+    try {
+        const res  = await fetch('../api/user_review.php', {method:'POST',body:fd});
+        const data = await res.json();
+        if (data.ok) {
+            toast(`¡Valoración enviada! Media: ${data.avg_rating}★ (${data.total} valoraciones)`, 'success');
+            closeRevModal();
+            // Actualizar la tarjeta si está visible
+            document.querySelectorAll(`[data-uid="${revTargetId}"] .ucard-rating`).forEach(el => {
+                el.textContent = `${'★'.repeat(Math.round(data.avg_rating))}${'☆'.repeat(5-Math.round(data.avg_rating))} ${data.avg_rating} (${data.total})`;
+            });
+        } else {
+            toast(data.message || 'Error al enviar', 'error');
+        }
+    } catch(e) { toast('Error de conexión','error'); }
+    btn.disabled = false; btn.textContent = 'Enviar valoración';
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('review-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeRevModal();
+});
 
 loadFriends();
 </script>

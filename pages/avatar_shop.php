@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_id'])) { header('Location: auth.php'); exit; }
 require_once dirname(__DIR__) . '/includes/db.php';
@@ -337,7 +337,7 @@ $levelInfo = getLevelInfo((int)($user['xp'] ?? 0));
         <!-- Grid -->
         <div class="av-grid" id="avatars-grid">
             <div class="av-empty">
-                <div class="big-icon">⏳</div>
+                <div class="big-icon">â³</div>
                 <span data-i18n="av.loading">Cargando avatares...</span>
             </div>
         </div>
@@ -382,8 +382,8 @@ let pendingBuyId = null;
 const AVATAR_DEFS = {
     explorer:       { c1:'#3b82f6', c2:'#1d4ed8', icon:'🧭' },
     rookie:         { c1:'#10b981', c2:'#059669', icon:'🌱' },
-    traveler:       { c1:'#8b5cf6', c2:'#6d28d9', icon:'🗺️' },
-    warrior:        { c1:'#ef4444', c2:'#b91c1c', icon:'⚔️' },
+    traveler:       { c1:'#8b5cf6', c2:'#6d28d9', icon:'🗺ï¸' },
+    warrior:        { c1:'#ef4444', c2:'#b91c1c', icon:'⚔ï¸' },
     dark_mage:      { c1:'#7c3aed', c2:'#4c1d95', icon:'🔮' },
     archer:         { c1:'#059669', c2:'#065f46', icon:'🏹' },
     pirate:         { c1:'#d97706', c2:'#92400e', icon:'🏴‍☠️' },
@@ -391,13 +391,13 @@ const AVATAR_DEFS = {
     golden_dragon:  { c1:'#f59e0b', c2:'#d97706', icon:'🐉' },
     shadow_ninja:   { c1:'#334155', c2:'#0f172a', icon:'🥷' },
     phoenix:        { c1:'#f97316', c2:'#ea580c', icon:'🔥' },
-    samurai:        { c1:'#dc2626', c2:'#7f1d1d', icon:'⛩️' },
+    samurai:        { c1:'#dc2626', c2:'#7f1d1d', icon:'⛩ï¸' },
     hacker:         { c1:'#22c55e', c2:'#15803d', icon:'💻' },
     celestial_king: { c1:'#eab308', c2:'#a16207', icon:'👑' },
     valkyrie:       { c1:'#ec4899', c2:'#be185d', icon:'🦋' },
     cyborg:         { c1:'#64748b', c2:'#334155', icon:'🤖' },
     fox_spirit:     { c1:'#f97316', c2:'#9a3412', icon:'🦊' },
-    deck_god:       { c1:'#fbbf24', c2:'#b45309', icon:'🃏' },
+    deck_god:       { c1:'#fbbf24', c2:'#b45309', icon:'🎴' },
     cosmic_phoenix: { c1:'#a855f7', c2:'#581c87', icon:'🌌' },
     ancient_titan:  { c1:'#78716c', c2:'#292524', icon:'🗿' },
 };
@@ -578,7 +578,7 @@ async function unequipAvatar() {
 // ── Toast ──
 function showToast(msg, isError = false) {
     const t = document.getElementById('av-toast');
-    t.textContent = (isError ? '❌ ' : '✅ ') + msg;
+    t.textContent = (isError ? 'âŒ ' : '✅ ') + msg;
     t.style.background = isError ? '#ef4444' : '#0f172a';
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3200);

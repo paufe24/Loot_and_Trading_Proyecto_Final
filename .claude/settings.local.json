@@ -7,7 +7,12 @@
       "Bash(awk -F: '{if \\($1 > 1395 && $1 < 1430\\) print}')",
       "Bash(python3 *)",
       "Bash(php *)",
-      "Bash(grep -n '$game' C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/mercado.php)"
+      "Bash(grep -n '$game' C:/xampp/htdocs/Loot_and_Trading_Proyecto_Final/pages/mercado.php)",
+      "Bash(git checkout *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git merge *)",
+      "Bash(git add *)"
     ]
   }
 }

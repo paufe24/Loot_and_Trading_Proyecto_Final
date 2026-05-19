@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 $isFetch = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'fetch';
@@ -364,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
 
         $msg = $result['ok']
             ? '✅ Pedido ' . ($result['order_number'] ?? '') . ' · -' . ($result['lj_spent'] ?? 0) . ' LJ'
-            : ('❌ ' . ($result['message'] ?? ''));
+            : ('âŒ ' . ($result['message'] ?? ''));
         header('Location: cart.php?msg=' . urlencode($msg));
         exit;
     }

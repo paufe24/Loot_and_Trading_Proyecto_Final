@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 // Verificar si el usuario está logueado
@@ -51,7 +51,7 @@ try {
         SELECT co.id, co.order_number, co.total_amount, co.shipment_status, co.created_at
         FROM cart_orders co
         WHERE co.user_id = ? AND co.status = 'paid'
-        ORDER BY co.created_at DESC LIMIT 20
+        ORDER BY co.created_at DESC LIMIT 3
     ");
     if ($stOrders) {
         $stOrders->bind_param("i", $_SESSION['user_id']);
@@ -153,7 +153,7 @@ $stW = $conn->prepare(
      FROM auctions a
      LEFT JOIN auction_claims cl ON cl.auction_id = a.id AND cl.user_id = ?
      WHERE a.current_winner_id = ? AND a.status = 'ended'
-     ORDER BY a.ends_at DESC LIMIT 10"
+     ORDER BY a.ends_at DESC LIMIT 3"
 );
 if ($stW) {
     $stW->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
@@ -178,7 +178,7 @@ $conn->query("CREATE TABLE IF NOT EXISTS user_favorites (
 )");
 
 $favorites = [];
-$favStmt = $conn->prepare('SELECT card_id, card_name, card_image, card_game, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT 24');
+$favStmt = $conn->prepare('SELECT card_id, card_name, card_image, card_game, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC LIMIT 6');
 if ($favStmt) {
     $favStmt->bind_param('i', $_SESSION['user_id']);
     $favStmt->execute();
@@ -267,6 +267,15 @@ $stAl->execute();
 $resAl = $stAl->get_result();
 while ($row = $resAl->fetch_assoc()) $userAlerts[] = $row;
 $stAl->close();
+
+// Cartas de sobres (no vendidas = guardadas)
+$conn->query("ALTER TABLE pack_cards ADD COLUMN IF NOT EXISTS kept TINYINT(1) NOT NULL DEFAULT 0");
+$packCardsProfile = [];
+$stPP = $conn->prepare("SELECT id, card_name, card_image, card_game, card_rarity, lujanitos_value FROM pack_cards WHERE user_id = ? AND sold = 0 ORDER BY opened_at DESC LIMIT 6");
+if ($stPP) { $stPP->bind_param("i",$_SESSION['user_id']); $stPP->execute(); $packCardsProfile = $stPP->get_result()->fetch_all(MYSQLI_ASSOC); $stPP->close(); }
+$totalPackCards = 0;
+$stPC = $conn->prepare("SELECT COUNT(*) FROM pack_cards WHERE user_id = ? AND sold = 0");
+if ($stPC) { $stPC->bind_param("i",$_SESSION['user_id']); $stPC->execute(); $totalPackCards = (int)$stPC->get_result()->fetch_row()[0]; $stPC->close(); }
 
 $conn->close();
 ?>
@@ -377,8 +386,8 @@ $conn->close();
 
         .favorites-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             margin-top: 10px;
         }
 
@@ -519,6 +528,7 @@ $conn->close();
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
+            align-items: start;
         }
 
         .profile-section {
@@ -934,13 +944,13 @@ $conn->close();
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                 </div>
@@ -1001,13 +1011,13 @@ $conn->close();
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
                 </div>
                 <div class="wall-column col-up">
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
@@ -1221,15 +1231,17 @@ $conn->close();
                                         <?php else: ?>
                                             <a href="apuestas.php" class="won-item-badge pending">Reclamar →</a>
                                         <?php endif; ?>
+                                        <button onclick="openReviewModal(<?php echo $w['id']; ?>, '<?php echo htmlspecialchars(addslashes($w['card_name'])); ?>')"
+                                                style="margin-top:6px;display:block;font-size:.72rem;padding:4px 10px;border-radius:99px;border:1.5px solid #3b82f6;background:transparent;color:#3b82f6;cursor:pointer;font-weight:700;">
+                                            Valorar compra
+                                        </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <?php if (count($wonAuctions) > 3): ?>
-                        <button class="btn-won-more" id="won-more-btn" onclick="toggleWonList()">
-                            Ver todas las subastas (<?php echo count($wonAuctions); ?>) ▼
-                        </button>
-                        <?php endif; ?>
+                        <a href="apuestas.php" style="display:block;margin-top:14px;text-align:center;font-size:.82rem;font-weight:700;color:#fff;background:#3b82f6;padding:9px 0;border-radius:99px;text-decoration:none;">
+                            Ver todas las subastas →
+                        </a>
                     <?php endif; ?>
                 </div>
 
@@ -1281,6 +1293,34 @@ $conn->close();
                             </div>
                         <?php endforeach; ?>
                     </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Sobres Abiertos -->
+                <?php if (!empty($packCardsProfile)): ?>
+                <div class="profile-section">
+                    <h3 class="section-title">Sobres Abiertos
+                        <span style="font-size:.72rem;font-weight:600;color:var(--text-secondary);background:var(--bg-main);border:1px solid var(--border-color);padding:2px 8px;border-radius:99px;margin-left:6px;"><?php echo $totalPackCards; ?></span>
+                    </h3>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;">
+                        <?php foreach ($packCardsProfile as $pc):
+                            $lj = (float)$pc['lujanitos_value'];
+                            $ljText = $lj >= 1 ? number_format(round($lj)) . ' LJ' : number_format($lj,2) . ' LJ';
+                        ?>
+                        <div style="background:var(--bg-main);border:1px solid var(--border-color);border-radius:10px;overflow:hidden;">
+                            <img src="<?php echo htmlspecialchars($pc['card_image']); ?>" alt="<?php echo htmlspecialchars($pc['card_name']); ?>"
+                                 style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;"
+                                 onerror="this.style.background='#f1f5f9'">
+                            <div style="padding:5px 7px;">
+                                <div style="font-size:.58rem;font-weight:700;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="<?php echo htmlspecialchars($pc['card_name']); ?>"><?php echo htmlspecialchars($pc['card_name']); ?></div>
+                                <div style="font-size:.72rem;font-weight:900;color:var(--text-primary);">&#9830; <?php echo $ljText; ?></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <a href="mis-cartas.php" style="display:block;margin-top:14px;text-align:center;font-size:.82rem;font-weight:700;color:#fff;background:#3b82f6;padding:9px 0;border-radius:99px;text-decoration:none;">
+                        Ver todas las cartas guardadas (<?php echo $totalPackCards; ?>) →
+                    </a>
                 </div>
                 <?php endif; ?>
 
@@ -1353,16 +1393,14 @@ $conn->close();
                         </div>
                         <?php endforeach; ?>
                         </div>
-                        <?php if (count($myOrders) > 3): ?>
-                        <button class="btn-won-more" id="orders-more-btn" onclick="toggleOrders()">
-                            Ver todos los pedidos (<?php echo count($myOrders); ?>) ▼
-                        </button>
-                        <?php endif; ?>
+                        <a href="mis-cartas.php" style="display:block;margin-top:14px;text-align:center;font-size:.82rem;font-weight:700;color:#fff;background:#3b82f6;padding:9px 0;border-radius:99px;text-decoration:none;">
+                            Ver todos mis pedidos →
+                        </a>
                     <?php endif; ?>
                 </div>
 
                 <div class="profile-section">
-                    <h3 class="section-title" data-i18n="profile.favorites">⭐ Favoritos</h3>
+                    <h3 class="section-title" data-i18n="profile.favorites">â­ Favoritos</h3>
                     <?php if (count($favorites) === 0): ?>
                         <div class="empty-state">
                             <div class="empty-state-icon">💝</div>
@@ -1389,6 +1427,9 @@ $conn->close();
                                 </a>
                             <?php endforeach; ?>
                         </div>
+                        <a href="mercado.php" style="display:block;margin-top:14px;text-align:center;font-size:.82rem;font-weight:700;color:#fff;background:#3b82f6;padding:9px 0;border-radius:99px;text-decoration:none;">
+                            Ver todos los favoritos →
+                        </a>
                     <?php endif; ?>
                 </div>
 
@@ -1403,7 +1444,7 @@ $conn->close();
                         <?php
                         $colGames = [
                             'pokemon'  => ['name' => 'Pokémon',   'icon' => '🔴', 'color' => '#ef4444'],
-                            'yugioh'   => ['name' => 'Yu-Gi-Oh!', 'icon' => '🃏', 'color' => '#8b5cf6'],
+                            'yugioh'   => ['name' => 'Yu-Gi-Oh!', 'icon' => '🎴', 'color' => '#8b5cf6'],
                             'magic'    => ['name' => 'Magic',     'icon' => '🔮', 'color' => '#3b82f6'],
                             'onepiece' => ['name' => 'One Piece', 'icon' => '⚓', 'color' => '#f59e0b'],
                         ];
@@ -1482,7 +1523,7 @@ $conn->close();
                     <h3 class="section-title" data-i18n="profile.price_alerts">🔔 Mis Alertas de Precio</h3>
                     <?php if (count($userAlerts) === 0): ?>
                         <div class="empty-state">
-                            <div class="empty-state-icon">🔕</div>
+                            <div class="empty-state-icon">📕</div>
                             <p data-i18n="profile.no_alerts">No tienes alertas configuradas</p>
                             <small data-i18n="profile.no_alerts_desc">Crea alertas desde la página de Subastas para recibir notificaciones cuando aparezca una carta a tu precio</small>
                         </div>
@@ -1495,7 +1536,7 @@ $conn->close();
                             </div>
                             <div style="display:flex;align-items:center;gap:10px;">
                                 <?php if ($al['is_active']): ?>
-                                    <span class="alert-status-active">● Activa</span>
+                                    <span class="alert-status-active">â— Activa</span>
                                 <?php else: ?>
                                     <span class="alert-status-triggered">✓ Disparada</span>
                                 <?php endif; ?>
@@ -1627,7 +1668,7 @@ $conn->close();
             const fd = new FormData();
             fd.append('avatar', file);
             const overlay = document.querySelector('.avatar-camera-overlay');
-            if (overlay) overlay.innerHTML = '<span style="font-size:1.4rem">⏳</span><span>Subiendo...</span>';
+            if (overlay) overlay.innerHTML = '<span style="font-size:1.4rem">â³</span><span>Subiendo...</span>';
             try {
                 const res  = await fetch('../api/upload_avatar.php', { method: 'POST', body: fd });
                 const data = await res.json();
@@ -1728,7 +1769,74 @@ fetch('../api/notifications.php?action=mark_read', { method: 'POST' })
         if (dot) dot.classList.remove('visible');
     })
     .catch(() => {});
+
+// ── Modal de valoración ───────────────────────────────────────
+let _reviewAuctionId = null;
+function openReviewModal(auctionId, cardName) {
+    _reviewAuctionId = auctionId;
+    document.getElementById('review-card-name').textContent = cardName;
+    document.getElementById('review-comment').value = '';
+    setReviewStars(5);
+    document.getElementById('review-modal').style.display = 'flex';
+}
+function closeReviewModal() {
+    document.getElementById('review-modal').style.display = 'none';
+}
+let _reviewRating = 5;
+function setReviewStars(n) {
+    _reviewRating = n;
+    document.querySelectorAll('.review-star').forEach((s,i) => {
+        s.style.color = i < n ? '#f59e0b' : '#cbd5e1';
+    });
+    document.getElementById('review-rating-val').textContent = n + '/5';
+}
+async function submitReview() {
+    const btn = document.getElementById('review-submit-btn');
+    btn.disabled = true;
+    const fd = new FormData();
+    fd.append('auction_id', _reviewAuctionId);
+    fd.append('rating', _reviewRating);
+    fd.append('comment', document.getElementById('review-comment').value);
+    try {
+        const res = await fetch('../api/auction_review.php', { method:'POST', body:fd });
+        const data = await res.json();
+        if (data.ok) {
+            closeReviewModal();
+            const t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 24px;border-radius:999px;font-weight:700;z-index:9999;';
+            t.textContent = 'Valoracion guardada — gracias!';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        } else {
+            alert(data.message || 'Error al guardar');
+        }
+    } catch(e) { alert('Error de red'); }
+    btn.disabled = false;
+}
+document.getElementById('review-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeReviewModal();
+});
 </script>
+
+<!-- Modal valoración -->
+<div id="review-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:24px;padding:32px;max-width:420px;width:90%;box-shadow:0 25px 60px rgba(0,0,0,.25);">
+        <h3 style="font-size:1.2rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Valorar compra</h3>
+        <p id="review-card-name" style="color:#64748b;font-size:.85rem;margin:0 0 20px;"></p>
+        <div style="display:flex;gap:6px;margin-bottom:8px;justify-content:center;">
+            <?php for($i=1;$i<=5;$i++): ?>
+            <span class="review-star" onclick="setReviewStars(<?php echo $i; ?>)" style="font-size:2rem;cursor:pointer;color:#f59e0b;">★</span>
+            <?php endfor; ?>
+        </div>
+        <div id="review-rating-val" style="text-align:center;font-weight:800;color:#0f172a;margin-bottom:16px;">5/5</div>
+        <textarea id="review-comment" placeholder="Escribe un comentario (opcional)..." rows="3"
+                  style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-family:inherit;font-size:.9rem;resize:none;margin-bottom:16px;"></textarea>
+        <div style="display:flex;gap:10px;">
+            <button onclick="closeReviewModal()" style="flex:1;padding:12px;border-radius:99px;border:1.5px solid #e2e8f0;background:transparent;font-weight:700;cursor:pointer;">Cancelar</button>
+            <button id="review-submit-btn" onclick="submitReview()" style="flex:2;padding:12px;border-radius:99px;border:none;background:#3b82f6;color:#fff;font-weight:800;cursor:pointer;">Enviar valoracion</button>
+        </div>
+    </div>
+</div>
 
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
 </body>

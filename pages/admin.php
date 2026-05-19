@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (empty($_SESSION['is_admin'])) {
     header('Location: index.php');
@@ -51,6 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $s->bind_param("i", $uid);
         $s->execute();
         echo json_encode(['ok' => true]);
+        exit;
+    }
+
+    if ($action === 'toggle_verified') {
+        $uid = (int)($_POST['user_id'] ?? 0);
+        $s = $conn->prepare("UPDATE users SET is_verified_seller = 1 - COALESCE(is_verified_seller,0) WHERE id = ?");
+        $s->bind_param("i", $uid);
+        $s->execute();
+        $r = $conn->query("SELECT is_verified_seller FROM users WHERE id=$uid");
+        $val = (int)($r->fetch_assoc()['is_verified_seller'] ?? 0);
+        echo json_encode(['ok'=>true,'is_verified_seller'=>$val]);
         exit;
     }
 
@@ -130,7 +141,8 @@ $totalAdmins = (int)($conn->query("SELECT COUNT(*) n FROM users WHERE is_admin=1
 
 // ── Usuarios ───────────────────────────────────────────────────────────────────
 $users = [];
-$r = $conn->query("SELECT id, name, username, email, lootcoins, is_admin, created_at, avatar_url, xp FROM users ORDER BY created_at DESC");
+try { $conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified_seller TINYINT(1) NOT NULL DEFAULT 0"); } catch(Exception $e){}
+$r = $conn->query("SELECT id, name, username, email, lootcoins, is_admin, is_verified_seller, created_at, avatar_url, xp FROM users ORDER BY created_at DESC");
 while ($row = $r->fetch_assoc()) $users[] = $row;
 
 // ── Subastas recientes ─────────────────────────────────────────
@@ -627,6 +639,11 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                                     id="admin-btn-<?php echo $u['id']; ?>">
                                 <?php echo $u['is_admin'] ? 'Quitar admin' : 'Dar admin'; ?>
                             </button>
+                            <button class="btn-xs" onclick="toggleVerified(<?php echo $u['id']; ?>, this)"
+                                    id="verified-btn-<?php echo $u['id']; ?>"
+                                    style="background:<?php echo $u['is_verified_seller'] ? '#3b82f6' : '#e2e8f0'; ?>;color:<?php echo $u['is_verified_seller'] ? '#fff' : '#64748b'; ?>;margin-top:4px;">
+                                <?php echo $u['is_verified_seller'] ? 'Verificado' : 'Verificar'; ?>
+                            </button>
                             <?php else: ?>
                             <span style="font-size:.75rem;color:var(--text-secondary)">Tú</span>
                             <?php endif; ?>
@@ -800,7 +817,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                 <div style="display:flex;align-items:flex-end;gap:12px;">
                     <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:700;cursor:pointer;padding-bottom:2px;">
                         <input id="ev-we" type="checkbox" style="width:16px;height:16px;cursor:pointer;">
-                        ⭐ Nosotros participamos
+                        â­ Nosotros participamos
                     </label>
                 </div>
                 <div style="grid-column:1/-1;">
@@ -840,7 +857,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
                     <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($ev['game_type']); ?></td>
                     <td style="color:var(--text-secondary)"><?php echo htmlspecialchars($ev['event_type']); ?></td>
                     <td style="color:var(--text-secondary);font-size:.82rem"><?php echo htmlspecialchars($ev['location']); ?></td>
-                    <td><?php echo $ev['we_participate'] ? '<span class="badge-active">⭐ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'; ?></td>
+                    <td><?php echo $ev['we_participate'] ? '<span class="badge-active">â­ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'; ?></td>
                     <td><button class="btn-xs red" onclick="deleteEvent(<?php echo $ev['id']; ?>, this)">Eliminar</button></td>
                 </tr>
                 <?php endforeach; ?>
@@ -872,7 +889,7 @@ function resolveAvatarJS(u) {
     if (!u) return '';
     if (u.startsWith('avatar_shop:')) {
         const key = u.substring(12);
-        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺️'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔️'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩️'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🃏'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
+        const AVDEFS = {explorer:{c1:'#3b82f6',c2:'#1d4ed8',i:'🧭'},rookie:{c1:'#10b981',c2:'#059669',i:'🌱'},traveler:{c1:'#8b5cf6',c2:'#6d28d9',i:'🗺ï¸'},warrior:{c1:'#ef4444',c2:'#b91c1c',i:'⚔ï¸'},dark_mage:{c1:'#7c3aed',c2:'#4c1d95',i:'🔮'},archer:{c1:'#059669',c2:'#065f46',i:'🏹'},pirate:{c1:'#d97706',c2:'#92400e',i:'🏴‍☠️'},astronaut:{c1:'#0ea5e9',c2:'#0369a1',i:'🚀'},golden_dragon:{c1:'#f59e0b',c2:'#d97706',i:'🐉'},shadow_ninja:{c1:'#334155',c2:'#0f172a',i:'🥷'},phoenix:{c1:'#f97316',c2:'#ea580c',i:'🔥'},samurai:{c1:'#dc2626',c2:'#7f1d1d',i:'⛩ï¸'},hacker:{c1:'#22c55e',c2:'#15803d',i:'💻'},celestial_king:{c1:'#eab308',c2:'#a16207',i:'👑'},valkyrie:{c1:'#ec4899',c2:'#be185d',i:'🦋'},cyborg:{c1:'#64748b',c2:'#334155',i:'🤖'},fox_spirit:{c1:'#f97316',c2:'#9a3412',i:'🦊'},deck_god:{c1:'#fbbf24',c2:'#b45309',i:'🎴'},cosmic_phoenix:{c1:'#a855f7',c2:'#581c87',i:'🌌'},ancient_titan:{c1:'#78716c',c2:'#292524',i:'🗿'}};
         const d = AVDEFS[key];
         if (d) return 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:${d.c1}"/><stop offset="100%" style="stop-color:${d.c2}"/></linearGradient></defs><rect width="200" height="200" rx="100" fill="url(#g)"/><text x="100" y="115" text-anchor="middle" font-size="80">${d.i}</text></svg>`);
         return '';
@@ -900,6 +917,19 @@ async function adminPost(data) {
         body: fd
     });
     return res.json();
+}
+
+async function toggleVerified(uid, btn) {
+    btn.disabled = true;
+    const data = await adminPost({ action: 'toggle_verified', user_id: uid });
+    if (data.ok) {
+        const isNow = data.is_verified_seller;
+        btn.textContent = isNow ? 'Verificado' : 'Verificar';
+        btn.style.background = isNow ? '#3b82f6' : '#e2e8f0';
+        btn.style.color = isNow ? '#fff' : '#64748b';
+        if (typeof showToast === 'function') showToast(isNow ? 'Vendedor verificado' : 'Verificacion eliminada', 'success');
+    }
+    btn.disabled = false;
 }
 
 async function toggleAdmin(uid, btn) {
@@ -1009,7 +1039,7 @@ function openUserModal(uid) {
     document.getElementById('umodal-body').innerHTML = `
         ${avatarHtml}
         <div class="umodal-name">${u.name || u.username}</div>
-        <div class="umodal-username">@${u.username} · ${u.is_admin ? '🛡️ Admin' : 'Usuario'}</div>
+        <div class="umodal-username">@${u.username} · ${u.is_admin ? '🛡ï¸ Admin' : 'Usuario'}</div>
         <div class="umodal-grid">
             <div class="umodal-stat">
                 <div class="umodal-stat-label">Lujanitos</div>
@@ -1361,7 +1391,7 @@ async function addEvent() {
     const fmt = d.toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
     const tr = document.createElement('tr');
     tr.id = 'event-row-' + data.id;
-    tr.innerHTML = `<td style="font-weight:700">${fmt}</td><td style="font-weight:700">${title}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-game').value}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-type').value}</td><td style="color:var(--text-secondary);font-size:.82rem">${document.getElementById('ev-location').value}</td><td>${document.getElementById('ev-we').checked ? '<span class="badge-active">⭐ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'}</td><td><button class="btn-xs red" onclick="deleteEvent(${data.id},this)">Eliminar</button></td>`;
+    tr.innerHTML = `<td style="font-weight:700">${fmt}</td><td style="font-weight:700">${title}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-game').value}</td><td style="color:var(--text-secondary)">${document.getElementById('ev-type').value}</td><td style="color:var(--text-secondary);font-size:.82rem">${document.getElementById('ev-location').value}</td><td>${document.getElementById('ev-we').checked ? '<span class="badge-active">â­ Sí</span>' : '<span style="color:var(--text-secondary)">No</span>'}</td><td><button class="btn-xs red" onclick="deleteEvent(${data.id},this)">Eliminar</button></td>`;
     tb.appendChild(tr);
 
     const badge = document.getElementById('events-count');

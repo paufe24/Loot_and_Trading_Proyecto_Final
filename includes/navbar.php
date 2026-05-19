@@ -143,6 +143,10 @@ body.dark .nav-lang-option:hover { background:#334155; }
 
     <div class="spacer"></div>
 
+    <a href="sobres.php" class="nav-item nav-pill">
+        <span>Sobres</span>
+    </a>
+
     <a href="apuestas.php" class="nav-item nav-pill">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
         <span data-i18n="nav.auctions">Subastas</span>

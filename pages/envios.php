@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (empty($_SESSION['is_envios']) && empty($_SESSION['is_admin'])) {
     header('Location: index.php');
@@ -139,7 +139,7 @@ $totalShipments = count($orders) + count($auctionShipments);
 <div class="main-wrapper">
 <div class="envios-wrap">
     <div class="envios-title">📦 Gestión de Envíos</div>
-    <div class="envios-sub">Pedidos del marketplace y subastas — actualiza el estado de cada envío</div>
+    <div class="envios-sub">Pedidos del marketplace y subastas ─ actualiza el estado de cada envío</div>
 
     <!-- Stats -->
     <div class="envios-stats">

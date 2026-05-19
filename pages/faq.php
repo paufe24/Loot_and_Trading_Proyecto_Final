@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 ?>

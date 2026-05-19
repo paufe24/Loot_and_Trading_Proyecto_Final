@@ -141,12 +141,17 @@ function spawnDefaultAuctions($conn) {
 /* ── Listar subastas activas ──────────── */
 function listAuctions($conn) {
     $user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+    // Añadir is_verified_seller si no existe
+    try { $conn->query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified_seller TINYINT(1) NOT NULL DEFAULT 0"); } catch(Exception $e){}
     $result  = $conn->query(
-        "SELECT id, card_name, card_image, card_game, badge_color,
-                base_price, current_bid, current_winner_id, current_winner_name,
-                ends_at, status
-         FROM auctions
-         ORDER BY ends_at ASC"
+        "SELECT a.id, a.card_name, a.card_image, a.card_game, a.badge_color,
+                a.base_price, a.current_bid, a.current_winner_id, a.current_winner_name,
+                a.ends_at, a.status, a.seller_id,
+                COALESCE(u.is_verified_seller, 0) AS seller_verified,
+                COALESCE(u.username, '') AS seller_username
+         FROM auctions a
+         LEFT JOIN users u ON u.id = a.seller_id
+         ORDER BY a.ends_at ASC"
     );
     $auctions = $result->fetch_all(MYSQLI_ASSOC);
     echo json_encode(['ok' => true, 'auctions' => $auctions, 'user_id' => $user_id]);

@@ -8,7 +8,17 @@ $uid    = (int)$_SESSION['user_id'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') csrf_verify();
 
-// Crear tabla si no existe (sin FKs para compatibilidad con MyISAM)
+// Crear tablas si no existen
+$conn->query("CREATE TABLE IF NOT EXISTS user_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reviewer_id INT NOT NULL,
+    reviewed_user_id INT NOT NULL,
+    rating TINYINT(1) NOT NULL,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_review (reviewer_id, reviewed_user_id),
+    INDEX idx_reviewed (reviewed_user_id)
+)");
 $conn->query("CREATE TABLE IF NOT EXISTS friendships (
     id INT AUTO_INCREMENT PRIMARY KEY,
     requester_id INT NOT NULL,
@@ -29,13 +39,16 @@ switch ($action) {
         $like = '%' . $q . '%';
         $st = $conn->prepare(
             "SELECT u.id, u.username, u.name, u.avatar_url,
-                    f.status AS friendship_status, f.requester_id
+                    f.status AS friendship_status, f.requester_id,
+                    ROUND(AVG(r.rating),1) AS avg_rating, COUNT(r.id) AS review_count
              FROM users u
              LEFT JOIN friendships f ON (
                  (f.requester_id = ? AND f.addressee_id = u.id) OR
                  (f.addressee_id = ? AND f.requester_id = u.id)
              )
+             LEFT JOIN user_reviews r ON r.reviewed_user_id = u.id
              WHERE (u.username LIKE ? OR u.name LIKE ?) AND u.id != ?
+             GROUP BY u.id, f.status, f.requester_id
              LIMIT 20"
         );
         $st->bind_param("iissi", $uid, $uid, $like, $like, $uid);
@@ -46,10 +59,13 @@ switch ($action) {
     /* ── Lista de amigos aceptados ── */
     case 'list':
         $st = $conn->prepare(
-            "SELECT u.id, u.username, u.name, u.avatar_url
+            "SELECT u.id, u.username, u.name, u.avatar_url,
+                    ROUND(AVG(r.rating),1) AS avg_rating, COUNT(r.id) AS review_count
              FROM friendships f
              JOIN users u ON u.id = IF(f.requester_id = ?, f.addressee_id, f.requester_id)
+             LEFT JOIN user_reviews r ON r.reviewed_user_id = u.id
              WHERE (f.requester_id = ? OR f.addressee_id = ?) AND f.status = 'accepted'
+             GROUP BY u.id
              ORDER BY u.username ASC"
         );
         $st->bind_param("iii", $uid, $uid, $uid);

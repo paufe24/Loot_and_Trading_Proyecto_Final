@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';
@@ -338,10 +338,10 @@ function getMedalBg(int $pos): string {
 <section class="rank-section" id="tab-cards">
     <div class="rank-list">
     <?php if (empty($topCards)): ?>
-        <div class="rank-empty"><span>🃏</span>Todavía no hay ventas registradas.</div>
+        <div class="rank-empty"><span>🎴</span>Todavía no hay ventas registradas.</div>
     <?php else: ?>
         <?php
-        $gameEmoji = ['pokemon'=>'⚡','yugioh'=>'🌟','magic'=>'🔮','onepiece'=>'☠️'];
+        $gameEmoji = ['pokemon'=>'⚡','yugioh'=>'🌟','magic'=>'🔮','onepiece'=>'â˜ ï¸'];
         foreach ($topCards as $i => $c):
             $pos  = $i + 1;
             $mc   = getMedalColor($pos);
@@ -355,7 +355,7 @@ function getMedalBg(int $pos): string {
             <?php if ($c['card_image']): ?>
                 <img class="rank-card-img" src="<?= htmlspecialchars($c['card_image']) ?>" alt="" loading="lazy">
             <?php else: ?>
-                <div class="rank-card-placeholder">🃏</div>
+                <div class="rank-card-placeholder">🎴</div>
             <?php endif; ?>
             <div class="rank-info">
                 <span class="rank-name" style="cursor:default"><?= htmlspecialchars($c['card_name']) ?></span>

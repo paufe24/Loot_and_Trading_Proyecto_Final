@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 
@@ -35,7 +35,7 @@ if ($logged_in) {
             object-fit: cover;
             margin: 0 auto 16px;
             display: block;
-            box-shadow: 0 8px 32px rgba(245,158,11,.25);
+            box-shadow: 0 8px 32px rgba(59,130,246,.25);
         }
         .lj-hero h1 {
             font-size: 2.2rem;
@@ -53,7 +53,7 @@ if ($logged_in) {
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: #fff;
             border-radius: 20px;
             padding: 14px 28px;
@@ -61,7 +61,7 @@ if ($logged_in) {
             font-size: 1.05rem;
             margin: 0 auto 48px;
             max-width: 320px;
-            box-shadow: 0 8px 24px rgba(245,158,11,.35);
+            box-shadow: 0 8px 24px rgba(59,130,246,.35);
         }
         .lj-balance-bar span { font-size: 1.4rem; }
 
@@ -89,17 +89,17 @@ if ($logged_in) {
         .lj-pkg:hover {
             transform: translateY(-4px);
             box-shadow: 0 20px 48px rgba(0,0,0,.12);
-            border-color: #f59e0b;
+            border-color: #3b82f6;
         }
         .lj-pkg.popular {
-            border-color: #f59e0b;
-            box-shadow: 0 8px 28px rgba(245,158,11,.25);
+            border-color: #3b82f6;
+            box-shadow: 0 8px 28px rgba(59,130,246,.25);
         }
         .lj-pkg-badge {
             position: absolute;
             top: 12px;
             right: 12px;
-            background: #f59e0b;
+            background: #3b82f6;
             color: #fff;
             font-size: .65rem;
             font-weight: 800;
@@ -119,7 +119,7 @@ if ($logged_in) {
         .lj-pkg-amount {
             font-size: 1.8rem;
             font-weight: 800;
-            color: #f59e0b;
+            color: #3b82f6;
             margin-bottom: 2px;
         }
         .lj-pkg-label {
@@ -144,7 +144,7 @@ if ($logged_in) {
             width: 100%;
             padding: 11px;
             border-radius: 14px;
-            background: #f59e0b;
+            background: #3b82f6;
             color: #fff;
             border: none;
             font-weight: 800;
@@ -153,7 +153,7 @@ if ($logged_in) {
             font-family: 'Outfit', sans-serif;
             transition: background .15s;
         }
-        .btn-buy:hover { background: #d97706; }
+        .btn-buy:hover { background: #2563eb; }
         .btn-buy:disabled { background: #94a3b8; cursor: default; }
 
         /* Info */
@@ -177,7 +177,7 @@ if ($logged_in) {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #f59e0b;
+            background: #3b82f6;
             margin-top: 6px;
             flex-shrink: 0;
         }
@@ -316,10 +316,10 @@ if ($logged_in) {
                 if (disp) disp.textContent = data.balance.toLocaleString('es-ES');
                 showToastLJ('✅ ' + data.message);
             } else {
-                showToastLJ('❌ ' + (data.message || 'Error'), false);
+                showToastLJ('âŒ ' + (data.message || 'Error'), false);
             }
         } catch (e) {
-            showToastLJ('❌ Error de conexión', false);
+            showToastLJ('âŒ Error de conexión', false);
         }
 
         btn.disabled = false;

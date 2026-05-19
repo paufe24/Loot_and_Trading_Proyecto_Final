@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once dirname(__DIR__) . '/includes/db.php';
 $logged_in    = isset($_SESSION['user_id']);
@@ -79,13 +79,13 @@ if ($logged_in) {
             <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
         </div>
@@ -146,13 +146,13 @@ if ($logged_in) {
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
         </div>
         <div class="wall-column col-up">
-            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
-            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
             <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
             <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
@@ -191,23 +191,21 @@ if ($logged_in) {
     <div class="hero-content" style="margin: 0 auto;">
         <div class="hero-text">
             <?php if ($logged_in): ?>
-            <div class="balance-pill" style="margin:0 auto 8px;">
-                <img src="../img/lujanito.svg" alt="LJ" style="width:28px;height:28px;border-radius:50%;">
-                <div>
-                    <div style="font-size:.58rem;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:1px;">Tus Lujanitos</div>
-                    <div class="balance-amount" id="balance-display"><?php echo number_format($lootcoins); ?></div>
-                </div>
+            <div class="balance-pill" style="margin:0 auto 20px;flex-direction:column;gap:4px;padding:14px 32px;background:#3b82f6;box-shadow:0 8px 24px rgba(59,130,246,.4);">
+                <img src="../img/lujanito.svg" alt="LJ" style="width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.4);">
+                <div class="balance-amount" id="balance-display" style="font-size:1.6rem;font-weight:900;line-height:1.1;"><?php echo number_format($lootcoins); ?></div>
+                <div style="font-size:.62rem;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:1.5px;">Tus Lujanitos</div>
             </div>
             <?php endif; ?>
             <h1>Subastas<br><span>en vivo.</span></h1>
             <p data-i18n="auctions.hero_subtitle">Puja en tiempo real con Lujanitos en cartas TCG.</p>
             <div style="display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;">
-                <a href="#" class="btn-main" style="margin-top:0;" onclick="setMode('buy',document.getElementById('mode-buy-btn'));return false;">🛒 <span data-i18n="lj.buy">Comprar</span></a>
-                <a href="#" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#8b5cf6,#d946ef);box-shadow:0 10px 25px rgba(139,92,246,.3);" onclick="setMode('sell',document.getElementById('mode-sell-btn'));return false;" data-i18n="auctions.sell">📤 Vender</a>
+                <a href="#" class="btn-main" style="margin-top:0;background:#3b82f6;box-shadow:0 10px 25px rgba(59,130,246,.3);" onclick="setMode('buy',document.getElementById('mode-buy-btn'));return false;">Comprar</a>
+                <a href="#" class="btn-main" style="margin-top:0;background:#3b82f6;box-shadow:0 10px 25px rgba(59,130,246,.3);" onclick="setMode('sell',document.getElementById('mode-sell-btn'));return false;">Vender</a>
                 <?php if ($logged_in): ?>
-                <a href="#" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 10px 25px rgba(5,150,105,.3);" onclick="setMode('mine',document.getElementById('mode-mine-btn'));return false;">👤 <span data-i18n="auctions.my_auctions">Mis Subastas</span></a>
+                <a href="#" class="btn-main" style="margin-top:0;background:#3b82f6;box-shadow:0 10px 25px rgba(59,130,246,.3);" onclick="setMode('mine',document.getElementById('mode-mine-btn'));return false;">Mis Subastas</a>
                 <?php else: ?>
-                <a href="auth.php" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#8b5cf6,#d946ef);box-shadow:0 10px 25px rgba(139,92,246,.3);" data-i18n="nav.login">Inicia sesión para pujar</a>
+                <a href="auth.php" class="btn-main" style="margin-top:0;background:#3b82f6;box-shadow:0 10px 25px rgba(59,130,246,.3);" data-i18n="nav.login">Inicia sesion para pujar</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -417,7 +415,7 @@ function toast(msg, type = 'info') {
     const c = document.getElementById('toast-container');
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    t.innerHTML = `<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span>${msg}`;
+    t.innerHTML = `<span>${{success:'✅',error:'âŒ',info:'ℹï¸'}[type]||'ℹï¸'}</span>${msg}`;
     c.appendChild(t);
     setTimeout(() => t.remove(), 4000);
 }
@@ -499,7 +497,10 @@ function buildAuctionCard(a) {
             ${imWinning && isActive ? '<div class="auction-winning-banner">🏆 Vas ganando</div>' : ''}
         </div>
         <div class="auction-body">
-            <span class="auction-game-badge" style="background:${a.badge_color}">${a.card_game}</span>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span class="auction-game-badge" style="background:${a.badge_color}">${a.card_game}</span>
+                ${a.seller_verified == 1 ? '<span style="display:inline-flex;align-items:center;gap:3px;background:#dbeafe;color:#1d4ed8;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:99px;letter-spacing:.3px;">&#10003; Verificado</span>' : ''}
+            </div>
             <div class="auction-name">${a.card_name}</div>
             <div class="auction-price-section">
                 <div>
@@ -659,12 +660,13 @@ document.getElementById('bm-confirm').addEventListener('click', async function()
 });
 
 /* ── Refresco automático ─────────────── */
+fetch('../api/auction_auto.php').catch(()=>{}); // genera subasta automática si toca
 loadAuctions();
 setInterval(loadAuctions, 20000); // cada 20s
 
-/* ══════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SELECTOR DE MODO (comprar / vender / mis)
-══════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function setMode(mode, btn) {
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -680,7 +682,7 @@ document.getElementById('sf-file-input')?.addEventListener('change', async funct
     const file = this.files[0];
     if (!file) return;
     const btn = document.getElementById('sf-file-btn');
-    if (btn) btn.textContent = '⏳';
+    if (btn) btn.textContent = 'â³';
     const fd = new FormData();
     fd.append('card_image', file);
     try {
@@ -701,9 +703,9 @@ document.getElementById('sf-file-input')?.addEventListener('change', async funct
     }
 });
 
-/* ══════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PANEL VENDER
-══════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function previewSellCard() {
     const url = document.getElementById('sf-image')?.value.trim();
     const img = document.getElementById('sp-img');
@@ -774,9 +776,9 @@ document.getElementById('sell-form')?.addEventListener('submit', async function(
     }
 });
 
-/* ══════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PANEL MIS SUBASTAS
-══════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let mineCurrentTab = 'bids';
 function filterMineTab(tab, btn) {
     mineCurrentTab = tab;
@@ -884,9 +886,9 @@ async function loadMyWins() {
     });
 }
 
-/* ══════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    MODAL RECLAMAR SUBASTA GANADA
-══════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let claimData = null;
 
 function openClaimModal(auctionId, cardName, cardImg, bid) {

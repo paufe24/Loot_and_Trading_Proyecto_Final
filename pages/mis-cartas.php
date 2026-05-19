@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_id'])) { header('Location: auth.php'); exit; }
 require_once dirname(__DIR__) . '/includes/db.php';
@@ -32,6 +32,14 @@ $stA = $conn->prepare(
      ORDER BY cl.created_at DESC"
 );
 if ($stA) { $stA->bind_param("ii",$uid,$uid); $stA->execute(); $auctionItems = $stA->get_result()->fetch_all(MYSQLI_ASSOC); }
+
+// 3. Cartas de sobres abiertos (guardadas, no vendidas)
+$packCards = [];
+$stP = $conn->prepare(
+    "SELECT id, card_name, card_image, card_game, card_rarity, lujanitos_value, opened_at
+     FROM pack_cards WHERE user_id = ? AND sold = 0 ORDER BY opened_at DESC LIMIT 60"
+);
+if ($stP) { $stP->bind_param("i",$uid); $stP->execute(); $packCards = $stP->get_result()->fetch_all(MYSQLI_ASSOC); }
 
 $statusLabels = ['pending'=>'Recibido','processing'=>'Preparando','shipped'=>'Enviado','delivered'=>'Entregado'];
 $statusColors = ['pending'=>'#f59e0b','processing'=>'#3b82f6','shipped'=>'#8b5cf6','delivered'=>'#10b981'];
@@ -104,6 +112,7 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
         .mc-source-tag { font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
         .mc-source-cart    { background: rgba(59,130,246,.12); color: #2563eb; }
         .mc-source-auction { background: rgba(139,92,246,.12); color: #7c3aed; }
+        .mc-source-pack    { background: rgba(16,185,129,.12); color: #059669; }
 
         .mc-tracker { display: flex; gap: 0; position: relative; margin-top: 12px; }
         .mc-tracker-step { flex: 1; text-align: center; position: relative; }
@@ -152,13 +161,12 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
             </div>
 
             <div class="mc-filter-group">
-                <label data-i18n="mycards.shipping_status">Estado envío</label>
+                <label data-i18n="mycards.shipping_status">Origen</label>
                 <div class="mc-status-btns">
-                    <button class="mc-status-btn active" data-status="all" data-i18n="auctions.all">Todos</button>
-                    <button class="mc-status-btn" data-status="pending">🟡 Recibido</button>
-                    <button class="mc-status-btn" data-status="processing">🔵 Preparando</button>
-                    <button class="mc-status-btn" data-status="shipped">🟣 Enviado</button>
-                    <button class="mc-status-btn" data-status="delivered">🟢 Entregado</button>
+                    <button class="mc-status-btn active" data-status="all">Todos</button>
+                    <button class="mc-status-btn" data-status="pack">📦 Sobres</button>
+                    <button class="mc-status-btn" data-status="cart">🛒 Compras</button>
+                    <button class="mc-status-btn" data-status="auction">🏆 Subastas</button>
                 </div>
             </div>
         </div>
@@ -167,7 +175,7 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
     <!-- Contenido principal -->
     <div>
         <div class="mc-header">
-            <h2 data-i18n="mycards.title">📦 Mis Cartas</h2>
+            <h2 data-i18n="mycards.title">🎴 Todas mis Cartas</h2>
             <span class="mc-count" id="mc-count"></span>
         </div>
         <div class="mc-refresh-note" id="mc-refresh-note" data-i18n="mycards.refresh_note">Actualiza el estado cada 5 min.</div>
@@ -210,18 +218,42 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
                 ];
             }
 
+            // Añadir cartas de sobres al grid unificado
+            foreach ($packCards as $pc) {
+                $gameColors = ['Pokemon'=>'#ef4444','Pokémon'=>'#ef4444','Yu-Gi-Oh!'=>'#8b5cf6','Magic'=>'#3b82f6','One Piece'=>'#f59e0b'];
+                $bgColor = $gameColors[$pc['card_game']] ?? '#64748b';
+                $lj = (float)$pc['lujanitos_value'];
+                $ljText = $lj >= 1 ? number_format(round($lj)) . ' LJ' : number_format($lj,2) . ' LJ';
+                $allItems[] = [
+                    'type'        => 'pack',
+                    'key'         => 'pack-' . $pc['id'],
+                    'name'        => $pc['card_name'],
+                    'image'       => $pc['card_image'],
+                    'game'        => $pc['card_game'],
+                    'price'       => '♦ ' . $ljText,
+                    'badge_color' => $bgColor,
+                    'status'      => 'pack',
+                    'order_id'    => null,
+                    'auction_id'  => null,
+                    'rarity'      => $pc['card_rarity'],
+                ];
+            }
+
             if (empty($allItems)): ?>
                 <div class="mc-empty">
-                    <div class="mc-empty-icon">🃏</div>
+                    <div class="mc-empty-icon">🎴</div>
                     <h3 data-i18n="mycards.no_cards">Aún no tienes cartas</h3>
                     <p data-i18n="mycards.no_cards_desc">Compra en el mercado o gana una subasta para verlas aquí.</p>
                     <a href="index.php" class="btn-main" style="margin-top:16px;display:inline-block;" data-i18n="cart.explore">Explorar cartas</a>
                 </div>
             <?php else:
                 foreach ($allItems as $it):
-                    $st    = $it['status'];
+                    $isPack = $it['type'] === 'pack';
+                    $st    = $isPack ? 'pack' : ($it['status'] ?? 'pending');
                     $step  = $statusSteps[$st]  ?? 1;
                     $color = $statusColors[$st]  ?? '#94a3b8';
+                    $sourceClass = $isPack ? 'mc-source-pack' : ($it['type']==='cart' ? 'mc-source-cart' : 'mc-source-auction');
+                    $sourceLabel = $isPack ? '📦 Sobre' : ($it['type']==='cart' ? '🛒 Compra' : '🏆 Subasta');
             ?>
             <div class="mc-card"
                  data-key="<?php echo htmlspecialchars($it['key']); ?>"
@@ -234,13 +266,23 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
                 <div class="mc-card-body">
                     <div class="mc-card-meta">
                         <span class="auction-game-badge" style="background:<?php echo htmlspecialchars($it['badge_color']); ?>"><?php echo htmlspecialchars($it['game']); ?></span>
-                        <span class="mc-source-tag <?php echo $it['type']==='cart' ? 'mc-source-cart' : 'mc-source-auction'; ?>">
-                            <?php echo $it['type']==='cart' ? '🛒 Compra' : '🏆 Subasta'; ?>
+                        <span class="mc-source-tag <?php echo $sourceClass; ?>">
+                            <?php echo $sourceLabel; ?>
                         </span>
                     </div>
                     <div class="mc-card-name"><?php echo htmlspecialchars($it['name']); ?></div>
                     <div class="mc-card-price"><?php echo htmlspecialchars($it['price']); ?></div>
 
+                    <?php if ($isPack): ?>
+                    <?php
+                        $rarityColors = ['ultra'=>['#0f172a','#fff'],'rare'=>['#1e293b','#e2e8f0'],'common'=>['#f1f5f9','#64748b']];
+                        [$rBg,$rColor] = $rarityColors[$it['rarity'] ?? 'common'] ?? $rarityColors['common'];
+                    ?>
+                    <div style="margin-top:10px;">
+                        <span style="display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:800;text-transform:uppercase;background:<?php echo $rBg; ?>;color:<?php echo $rColor; ?>;"><?php echo ucfirst($it['rarity'] ?? 'common'); ?></span>
+                        <span style="font-size:.75rem;color:var(--text-secondary);margin-left:6px;font-weight:600;">En tu colección ✓</span>
+                    </div>
+                    <?php else: ?>
                     <!-- Tracker de envío -->
                     <div class="mc-tracker" id="tracker-<?php echo htmlspecialchars($it['key']); ?>">
                         <?php foreach ($trackerLabels as $i => $lbl):
@@ -256,6 +298,7 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
                         </div>
                         <?php endforeach; ?>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endforeach; endif; ?>
@@ -263,10 +306,11 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
     </div>
 </div>
 
+
 <script>
 /* ── Filtros ── */
 let activeGame   = 'all';
-let activeStatus = 'all';
+let activeSource = 'all';
 
 function applyFilters() {
     const q = (document.getElementById('mc-search')?.value || '').toLowerCase().trim();
@@ -274,11 +318,13 @@ function applyFilters() {
     document.querySelectorAll('#mc-grid .mc-card').forEach(card => {
         const name   = (card.querySelector('.mc-card-name')?.textContent || '').toLowerCase();
         const game   = card.dataset.game || '';
-        const status = card.dataset.status || '';
+        const key    = card.dataset.key || '';
+        // determinar origen según prefijo de key
+        const source = key.startsWith('pack-') ? 'pack' : (key.startsWith('auc-') ? 'auction' : 'cart');
         let show = true;
         if (q && !name.includes(q)) show = false;
         if (activeGame !== 'all'   && game   !== activeGame)   show = false;
-        if (activeStatus !== 'all' && status !== activeStatus) show = false;
+        if (activeSource !== 'all' && source !== activeSource) show = false;
         card.style.display = show ? '' : 'none';
         if (show) visible++;
     });
@@ -301,7 +347,7 @@ document.querySelectorAll('.mc-status-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.mc-status-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        activeStatus = btn.dataset.status;
+        activeSource = btn.dataset.status;
         applyFilters();
     });
 });
@@ -339,13 +385,13 @@ async function refreshShipments() {
         data.cart.forEach(r => {
             document.querySelectorAll(`[data-order-id="${r.order_id}"]`).forEach(card => {
                 const key = card.dataset.key;
-                if (key) rebuildTracker(key, r.shipping_status);
+                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipping_status);
             });
         });
         data.auctions.forEach(r => {
             document.querySelectorAll(`[data-auction-id="${r.auction_id}"]`).forEach(card => {
                 const key = card.dataset.key;
-                if (key) rebuildTracker(key, r.shipping_status);
+                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipping_status);
             });
         });
         const note = document.getElementById('mc-refresh-note');

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $game = $_GET['game'] ?? 'pokemon';
@@ -255,7 +255,7 @@ $game = $_GET['game'] ?? 'pokemon';
                         <img id="modal-img" src="" alt="Carta" class="modal-img">
                         <div class="scan-line"></div>
                     </div>
-                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button" data-i18n="modal.add_fav">⭐ Añadir a favoritos</button>
+                    <button id="modal-toggle-fav" class="btn-cart modal-fav-btn" type="button" data-i18n="modal.add_fav">â­ Añadir a favoritos</button>
                     <button id="modal-alert-inject" onclick="openMarketAlert()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid #e2e8f0;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#64748b;font-family:'Outfit',sans-serif;" data-i18n="modal.price_alert">🔔 Alerta de precio</button>
                 </div>
                 <div class="modal-right">

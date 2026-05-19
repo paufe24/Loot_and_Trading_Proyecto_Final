@@ -76,6 +76,132 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
         .event-meta { display:flex; flex-wrap:wrap; gap:10px; font-size:.76rem; font-weight:600; color:#94a3b8; }
         .event-meta span { display:flex; align-items:center; gap:3px; }
 
+        /* ===== FEATURE SPLIT ===== */
+        .feature-split {
+            display: flex; width: 100%; height: 500px; overflow: hidden;
+        }
+        .fs-panel {
+            position: relative; flex: 1; display: flex; align-items: center;
+            text-decoration: none; overflow: hidden;
+            transition: flex .4s cubic-bezier(.4,0,.2,1);
+        }
+        .fs-panel:hover { flex: 1.15; }
+        .fs-bg {
+            position: absolute; inset: -4px;
+            background-size: cover; background-position: center;
+            filter: blur(2px) brightness(.88) saturate(1.1);
+            transition: filter .35s;
+        }
+        .fs-panel:hover .fs-bg { filter: blur(1px) brightness(.92) saturate(1.15); }
+        .fs-overlay {
+            position: absolute; inset: 0;
+        }
+        .fs-overlay-left  { background: linear-gradient(105deg, rgba(255,255,255,.82) 0%, rgba(239,246,255,.7) 100%); }
+        .fs-overlay-right { background: linear-gradient(105deg, rgba(255,255,255,.82) 0%, rgba(245,243,255,.7) 100%); }
+        .fs-content {
+            position: relative; z-index: 1; padding: 56px 52px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .fs-eyebrow {
+            font-size: .72rem; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase; color: #64748b;
+        }
+        .fs-title {
+            font-size: 3rem; font-weight: 900; color: #0f172a;
+            margin: 0; line-height: 1; letter-spacing: -1.5px;
+        }
+        .fs-desc {
+            font-size: 1rem; color: #475569;
+            margin: 0; line-height: 1.65; max-width: 380px; font-weight: 500;
+        }
+        .fs-btn {
+            display: inline-flex; align-items: center;
+            margin-top: 6px; padding: 13px 28px; border-radius: 999px;
+            background: #0f172a; border: none;
+            color: #fff; font-size: .95rem; font-weight: 800;
+            transition: background .2s, transform .2s;
+            width: fit-content; letter-spacing: -.2px;
+        }
+        .fs-panel:hover .fs-btn { background: #1e293b; transform: translateX(3px); }
+        /* Separador vertical */
+        .fs-left::after {
+            content: ''; position: absolute; right: 0; top: 8%; bottom: 8%;
+            width: 1px; background: rgba(0,0,0,.08); z-index: 2;
+        }
+        @media(max-width:700px) {
+            .feature-split { flex-direction: column; height: auto; }
+            .fs-panel { min-height: 260px; }
+            .fs-content { padding: 40px 28px; }
+            .fs-title { font-size: 2.2rem; }
+            .fs-left::after { display: none; }
+        }
+
+        /* ===== BANNER SOBRES ===== */
+        .pack-promo-banner {
+            background: var(--bg-main);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0;
+        }
+        .pack-promo-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 48px 32px; gap: 40px;
+        }
+        .pack-promo-left { flex: 1; min-width: 0; }
+        .pack-promo-eyebrow {
+            font-size: .72rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+            color: #6366f1; margin-bottom: 10px; display: block;
+        }
+        body.dark .pack-promo-eyebrow { color: #a5b4fc; }
+        .pack-promo-title {
+            font-size: 2.4rem; font-weight: 900; color: var(--text-primary); margin: 0 0 12px;
+            line-height: 1.1; letter-spacing: -1.5px;
+        }
+        .pack-promo-desc {
+            font-size: .95rem; color: var(--text-secondary); margin: 0 0 18px; line-height: 1.6; max-width: 460px;
+        }
+        .pack-promo-games {
+            display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px;
+        }
+        .pack-promo-games span {
+            background: #f1f5f9; border: 1px solid var(--border-color);
+            color: var(--text-secondary); font-size: .78rem; font-weight: 700;
+            padding: 3px 12px; border-radius: 999px;
+        }
+        body.dark .pack-promo-games span { background: #1e293b; border-color: #334155; color: #94a3b8; }
+        .pack-promo-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #0f172a; color: #fff;
+            font-weight: 800; font-size: 1rem;
+            padding: 13px 28px; border-radius: 999px; text-decoration: none;
+            transition: all .2s; letter-spacing: -.2px;
+        }
+        body.dark .pack-promo-btn { background: #e2e8f0; color: #0f172a; }
+        .pack-promo-btn:hover { background: #1e293b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+        body.dark .pack-promo-btn:hover { background: #f1f5f9; }
+        .pack-promo-cards {
+            display: flex; gap: 10px; flex-shrink: 0; align-items: flex-end;
+        }
+        .ppc {
+            width: 68px; height: 95px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,.08); transform-origin: bottom center;
+            background: #fff;
+        }
+        body.dark .ppc { background: #1e293b; border-color: #334155; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+        .ppc img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
+        .ppc1 { transform:rotate(-8deg) translateY(-8px); }
+        .ppc2 { transform:rotate(-3deg) translateY(-4px); }
+        .ppc3 { transform:rotate(2deg) translateY(-2px); }
+        .ppc4 { transform:rotate(6deg) translateY(-6px); }
+        .ppc5 { transform:rotate(10deg) translateY(-10px); border-color: #6366f1; box-shadow: 0 4px 16px rgba(99,102,241,.2); }
+        @media(max-width:640px) {
+            .pack-promo-inner { flex-direction: column; align-items: flex-start; padding: 32px 20px; }
+            .pack-promo-title { font-size: 1.9rem; }
+            .pack-promo-cards { display: none; }
+        }
+
         /* ===== STATS ANIMACIÓN ===== */
         .stat-animate { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
         .stat-animate.visible { opacity: 1; transform: translateY(0); }
@@ -146,14 +272,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <!-- repeat -->
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                 </div>
@@ -223,14 +349,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                 </div>
                 <!-- Columna 9 ↑ -->
                 <div class="wall-column col-up">
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <!-- repeat -->
-                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/neo1/9_hires.png')"></div>
+                    <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
@@ -278,40 +404,61 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     <?php endif; ?>
                     <h1>Loot&Trading<br><span>Marketplace.</span></h1>
                     <p data-i18n="home.subtitle">El mercado definitivo de TCGs con precios en tiempo real.</p>
-                    <div style="display: flex; gap: 20px; justify-content: center; align-items: center; margin-top: 30px; flex-wrap: wrap; width: 100%;">
-                        <a href="#section-pokemon" class="btn-main" style="margin-top: 0;" data-i18n="home.explore">Explorar Colecciones</a>
-                        <a href="mercado.php?game=pokemon" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); color: white; box-shadow: 0 10px 25px rgba(59,130,246,0.3);" data-i18n="home.search_market">🔍 Buscar en el Mercado</a>
-                        <a href="apuestas.php" class="btn-main" style="margin-top: 0; background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); color: white; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);" data-i18n="home.auctions">🏷️ Subastas en vivo</a>
+                    <div style="display:flex;gap:16px;justify-content:center;align-items:center;margin-top:28px;flex-wrap:wrap;width:100%;">
+                        <a href="#section-pokemon" class="btn-main" style="margin-top:0;" data-i18n="home.explore">Explorar Colecciones</a>
+                        <a href="mercado.php?game=pokemon" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#3b82f6 0%,#06b6d4 100%);color:white;box-shadow:0 10px 25px rgba(59,130,246,0.3);" data-i18n="home.search_market">&#128269; Buscar en el Mercado</a>
+                        <a href="apuestas.php" class="btn-main" style="margin-top:0;background:linear-gradient(135deg,#8b5cf6 0%,#d946ef 100%);color:white;box-shadow:0 10px 25px rgba(139,92,246,0.3);" data-i18n="home.auctions">&#127991;&#65039; Subastas en vivo</a>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- ===== CARTA DEL DÍA ===== -->
-        <section class="cod-section">
-            <div class="cod-inner">
-                <div class="cod-left">
-                    <div class="cod-eyebrow" data-i18n="home.card_of_day">Carta del día</div>
-                    <div class="cod-card-wrap" id="cod-card-wrap" onclick="codOpenModal()" style="cursor:pointer;">
-                        <img id="cod-img" src="" alt="Carta del día">
-                        <span class="cod-badge" id="cod-badge"></span>
-                    </div>
+        <!-- ===== FEATURE SPLIT ===== -->
+        <section class="feature-split">
+            <a href="sobres.php" class="fs-panel fs-left">
+                <div class="fs-bg" style="background-image:url('../img/parteatrascartas/pokemon.jpg')"></div>
+                <div class="fs-overlay fs-overlay-left"></div>
+                <div class="fs-content">
+                    <div class="fs-eyebrow">&#127183; Nuevo</div>
+                    <h2 class="fs-title">Abre Sobres TCG</h2>
+                    <p class="fs-desc">5 cartas aleatorias reales por sobre &mdash; Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas al instante o gu&aacute;rdalas.</p>
+                    <span class="fs-btn">Abrir un sobre &mdash; 50 LJ &rarr;</span>
                 </div>
-                <div class="cod-right">
-                    <h2 class="cod-name" id="cod-name">Cargando...</h2>
-                    <div class="cod-price-row">
-                        <span class="cod-price" id="cod-price">—</span>
-                        <span class="cod-trend" id="cod-trend"></span>
+            </a>
+            <a href="apuestas.php" class="fs-panel fs-right">
+                <div class="fs-bg" style="background-image:url('../img/parteatrascartas/magic.webp')"></div>
+                <div class="fs-overlay fs-overlay-right"></div>
+                <div class="fs-content">
+                    <div class="fs-eyebrow">&#9889; En vivo</div>
+                    <h2 class="fs-title">Subastas</h2>
+                    <p class="fs-desc">Puja en tiempo real con Lujanitos en cartas TCG exclusivas. Gana la subasta y recibe la carta en casa.</p>
+                    <span class="fs-btn">Ver subastas activas &rarr;</span>
+                </div>
+            </a>
+        </section>
+
+
+        <!-- ===== BANNER ABRIR SOBRES (NUEVO) ===== -->
+        <section class="pack-promo-banner">
+            <div class="pack-promo-inner">
+                <div class="pack-promo-left">
+                    <div class="pack-promo-eyebrow">&#10024; Nuevo en Loot &amp; Trading</div>
+                    <h2 class="pack-promo-title">&#127183; Abre Sobres TCG</h2>
+                    <p class="pack-promo-desc">5 cartas aleatorias reales por sobre. Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas por Lujanitos o gu&aacute;rdalas en tu colecci&oacute;n.</p>
+                    <div class="pack-promo-games">
+                        <span>&#9889; Pok&eacute;mon</span>
+                        <span>&#10024; Magic</span>
+                        <span>&#128081; Yu-Gi-Oh!</span>
+                        <span>&#9876; One Piece</span>
                     </div>
-                    <p class="cod-desc" id="cod-desc"></p>
-                    <div class="cod-opinions-wrap">
-                        <div class="cod-opinions-label" data-i18n="home.community_says">Lo que dice la comunidad</div>
-                        <div class="cod-opinion-box" id="cod-opinion-box">
-                            <div class="cod-opinion-text" id="cod-opinion-text"></div>
-                            <div class="cod-opinion-author" id="cod-opinion-author"></div>
-                        </div>
-                        <div class="cod-dots" id="cod-dots"></div>
-                    </div>
+                    <a href="sobres.php" class="pack-promo-btn">&#127183; Abrir un sobre &mdash; 50 LJ</a>
+                </div>
+                <div class="pack-promo-cards">
+                    <div class="ppc ppc1"><img src="../img/parteatrascartas/pokemon.jpg" alt="Pokémon"></div>
+                    <div class="ppc ppc2"><img src="../img/parteatrascartas/magic.webp" alt="Magic"></div>
+                    <div class="ppc ppc3"><img src="../img/parteatrascartas/yugioh.webp" alt="Yu-Gi-Oh!"></div>
+                    <div class="ppc ppc4"><img src="../img/parteatrascartas/onepiece.jpg" alt="One Piece"></div>
+                    <div class="ppc ppc5"><img src="../img/parteatrascartas/pokemon.jpg" alt="Pokémon"></div>
                 </div>
             </div>
         </section>
@@ -323,95 +470,11 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     <h2 data-i18n="home.trending">🔥 Lo más buscado esta semana</h2>
                     <a href="mercado.php?game=pokemon" class="trending-see-all" data-i18n="home.see_all">Ver todo el mercado →</a>
                 </div>
-                <div class="trending-scroll">
-                    <div class="trending-card" onclick="openModal({card_id:'base1-4',id:'base1-4',name:'Charizard Base Set',img:'https://images.pokemontcg.io/base1/4_hires.png',badge:'Pokémon',color:'#e63329',price:'420.00'})">
-                        <img src="https://images.pokemontcg.io/base1/4_hires.png" alt="Charizard">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#fef3c7;color:#b45309;">Pokémon</span>
-                            <p class="trending-name">Charizard Base Set</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$420</span>
-                                <span class="trend-badge up">↑ +5%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" onclick="openModal({card_id:'89631139',id:'89631139',name:'Blue-Eyes White Dragon',img:'https://images.ygoprodeck.com/images/cards/89631139.jpg',badge:'Yu-Gi-Oh!',color:'#a855f7',price:'85.00'})">
-                        <img src="https://images.ygoprodeck.com/images/cards/89631139.jpg" alt="Blue-Eyes">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#f3e8ff;color:#7c3aed;">Yu-Gi-Oh!</span>
-                            <p class="trending-name">Blue-Eyes White Dragon</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$85</span>
-                                <span class="trend-badge up">↑ +3%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" onclick="openModal({card_id:'bd8fa327',id:'bd8fa327',name:'Black Lotus',img:'https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg',badge:'Magic',color:'#ef4444',price:'15000.00'})">
-                        <img src="https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg" alt="Black Lotus">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#fee2e2;color:#b91c1c;">Magic</span>
-                            <p class="trending-name">Black Lotus</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$15.000</span>
-                                <span class="trend-badge up">↑ +2%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" id="trending-op-luffy" onclick="openModal({card_id:'OP05-119',id:'OP05-119',name:'Luffy Manga Alt Art',img:'',badge:'One Piece',color:'#f97316',price:'2100.00'})">
-                        <img src="" data-sb-search="Luffy" data-sb-game="onepiece" alt="Luffy Manga" style="background:#f1f5f9;">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#ffedd5;color:#c2410c;">One Piece</span>
-                            <p class="trending-name">Luffy Manga Alt Art</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$2.100</span>
-                                <span class="trend-badge up">↑ +31%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" onclick="openModal({card_id:'swsh7-215',id:'swsh7-215',name:'Umbreon VMAX Alt Art',img:'https://images.pokemontcg.io/swsh7/215_hires.png',badge:'Pokémon',color:'#e63329',price:'950.00'})">
-                        <img src="https://images.pokemontcg.io/swsh7/215_hires.png" alt="Umbreon VMAX">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#fef3c7;color:#b45309;">Pokémon</span>
-                            <p class="trending-name">Umbreon VMAX Alt Art</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$950</span>
-                                <span class="trend-badge up">↑ +18%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" id="trending-op-zoro" onclick="openModal({card_id:'OP06-118',id:'OP06-118',name:'Zoro Manga Alt Art',img:'',badge:'One Piece',color:'#f97316',price:'980.00'})">
-                        <img src="" data-sb-search="Zoro" data-sb-game="onepiece" alt="Zoro Manga" style="background:#f1f5f9;">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#ffedd5;color:#c2410c;">One Piece</span>
-                            <p class="trending-name">Zoro Manga Alt Art</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$980</span>
-                                <span class="trend-badge up">↑ +22%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" onclick="openModal({card_id:'38033121',id:'38033121',name:'Dark Magician Girl 1st Ed',img:'https://images.ygoprodeck.com/images/cards/38033121.jpg',badge:'Yu-Gi-Oh!',color:'#a855f7',price:'290.00'})">
-                        <img src="https://images.ygoprodeck.com/images/cards/38033121.jpg" alt="Dark Magician Girl">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#f3e8ff;color:#7c3aed;">Yu-Gi-Oh!</span>
-                            <p class="trending-name">Dark Magician Girl 1st Ed</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$290</span>
-                                <span class="trend-badge up">↑ +12%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="trending-card" onclick="openModal({card_id:'swsh12-186',id:'swsh12-186',name:'Lugia V Alt Art',img:'https://images.pokemontcg.io/swsh12/186_hires.png',badge:'Pokémon',color:'#e63329',price:'180.00'})">
-                        <img src="https://images.pokemontcg.io/swsh12/186_hires.png" alt="Lugia V">
-                        <div class="trending-info">
-                            <span class="trending-badge" style="background:#fef3c7;color:#b45309;">Pokémon</span>
-                            <p class="trending-name">Lugia V Alt Art</p>
-                            <div class="trending-price-row">
-                                <span class="trending-price">$180</span>
-                                <span class="trend-badge down">↓ -4%</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="trending-scroll" id="trending-scroll">
+                    <!-- Skeletons mientras carga -->
+                    <?php for($i=0;$i<8;$i++): ?>
+                    <div class="trending-card" style="background:#f1f5f9;animation:shimmer 1.5s infinite;min-width:160px;height:260px;border-radius:16px;"></div>
+                    <?php endfor; ?>
                 </div>
             </div>
         </section>
@@ -585,47 +648,47 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
 <script src="../assets/js/csrf.js?v=<?php echo time(); ?>"></script>
     <script src="../assets/js/script.js?v=<?php echo time(); ?>"></script>
     <script>
-    // Cargar imágenes One Piece del trending desde Supabase
-    window.addEventListener('load', function() {
-        const SB_URL = 'https://twnpxipxtmgdohjckbjn.supabase.co';
-        const SB_KEY = 'sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu';
-        const OP_TCG = '3e7c1156-bfdd-4583-98fa-6564a8ea5f35';
-        const headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
-
-        function applyImg(img, card) {
-            const url = card.image_large || card.image_small;
-            if (!url) return;
-            img.src = url;
-            img.style.background = '';
-            const parent = img.closest('.trending-card');
-            if (parent) {
-                const oc = parent.getAttribute('onclick') || '';
-                parent.setAttribute('onclick', oc.replace("img:''", "img:'" + url.replace(/'/g, "\\'") + "'"));
-            }
-        }
-
-        function fallbackRandom(img, offset) {
-            fetch(`${SB_URL}/rest/v1/cards?select=name,image_large,image_small&tcg_id=eq.${OP_TCG}&image_large=not.is.null&limit=1&offset=${offset}`, { headers })
-                .then(r => r.json())
-                .then(function(d) { if (d && d.length) applyImg(img, d[0]); })
-                .catch(function() {});
-        }
-
-        let fallbackOffset = 0;
-        document.querySelectorAll('img[data-sb-search][data-sb-game="onepiece"]').forEach(function(img) {
-            const term = img.dataset.sbSearch;
-            fetch(`${SB_URL}/rest/v1/cards?select=name,image_large,image_small&tcg_id=eq.${OP_TCG}&name=ilike.*${term}*&image_large=not.is.null&limit=3`, { headers })
-                .then(r => r.json())
-                .then(function(data) {
-                    if (data && data.length) {
-                        applyImg(img, data[0]);
-                    } else {
-                        fallbackRandom(img, fallbackOffset++ * 10);
-                    }
-                })
-                .catch(function() { fallbackRandom(img, fallbackOffset++ * 10); });
-        });
-    });
+    // Cargar trending aleatorio desde APIs TCG
+    (function() {
+        const BADGE_COLORS = {
+            'Pokémon':  { bg:'#fef3c7', color:'#b45309' },
+            'Magic':    { bg:'#ede9fe', color:'#6d28d9' },
+            'Yu-Gi-Oh!':{ bg:'#f3e8ff', color:'#7c3aed' },
+            'One Piece':{ bg:'#ffedd5', color:'#c2410c' },
+        };
+        fetch('../api/trending.php?v=' + Date.now())
+            .then(r => r.json())
+            .then(function(data) {
+                if (!data.ok || !data.cards.length) return;
+                const scroll = document.getElementById('trending-scroll');
+                if (!scroll) return;
+                scroll.innerHTML = '';
+                data.cards.forEach(function(c) {
+                    const bc = BADGE_COLORS[c.badge] || { bg:'#f1f5f9', color:'#64748b' };
+                    const priceText = c.price >= 1000
+                        ? (c.price/1000).toFixed(1).replace('.',',') + '.000'
+                        : Math.round(c.price).toLocaleString('es-ES');
+                    const priceFmt = '$' + priceText;
+                    const div = document.createElement('div');
+                    div.className = 'trending-card';
+                    div.style.cursor = 'pointer';
+                    const safeImg = c.img.replace(/'/g,"\\'");
+                    const safeName = c.name.replace(/'/g,"\\'");
+                    div.setAttribute('onclick', `openModal({card_id:'${safeName}',id:'${safeName}',name:'${safeName}',img:'${safeImg}',badge:'${c.badge}',color:'#3b82f6',price:'${c.price}'})`);
+                    div.innerHTML = `<img src="${c.img}" alt="${c.name}" onerror="this.closest('.trending-card').style.display='none'" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:12px 12px 0 0;">
+                        <div class="trending-info">
+                            <span class="trending-badge" style="background:${bc.bg};color:${bc.color};">${c.badge}</span>
+                            <p class="trending-name">${c.name}</p>
+                            <div class="trending-price-row">
+                                <span class="trending-price">${priceFmt} LJ</span>
+                                <span class="trend-badge up">↑ +${Math.floor(Math.random()*25)+1}%</span>
+                            </div>
+                        </div>`;
+                    scroll.appendChild(div);
+                });
+            })
+            .catch(function() {}); // silencioso si falla
+    })();
 
     // Parallax suave en las tarjetas de los grids
     (function() {
