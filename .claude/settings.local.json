@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "Bash(where php *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Get-ChildItem \"C:\\\\xampp\\\\htdocs\" -Directory -Force | ForEach-Object { if \\($_.LinkType\\) { \"$\\($_.Name\\) \\(junction -> $\\($_.Target\\)\\)\" } else { \"$\\($_.Name\\)\" } })",
+      "PowerShell(Test-Path *)",
+      "PowerShell($item = Get-Item -LiteralPath 'C:\\\\xampp\\\\htdocs\\\\loot' -Force -ErrorAction SilentlyContinue; if \\($item\\) { Write-Output \\(\"Existe: \" + $item.FullName\\); Write-Output \\(\"LinkType: \" + $item.LinkType\\); Write-Output \\(\"Target: \" + \\($item.Target -join ', '\\)\\); Write-Output \"--- contenido ---\"; Get-ChildItem -LiteralPath 'C:\\\\xampp\\\\htdocs\\\\loot' -Force | Select-Object -First 5 Name } else { Write-Output \"No existe C:\\\\xampp\\\\htdocs\\\\loot\" })",
+      "Bash(curl -s -o /tmp/users_check.json -w \"users_status=%{http_code}\\\\n\" \"https://twnpxipxtmgdohjckbjn.supabase.co/rest/v1/users?limit=1\" -H \"apikey: sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu\" -H \"Authorization: Bearer sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /tmp/profiles_check.json -w \"profiles_status=%{http_code}\\\\n\" \"https://twnpxipxtmgdohjckbjn.supabase.co/rest/v1/profiles?limit=1\" -H \"apikey: sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu\" -H \"Authorization: Bearer sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu\")",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

@@ -3,21 +3,31 @@ function toggleDarkMode() {
     localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 }
 
+const SUPABASE_URL = 'https://twnpxipxtmgdohjckbjn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lu1sQo0v_aKaXvNQCh6SOw_ENj5JTPu';
+
+const GAMES = {
+    pokemon:  { tcgId: '21899972-d4ce-41e6-aeac-70d7a198d9ed', badge: 'Pokémon',   color: '#eab308' },
+    yugioh:   { tcgId: '14d81db0-0e72-40da-a764-633d63b9a008', badge: 'Yu-Gi-Oh!', color: '#a855f7' },
+    magic:    { tcgId: 'b292bb55-9b18-4438-a134-1cc049e19867', badge: 'Magic',     color: '#ef4444' },
+    onepiece: { tcgId: '3e7c1156-bfdd-4583-98fa-6564a8ea5f35', badge: 'One Piece', color: '#f97316' }
+};
+
 const STATE = {
-    pokemon: { page: 1, loading: false },
-    yugioh: { offset: 0, loading: false },
-    magic: { page: 1, cache: [], loading: false },
-    onepiece: { page: 0, loading: false }
+    pokemon:  { offset: 0, loading: false, done: false },
+    yugioh:   { offset: 0, loading: false, done: false },
+    magic:    { offset: 0, loading: false, done: false },
+    onepiece: { offset: 0, loading: false, done: false }
 };
 
 const BACKUPS = {
-    pokemon: 'https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg',
-    yugioh: 'https://upload.wikimedia.org/wikipedia/en/2/2b/Yugioh_Card_Back.jpg',
-    magic: 'https://upload.wikimedia.org/wikipedia/en/a/aa/Magic_the_gathering-card_back.jpg',
-    onepiece: 'https://asia-en.onepiece-cardgame.com/images/common/back.jpg'
+    pokemon: 'img/pokemon.png',
+    yugioh: 'img/yugioh.png',
+    magic: 'img/magic.png',
+    onepiece: 'img/onepiece.png'
 };
 
-let ONEPIECE_CACHE = null;
+const PAGE_SIZE = 12;
 
 function createCardHTML(data) {
     const div = document.createElement('div');
@@ -39,7 +49,7 @@ function createCardHTML(data) {
             <div class="card-price">${data.price ? '$' + data.price : 'Sin stock'}</div>
         </div>
     `;
-    
+
     div.addEventListener('click', () => openModal(data));
     return div;
 }
@@ -52,8 +62,8 @@ function openModal(data) {
     document.getElementById('modal-price').textContent = data.price ? '$' + data.price : 'Sin stock';
 
     const list = document.getElementById('market-list');
-    list.innerHTML = ''; 
-    
+    list.innerHTML = '';
+
     let basePrice = parseFloat(data.price) || 25.00;
 
     const sellers = [
@@ -83,141 +93,80 @@ function closeModal() {
     setTimeout(() => { document.getElementById('card-modal').style.display = 'none'; }, 300);
 }
 
-async function loadPokemonCards(gridId) {
-    if (STATE.pokemon.loading) return;
-    STATE.pokemon.loading = true;
+async function loadCards(game, gridId) {
+    const st = STATE[game];
+    if (st.loading || st.done) return;
+    st.loading = true;
     const grid = document.getElementById(gridId);
+    const cfg = GAMES[game];
 
     try {
-        const listRes = await fetch(`https://api.tcgdex.net/v2/en/cards?pagination:page=${STATE.pokemon.page}&pagination:itemsPerPage=20`);
-        if (!listRes.ok) throw new Error('TCGdex list error');
-        const cards = await listRes.json();
-        const withImage = cards.filter(c => c.image).slice(0, 12);
-        const details = await Promise.all(
-            withImage.map(c => fetch(`https://api.tcgdex.net/v2/en/cards/${c.id}`).then(r => r.json()))
-        );
-        details.forEach(card => {
-            const cmPrice = card.pricing?.cardmarket?.trend;
-            const tcgPrice = card.pricing?.tcgplayer?.holofoil?.marketPrice;
-            const realPrice = cmPrice || tcgPrice;
-            grid.appendChild(createCardHTML({
-                badge: 'Pokémon', color: '#eab308', name: card.name,
-                img: card.image + '/high.png', price: realPrice ? parseFloat(realPrice).toFixed(2) : null
-            }));
+        const url = `${SUPABASE_URL}/rest/v1/cards`
+            + `?tcg_id=eq.${cfg.tcgId}`
+            + `&select=id,name,image_large,image_small`
+            + `&order=name.asc`
+            + `&limit=${PAGE_SIZE}&offset=${st.offset}`;
+
+        const res = await fetch(url, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
         });
-        STATE.pokemon.page++;
-    } catch (err) {}
-    STATE.pokemon.loading = false;
-}
+        if (!res.ok) throw new Error(`Supabase ${res.status}`);
+        const cards = await res.json();
 
-async function loadYugiohCards(gridId) {
-    if (STATE.yugioh.loading) return;
-    STATE.yugioh.loading = true;
-    const grid = document.getElementById(gridId);
-    
-    try {
-        const res = await fetch(`https://db.ygoprodeck.com/api/v7/cardinfo.php?num=12&offset=${STATE.yugioh.offset}&sort=price`);
-        const json = await res.json();
-        json.data.forEach(card => {
-            let realPrice = card.card_prices?.[0]?.tcgplayer_price;
-            grid.appendChild(createCardHTML({
-                badge: 'Yu-Gi-Oh!', color: '#a855f7', name: card.name,
-                img: card.card_images?.[0]?.image_url, price: realPrice ? parseFloat(realPrice).toFixed(2) : null
-            }));
-        });
-        STATE.yugioh.offset += 12;
-    } catch (err) {}
-    STATE.yugioh.loading = false;
-}
-
-async function loadMagicCards(gridId) {
-    if (STATE.magic.loading) return;
-    STATE.magic.loading = true;
-    const grid = document.getElementById(gridId);
-    
-    try {
-        if (STATE.magic.cache.length === 0) {
-            const res = await fetch(`https://api.scryfall.com/cards/search?q=f:commander&order=usd&dir=desc&page=${STATE.magic.page}`);
-            const json = await res.json();
-            STATE.magic.cache = json.data.filter(c => c.image_uris && c.image_uris.normal);
-            STATE.magic.page++;
-        }
-        const items = STATE.magic.cache.splice(0, 12);
-        items.forEach(card => {
-            let realPrice = card.prices?.usd || card.prices?.usd_foil;
-            grid.appendChild(createCardHTML({
-                badge: 'Magic', color: '#ef4444', name: card.name,
-                img: card.image_uris.normal, price: realPrice ? parseFloat(realPrice).toFixed(2) : null
-            }));
-        });
-    } catch (err) {}
-    STATE.magic.loading = false;
-}
-
-async function loadOnePieceCards(gridId) {
-    if (STATE.onepiece.loading) return;
-    STATE.onepiece.loading = true;
-    const grid = document.getElementById(gridId);
-
-    try {
-        if (!ONEPIECE_CACHE) {
-            const res = await fetch('https://www.optcgapi.com/api/allSetCards/');
-            if (!res.ok) throw new Error('OPTCG API error');
-            const all = await res.json();
-            ONEPIECE_CACHE = all.filter(c => c.card_image).sort((a, b) => (b.market_price || 0) - (a.market_price || 0));
-        }
-        const start = STATE.onepiece.page * 12;
-        const items = ONEPIECE_CACHE.slice(start, start + 12);
-
-        if (items.length === 0) {
+        if (cards.length === 0) {
+            st.done = true;
             const btn = document.getElementById('mercado-load-more');
             if (btn) btn.style.display = 'none';
-            STATE.onepiece.loading = false;
             return;
         }
 
-        items.forEach(card => {
+        cards.forEach(card => {
             grid.appendChild(createCardHTML({
-                badge: 'One Piece', color: '#f97316', name: card.card_name,
-                img: card.card_image, price: card.market_price ? parseFloat(card.market_price).toFixed(2) : null
+                badge: cfg.badge,
+                color: cfg.color,
+                name: card.name,
+                img: card.image_large || card.image_small,
+                price: null
             }));
         });
-        STATE.onepiece.page++;
-    } catch (err) {}
-    STATE.onepiece.loading = false;
+        st.offset += PAGE_SIZE;
+        if (cards.length < PAGE_SIZE) st.done = true;
+    } catch (err) {
+        console.error(`[${game}] error cargando cartas:`, err);
+    } finally {
+        st.loading = false;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const gameParam = urlParams.get('game');
-    
+
     if (document.getElementById('mercado-grid')) {
         const loadBtn = document.getElementById('mercado-load-more');
         const title = document.getElementById('mercado-title');
-        
-        if (gameParam === 'pokemon') {
-            title.innerText = 'Mercado: Pokémon TCG';
-            loadPokemonCards('mercado-grid');
-            if(loadBtn) loadBtn.onclick = () => loadPokemonCards('mercado-grid');
-        } else if (gameParam === 'yugioh') {
-            title.innerText = 'Mercado: Yu-Gi-Oh!';
-            loadYugiohCards('mercado-grid');
-            if(loadBtn) loadBtn.onclick = () => loadYugiohCards('mercado-grid');
-        } else if (gameParam === 'magic') {
-            title.innerText = 'Mercado: Magic The Gathering';
-            loadMagicCards('mercado-grid');
-            if(loadBtn) loadBtn.onclick = () => loadMagicCards('mercado-grid');
-        } else if (gameParam === 'onepiece') {
-            title.innerText = 'Mercado: One Piece';
-            loadOnePieceCards('mercado-grid');
-            if(loadBtn) loadBtn.onclick = () => loadOnePieceCards('mercado-grid');
+
+        const titles = {
+            pokemon: 'Mercado: Pokémon TCG',
+            yugioh: 'Mercado: Yu-Gi-Oh!',
+            magic: 'Mercado: Magic The Gathering',
+            onepiece: 'Mercado: One Piece'
+        };
+
+        if (GAMES[gameParam]) {
+            title.innerText = titles[gameParam];
+            loadCards(gameParam, 'mercado-grid');
+            if (loadBtn) loadBtn.onclick = () => loadCards(gameParam, 'mercado-grid');
         }
-    } 
+    }
     else if (document.getElementById('main-content')) {
-        loadPokemonCards('pokemon-grid');
-        loadYugiohCards('yugioh-grid');
-        loadMagicCards('magic-grid');
-        loadOnePieceCards('onepiece-grid');
+        loadCards('pokemon', 'pokemon-grid');
+        loadCards('yugioh', 'yugioh-grid');
+        loadCards('magic', 'magic-grid');
+        loadCards('onepiece', 'onepiece-grid');
     }
 
     const modal = document.getElementById('card-modal');
@@ -226,13 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === this) closeModal();
         });
     }
-    
+
     const closeBtn = document.getElementById('close-modal-btn');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeModal);
     }
 
-    // Filtro de búsqueda en mercado
     const filterSearch = document.getElementById('filter-search');
     if (filterSearch) {
         filterSearch.addEventListener('input', () => {
