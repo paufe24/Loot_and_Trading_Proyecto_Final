@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 if (empty($_SESSION['is_admin'])) {
     header('Location: index.php');
     exit;

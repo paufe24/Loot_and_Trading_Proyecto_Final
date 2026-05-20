@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';

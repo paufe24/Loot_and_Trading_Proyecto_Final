@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 $isGuest = !isset($_SESSION['user_id']);
 $balance = 0;

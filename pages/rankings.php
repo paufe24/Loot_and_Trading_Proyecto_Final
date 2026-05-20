@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';
 require_once dirname(__DIR__) . '/includes/avatar_helper.php';

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 if (empty($_SESSION['is_admin'])) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'message' => 'No autorizado']);

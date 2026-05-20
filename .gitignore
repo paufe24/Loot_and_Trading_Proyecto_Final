@@ -1,5 +1,12 @@
 # Claude Code local config
 .claude/settings.local.json
 
+# Credenciales de base de datos (NUNCA subir)
+includes/config.php
+
+# Archivo de setup admin (contiene credenciales en texto plano)
+setup_admin.php
+
 # Imágenes subidas por usuarios
 img/cards/
+img/avatars/

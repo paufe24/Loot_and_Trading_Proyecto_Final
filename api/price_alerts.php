@@ -1,6 +1,6 @@
 <?php
 // api/price_alerts.php — CRUD alertas de precio
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 require_once dirname(__DIR__) . '/includes/csrf.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';

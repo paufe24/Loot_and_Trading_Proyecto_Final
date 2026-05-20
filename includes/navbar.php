@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/security_headers.php';
 $_nav_logged_in = isset($_SESSION['user_id']);
 $_nav_is_admin  = !empty($_SESSION['is_admin']);
 $_nav_is_envios = !empty($_SESSION['is_envios']);
@@ -8,6 +9,13 @@ require_once dirname(__DIR__) . '/includes/csrf.php';
 <style>
 .nav-dock { position:fixed;top:0;left:0;width:100%;height:64px;background:#fff;padding:0 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;z-index:1000;box-sizing:border-box; }
 body.dark .nav-dock { background:#1e293b;border-color:#334155; }
+body.dark .nav-item { color:#e2e8f0; }
+body.dark .nav-item svg { stroke:#e2e8f0; }
+body.dark .nav-item .nav-icon { color:#e2e8f0; }
+body.dark .nav-pill svg { stroke:#e2e8f0; }
+body.dark .nav-cart-btn svg { stroke:#e2e8f0; }
+body.dark .nav-user-btn svg { stroke:#e2e8f0; }
+body.dark .nav-bell-btn svg { stroke:#e2e8f0; }
 .nav-dock .spacer { flex:1; }
 .nav-item { display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:12px;cursor:pointer;text-decoration:none;color:#64748b;font-size:.9rem;transition:all .2s;border:none;background:none;font-family:'Outfit',sans-serif; }
 .nav-item:hover { background:#f1f5f9;color:#0f172a; }

@@ -1236,8 +1236,10 @@ body.dark #claim-address-wrap textarea { background: #0f172a; border-color: #334
 }
 
 body.dark .site-footer { background: #020617; }
-body.dark .footer-socials a { background: #0f172a; }
+body.dark .footer-socials a { background: #0f172a; color: #e2e8f0; }
+body.dark .footer-socials a svg { stroke: #e2e8f0; }
 body.dark .footer-bottom { border-color: #0f172a; }
+body.dark .footer-bottom p { color: #e2e8f0; }
 
 @media(max-width: 768px) {
     .footer-inner {

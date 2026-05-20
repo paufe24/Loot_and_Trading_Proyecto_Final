@@ -155,10 +155,17 @@ function checkAchievements($conn, int $user_id): void {
     $xp    = (int)($row['xp'] ?? 0);
     $level = getLevelInfo($xp)['level'];
 
-    $bids      = (int)$conn->query("SELECT COUNT(*) FROM auction_bids WHERE user_id=$user_id")->fetch_row()[0];
-    $wins      = (int)$conn->query("SELECT COUNT(*) FROM auctions WHERE current_winner_id=$user_id AND status='ended'")->fetch_row()[0];
-    $favs      = (int)$conn->query("SELECT COUNT(*) FROM user_favorites WHERE user_id=$user_id")->fetch_row()[0];
-    $purchases = (int)$conn->query("SELECT COUNT(*) FROM cart_orders WHERE user_id=$user_id AND status='paid'")->fetch_row()[0];
+    $stB = $conn->prepare("SELECT COUNT(*) FROM auction_bids WHERE user_id=?");
+    $stB->bind_param("i", $user_id); $stB->execute(); $bids = (int)$stB->get_result()->fetch_row()[0]; $stB->close();
+
+    $stW = $conn->prepare("SELECT COUNT(*) FROM auctions WHERE current_winner_id=? AND status='ended'");
+    $stW->bind_param("i", $user_id); $stW->execute(); $wins = (int)$stW->get_result()->fetch_row()[0]; $stW->close();
+
+    $stF = $conn->prepare("SELECT COUNT(*) FROM user_favorites WHERE user_id=?");
+    $stF->bind_param("i", $user_id); $stF->execute(); $favs = (int)$stF->get_result()->fetch_row()[0]; $stF->close();
+
+    $stP = $conn->prepare("SELECT COUNT(*) FROM cart_orders WHERE user_id=? AND status='paid'");
+    $stP->bind_param("i", $user_id); $stP->execute(); $purchases = (int)$stP->get_result()->fetch_row()[0]; $stP->close();
 
     // Contar cartas en colección por juego (compras + subastas ganadas con claim)
     $cardsByGame = ['pokemon' => 0, 'yugioh' => 0, 'magic' => 0, 'onepiece' => 0];

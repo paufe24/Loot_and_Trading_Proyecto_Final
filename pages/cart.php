@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 
 $isFetch = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'fetch';
 
@@ -15,6 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/csrf.php';
 require_once dirname(__DIR__) . '/includes/gamification.php';
 
 $userId = (int)$_SESSION['user_id'];
@@ -234,8 +235,11 @@ function checkout($userId) {
 
     // Verificar saldo de Lujanitos
     try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 1000"); } catch (Exception $e) {}
-    $balRes   = $conn->query("SELECT lootcoins FROM users WHERE id=$userId");
+    $balSt = $conn->prepare("SELECT lootcoins FROM users WHERE id=?");
+    $balSt->bind_param("i", $userId); $balSt->execute();
+    $balRes = $balSt->get_result();
     $userCoins = $balRes ? (int)$balRes->fetch_assoc()['lootcoins'] : 0;
+    $balSt->close();
     if ($userCoins < $totalLJ) {
         return ['ok' => false, 'message' => "Lujanitos insuficientes. Necesitas {$totalLJ} LJ pero tienes {$userCoins} LJ. <a href='lujanitos.php' style='color:#f59e0b;font-weight:700;'>Consigue más →</a>"];
     }
@@ -246,7 +250,10 @@ function checkout($userId) {
         ensureActivityTable();
 
         // Descontar Lujanitos del saldo
-        $conn->query("UPDATE users SET lootcoins = lootcoins - $totalLJ WHERE id = $userId");
+        $updCoins = $conn->prepare("UPDATE users SET lootcoins = lootcoins - ? WHERE id = ?");
+        $updCoins->bind_param("ii", $totalLJ, $userId);
+        $updCoins->execute();
+        $updCoins->close();
 
         $orderNumber = 'ORD-' . date('Ymd-His') . '-' . $userId;
         $orderStmt = $conn->prepare('INSERT INTO cart_orders (user_id, order_number, total_amount, status) VALUES (?, ?, ?, \'paid\')');
@@ -296,6 +303,7 @@ ensureCartTable();
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== '') {
+    csrf_verify();
     if ($action === 'add') {
         $cardData = [
             'card_id' => (string)($_POST['card_id'] ?? ''),

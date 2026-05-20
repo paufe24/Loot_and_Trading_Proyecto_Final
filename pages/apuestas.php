@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
 $logged_in    = isset($_SESSION['user_id']);
 $user_id      = $logged_in ? (int)$_SESSION['user_id'] : 0;

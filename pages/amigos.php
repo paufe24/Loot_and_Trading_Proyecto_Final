@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 if (!isset($_SESSION['user_id'])) { header('Location: auth.php'); exit; }
 require_once dirname(__DIR__) . '/includes/db.php';
 $uid      = (int)$_SESSION['user_id'];

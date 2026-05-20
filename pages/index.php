@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 require_once dirname(__DIR__) . '/includes/db.php';
 try { $conn->query("CREATE TABLE IF NOT EXISTS events (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, description TEXT, location VARCHAR(255), event_date DATE NOT NULL, event_time VARCHAR(30) DEFAULT '', participants VARCHAR(100) DEFAULT '', game_type VARCHAR(50) DEFAULT 'multi', event_type VARCHAR(50) DEFAULT 'quedada', we_participate TINYINT(1) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"); } catch (Exception $e) {}

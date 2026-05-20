@@ -1,5 +1,5 @@
 ﻿<?php
-session_start();
+require_once dirname(__DIR__) . '/includes/session.php';
 $nombre_usuario = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $game = $_GET['game'] ?? 'pokemon';
 ?>
