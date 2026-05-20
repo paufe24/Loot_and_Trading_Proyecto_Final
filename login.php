@@ -15,13 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (password_verify($password, $user['password_hash'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
-            header("Location: index.php"); // ← era index.html, ESTE ES EL BUG PRINCIPAL
+            header("Location: index.php");
             exit;
         } else {
-            echo "<script>alert('Contraseña incorrecta'); window.location.href='auth.html'</script>";
+            echo "<script>alert('Contraseña incorrecta'); window.location.href='auth.php'</script>";
         }
     } else {
-        echo "<script>alert('El usuario no existe'); window.location.href='auth.html'</script>";
+        echo "<script>alert('El usuario no existe'); window.location.href='auth.php'</script>";
     }
 
     $stmt->close();
