@@ -89,12 +89,12 @@ while ($count < $TARGET_PER_GAME && $page <= 30) {
 echo "  [OK] Pokémon: {$count} cartas insertadas\n\n";
 
 // ── MAGIC ────────────────────────────────────────────────
-echo "→ Magic: descargando hasta {$TARGET_PER_GAME} cartas (Scryfall paginado)...\n";
+echo "→ Magic: descargando hasta {$TARGET_PER_GAME} cartas (Scryfall paginado, orden por precio)...\n";
 $count = 0;
 $page  = 1;
-$searchUrl = "https://api.scryfall.com/cards/search?q=lang%3Aen+game%3Apaper+-is%3Atoken&unique=cards&order=released&page={$page}";
-while ($count < $TARGET_PER_GAME && $page <= 5) {
-    $url = "https://api.scryfall.com/cards/search?q=lang%3Aen+game%3Apaper+-is%3Atoken&unique=cards&order=released&page={$page}";
+while ($count < $TARGET_PER_GAME && $page <= 15) {
+    // Orden por EUR descendente: cartas establecidas con imagen real
+    $url = "https://api.scryfall.com/cards/search?q=lang%3Aen+game%3Apaper+-is%3Atoken&unique=cards&order=eur&dir=desc&page={$page}";
     $data = curlGet($url);
     $cards = $data['data'] ?? [];
     if (empty($cards)) break;
@@ -104,6 +104,8 @@ while ($count < $TARGET_PER_GAME && $page <= 5) {
             ?? ($c['card_faces'][0]['image_uris']['large'] ?? null)
             ?? ($c['card_faces'][0]['image_uris']['normal'] ?? null);
         if (!$img) continue;
+        // Saltar placeholders de Scryfall (cartas demasiado nuevas sin imagen real)
+        if (str_contains($img, 'errors.scryfall.com') || str_contains($img, 'soon.jpg')) continue;
         $pr = (float)($c['prices']['eur'] ?? $c['prices']['eur_foil'] ?? $c['prices']['usd'] ?? 0);
         $r  = rarityMagic($c['rarity'] ?? 'common');
         $id = (string)$c['id'];
