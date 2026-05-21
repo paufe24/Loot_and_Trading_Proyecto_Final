@@ -406,6 +406,16 @@ if ($logged_in) {
 <div class="toast-container" id="toast-container"></div>
 
 <script>
+function cardImgFallback(img) {
+    img.onerror = null;
+    img.style.display = 'none';
+    var wrap = img.parentElement;
+    var ph = document.createElement('div');
+    ph.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e293b,#0f172a);color:#475569;font-size:3rem;border-radius:inherit;';
+    ph.textContent = '🃏';
+    wrap.appendChild(ph);
+}
+
 /* ── Utilidades ──────────────────────── */
 function toggleDarkMode() {
     document.body.classList.toggle('dark');
@@ -489,8 +499,7 @@ function buildAuctionCard(a) {
 
     div.innerHTML = `
         <div class="auction-img-wrap">
-            <img src="${a.card_image}" alt="${a.card_name}"
-                 onerror="this.src='https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg'">
+            <img src="${a.card_image}" alt="${a.card_name}" onerror="cardImgFallback(this)">
             <div class="auction-countdown ${timerClass}" id="timer-${a.id}">
                 ${isActive ? formatTime(secs) : 'Terminada'}
             </div>
@@ -816,7 +825,7 @@ async function loadMyBids() {
         div.className = `auction-card${imWinning ? ' is-winning' : ''}${!isActive ? ' is-ended' : ''}`;
         div.innerHTML = `
             <div class="auction-img-wrap">
-                <img src="${a.card_image}" alt="${a.card_name}" onerror="this.src='https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg'">
+                <img src="${a.card_image}" alt="${a.card_name}" onerror="cardImgFallback(this)">
                 <div class="auction-countdown ${!isActive ? 'ended-tag' : ''}">${isActive ? formatTime(secs) : 'Terminada'}</div>
                 ${imWinning && isActive ? '<div class="auction-winning-banner">🏆 Vas ganando</div>' : ''}
             </div>
@@ -861,7 +870,7 @@ async function loadMyWins() {
         div.className = 'auction-card';
         div.innerHTML = `
             <div class="auction-img-wrap">
-                <img src="${a.card_image}" alt="${a.card_name}" onerror="this.src='https://upload.wikimedia.org/wikipedia/en/3/3b/Pokemon_Trading_Card_Game_cardback.jpg'">
+                <img src="${a.card_image}" alt="${a.card_name}" onerror="cardImgFallback(this)">
                 <div class="auction-countdown ended-tag">Ganada</div>
             </div>
             <div class="auction-body">
