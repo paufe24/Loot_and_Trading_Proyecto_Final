@@ -1,6 +1,8 @@
-﻿<?php
+<?php
 require_once dirname(__DIR__) . '/includes/session.php';
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/csrf.php';
+$csrfToken = csrf_token();
 $isGuest = !isset($_SESSION['user_id']);
 $balance = 0;
 if (!$isGuest) {
@@ -19,92 +21,45 @@ if (!$isGuest) {
     <title>Abrir Sobres &mdash; Loot &amp; Trading</title>
     <link rel="stylesheet" href="../assets/css/styles.css">
     <style>
-        /* ── Página ── */
-        .sobres-page { padding-bottom: 80px; }
-
-        /* ── Hero ── */
-        .sobres-hero {
-            background: var(--bg-main);
-            border-bottom: 1px solid var(--border-color);
-            padding: 52px 24px 40px;
-            text-align: center;
-        }
-        .sobres-hero-eyebrow {
-            display: inline-block; font-size: .75rem; font-weight: 800; letter-spacing: 1.5px;
-            text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;
-        }
-        .sobres-hero h1 {
-            font-size: 2.6rem; font-weight: 900; color: var(--text-primary);
-            margin: 0 0 8px; letter-spacing: -1.5px;
-        }
-        .sobres-hero p { color: var(--text-secondary); margin: 0 0 22px; font-size: 1rem; }
-        .balance-display {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #f1f5f9; border: 1px solid var(--border-color);
-            border-radius: 999px; padding: 8px 20px;
-            color: var(--text-primary); font-size: .95rem; font-weight: 700;
-        }
-        body.dark .balance-display { background: #1e293b; border-color: #334155; }
-        .balance-display .lj-icon { color: var(--text-primary); font-size: 1.1rem; }
-
-        /* ── Panel central (selector + botón) ── */
-        .sobres-main {
-            max-width: 780px; margin: 40px auto 0; padding: 0 20px;
-        }
-        .sobres-panel {
-            background: #fff; border: 1px solid var(--border-color);
-            border-radius: 24px; padding: 36px 28px;
-            box-shadow: 0 2px 16px rgba(0,0,0,.06);
-        }
-        body.dark .sobres-panel { background: #1e293b; border-color: #334155; box-shadow: 0 2px 16px rgba(0,0,0,.3); }
-
-        .panel-label {
-            font-size: .72rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-            color: var(--text-secondary); margin-bottom: 14px; display: block;
-        }
-
         /* ── Game Selector ── */
-        .game-selector { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+        .game-selector { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .game-btn {
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
-            padding: 14px 20px; border-radius: 14px;
-            border: 2px solid var(--border-color);
-            background: var(--bg-main);
-            color: var(--text-secondary);
-            cursor: pointer; transition: all .18s; font-size: .8rem; font-weight: 700;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            padding: 10px 14px; border-radius: 14px;
+            border: 2px solid rgba(0,0,0,.12);
+            background: rgba(255,255,255,.7);
+            color: #64748b;
+            cursor: pointer; transition: all .18s; font-size: .75rem; font-weight: 700;
             text-transform: uppercase; letter-spacing: .5px;
         }
-        body.dark .game-btn { background: #0f172a; }
-        .game-btn .game-logo { width: 52px; height: 52px; object-fit: contain; display: block; }
-        .game-btn:hover { border-color: #6366f1; color: var(--text-primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,.15); }
-        .game-btn.active { border-width: 2px; background: #fff; color: var(--text-primary); font-weight: 800; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-        body.dark .game-btn.active { background: #1e293b; }
-        .game-btn.pokemon.active  { border-color: #ef4444; box-shadow: 0 4px 16px rgba(239,68,68,.2); }
-        .game-btn.magic.active    { border-color: #8b5cf6; box-shadow: 0 4px 16px rgba(139,92,246,.2); }
-        .game-btn.yugioh.active   { border-color: #f59e0b; box-shadow: 0 4px 16px rgba(245,158,11,.2); }
-        .game-btn.onepiece.active { border-color: #ec4899; box-shadow: 0 4px 16px rgba(236,72,153,.2); }
-
-        /* ── Divider ── */
-        .panel-divider { height: 1px; background: var(--border-color); margin: 0 0 24px; }
+        body.dark .game-btn { background: rgba(15,23,42,.6); border-color: rgba(255,255,255,.1); }
+        .game-btn .game-logo { width: 40px; height: 40px; object-fit: contain; display: block; }
+        .game-btn:hover { border-color: #6366f1; color: #0f172a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,.15); }
+        body.dark .game-btn:hover { color: #e2e8f0; }
+        .game-btn.active { background: rgba(255,255,255,.95); color: #0f172a; font-weight: 800; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+        body.dark .game-btn.active { background: rgba(30,41,59,.9); color: #e2e8f0; }
+        .game-btn.pokemon.active  { border-color: #ef4444; }
+        .game-btn.magic.active    { border-color: #8b5cf6; }
+        .game-btn.yugioh.active   { border-color: #f59e0b; }
+        .game-btn.onepiece.active { border-color: #ec4899; }
 
         /* ── Open Button ── */
-        .open-section { text-align: center; }
         .btn-open-pack {
             display: inline-flex; align-items: center; gap: 10px;
             background: #0f172a; color: #fff;
             font-size: 1rem; font-weight: 800;
             padding: 14px 36px; border-radius: 999px; border: none; cursor: pointer;
-            transition: all .2s; letter-spacing: -.2px;
+            transition: all .2s; letter-spacing: -.2px; margin-top: 4px;
         }
         body.dark .btn-open-pack { background: #e2e8f0; color: #0f172a; }
         .btn-open-pack:hover:not(:disabled) { background: #1e293b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
         body.dark .btn-open-pack:hover:not(:disabled) { background: #f1f5f9; }
         .btn-open-pack:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-        .pack-cost { font-size: .8rem; color: var(--text-secondary); margin-top: 10px; }
+        .pack-cost { font-size: .75rem; color: var(--text-secondary); margin-top: 8px; }
 
         /* ── Pack animation area ── */
         .pack-arena {
-            max-width: 500px; margin: 36px auto 0;
+            max-width: 500px; margin: 36px auto 0; padding: 0 20px;
             display: flex; flex-direction: column; align-items: center; gap: 16px;
         }
         .pack-envelope {
@@ -134,7 +89,7 @@ if (!$isGuest) {
         .cards-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; width: 100%; }
 
         /* ── Card flip ── */
-        .card-slot { perspective: 900px; width: 155px; }
+        .card-slot { perspective: 900px; width: 170px; }
         .card-inner {
             width: 100%; padding-top: 140%; position: relative;
             transform-style: preserve-3d; transition: transform .75s cubic-bezier(.4,0,.2,1);
@@ -156,7 +111,6 @@ if (!$isGuest) {
         body.dark .card-face { background: #0f172a; border-color: #334155; }
         .card-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* Glow rarity */
         .card-slot.rarity-ultra  .card-face { box-shadow: 0 0 20px 5px rgba(250,204,21,.55), 0 0 6px rgba(250,204,21,.4); border-color: #f59e0b; }
         .card-slot.rarity-rare   .card-face { box-shadow: 0 0 14px 3px rgba(139,92,246,.45); border-color: #8b5cf6; }
 
@@ -165,7 +119,7 @@ if (!$isGuest) {
         .card-slot.flipped .card-info { opacity: 1; }
         .card-name {
             font-size: .82rem; font-weight: 700; color: var(--text-primary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 145px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
         }
         .card-lj { font-size: 1.1rem; font-weight: 900; color: var(--text-primary); margin-top: 4px; }
         .card-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 5px; }
@@ -182,7 +136,6 @@ if (!$isGuest) {
         body.dark .badge-yugioh   { background:rgba(245,158,11,.15); color:#fcd34d; }
         body.dark .badge-onepiece { background:rgba(236,72,153,.15); color:#f9a8d4; }
 
-        /* ── Rarity badge ── */
         .rarity-badge { font-size: .65rem; padding: 2px 8px; border-radius: 99px; font-weight: 800; text-transform: uppercase; display: inline-block; }
         .rarity-badge.ultra  { background: #0f172a; color:#fff; font-weight: 900; }
         .rarity-badge.rare   { background: #1e293b; color: #e2e8f0; }
@@ -192,7 +145,6 @@ if (!$isGuest) {
         body.dark .rarity-badge.common { background: #1e293b; color:#64748b; }
 
         /* ── Action buttons per card ── */
-        .card-slot { perspective: 900px; width: 170px; }
         .card-actions { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; align-items: center; }
         .btn-sell-card {
             font-size: .72rem; padding: 6px 10px; border-radius: 999px; border: none; cursor: pointer; font-weight: 800;
@@ -215,8 +167,7 @@ if (!$isGuest) {
         .btn-sell-all {
             background: #0f172a; color:#fff;
             padding: 14px 40px; border-radius: 999px; border: none; font-weight: 900; font-size: 1.05rem;
-            cursor: pointer; transition: all .2s; box-shadow: 0 4px 20px rgba(0,0,0,.18);
-            letter-spacing: -.3px;
+            cursor: pointer; transition: all .2s; box-shadow: 0 4px 20px rgba(0,0,0,.18); letter-spacing: -.3px;
         }
         body.dark .btn-sell-all { background: #e2e8f0; color: #0f172a; }
         .btn-sell-all:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.25); }
@@ -246,15 +197,14 @@ if (!$isGuest) {
         #opening-overlay.show { display: flex; }
         .opening-spinner {
             width: 52px; height: 52px; border: 3px solid rgba(255,255,255,.15);
-            border-top-color: #6366f1; border-radius: 50%;
-            animation: spin .8s linear infinite;
+            border-top-color: #6366f1; border-radius: 50%; animation: spin .8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         #opening-overlay p { color: #fff; font-size: .95rem; font-weight: 600; }
 
         /* ── History ── */
         .history-section {
-            max-width: 960px; margin: 56px auto 0; padding: 0 20px;
+            max-width: 960px; margin: 56px auto 0; padding: 0 20px 80px;
             border-top: 1px solid var(--border-color); padding-top: 40px;
         }
         .history-section h2 {
@@ -264,10 +214,8 @@ if (!$isGuest) {
         .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
         .hist-card {
             background: #fff; border-radius: 12px; overflow: hidden;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 4px rgba(0,0,0,.04);
-            transition: transform .2s, box-shadow .2s;
-            position: relative;
+            border: 1px solid var(--border-color); box-shadow: 0 1px 4px rgba(0,0,0,.04);
+            transition: transform .2s, box-shadow .2s; position: relative;
         }
         body.dark .hist-card { background: #1e293b; border-color: #334155; }
         .hist-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
@@ -296,52 +244,202 @@ if (!$isGuest) {
 <!-- Toast -->
 <div id="sobres-toast"></div>
 
-<!-- Hero -->
-<div class="sobres-hero">
-    <span class="sobres-hero-eyebrow">Sistema de Sobres</span>
-    <h1>Abre Sobres TCG</h1>
-    <p>5 cartas aleatorias reales &bull; V&eacute;ndelas o gu&aacute;rdalas en tu colecci&oacute;n</p>
-    <div class="balance-display">
-        <span class="lj-icon">&#9830;</span>
-        <span id="hero-balance"><?php echo number_format($balance); ?></span>&nbsp;LJ disponibles
-    </div>
-</div>
-
-<!-- Panel principal -->
-<div class="sobres-main">
-    <div class="sobres-panel">
-        <span class="panel-label">Selecciona el juego</span>
-        <!-- Game selector -->
-        <div class="game-selector">
-            <button class="game-btn pokemon active" data-game="pokemon">
-                <img class="game-logo" src="../img/pokemon.png" alt="Pokémon">
-                Pok&eacute;mon
-            </button>
-            <button class="game-btn magic" data-game="magic">
-                <img class="game-logo" src="../img/magic.png" alt="Magic">
-                Magic
-            </button>
-            <button class="game-btn yugioh" data-game="yugioh">
-                <img class="game-logo" src="../img/yugioh.png" alt="Yu-Gi-Oh!">
-                Yu-Gi-Oh!
-            </button>
-            <button class="game-btn onepiece" data-game="onepiece">
-                <img class="game-logo" src="../img/onepiece.png" alt="One Piece">
-                One Piece
-            </button>
+<!-- Hero estilo subastas -->
+<header class="hero">
+    <div class="card-wall-bg">
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
         </div>
-
-        <div class="panel-divider"></div>
-
-        <!-- Open button -->
-        <div class="open-section">
+        <div class="wall-column col-down">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/2_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/2_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+        </div>
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+        </div>
+        <div class="wall-column col-down">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+        </div>
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+        </div>
+        <div class="wall-column col-down">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/2_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/2_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+        </div>
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4513-82a2-a7e7b2564f4d.jpg')"></div>
+        </div>
+        <div class="wall-column col-down">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/89631139.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/6_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+        </div>
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/10_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/1_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
+        </div>
+        <div class="wall-column col-down">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
+        </div>
+        <div class="wall-column col-up">
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/e/3/e3285e6b-3e79-4d7c-bf96-d920f973b122.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
+            <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
+            <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg')"></div>
+        </div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-text">
+            <?php if (!$isGuest): ?>
+            <div class="balance-pill" style="margin:0 auto 20px;flex-direction:column;gap:4px;padding:14px 32px;background:#3b82f6;box-shadow:0 8px 24px rgba(59,130,246,.4);">
+                <img src="../img/lujanito.svg" alt="LJ" style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(255,255,255,.4);">
+                <div id="hero-balance" style="font-size:1.6rem;font-weight:900;line-height:1.1;color:#fff;"><?php echo number_format($balance); ?></div>
+                <div style="font-size:.62rem;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.9);">Tus Lujanitos</div>
+            </div>
+            <?php else: ?>
+            <div style="margin-bottom:8px;"></div>
+            <?php endif; ?>
+            <h1>Abre Sobres<br><span>TCG.</span></h1>
+            <p style="color:var(--text-secondary);margin:0 0 16px;font-size:.92rem;">5 cartas aleatorias &bull; V&eacute;ndelas o gu&aacute;rdalas en tu colecci&oacute;n</p>
+            <div class="game-selector" style="margin-bottom:16px;">
+                <button class="game-btn pokemon active" data-game="pokemon">
+                    <img class="game-logo" src="../img/pokemon.png" alt="Pok&eacute;mon">
+                    Pok&eacute;mon
+                </button>
+                <button class="game-btn magic" data-game="magic">
+                    <img class="game-logo" src="../img/magic.png" alt="Magic">
+                    Magic
+                </button>
+                <button class="game-btn yugioh" data-game="yugioh">
+                    <img class="game-logo" src="../img/yugioh.png" alt="Yu-Gi-Oh!">
+                    Yu-Gi-Oh!
+                </button>
+                <button class="game-btn onepiece" data-game="onepiece">
+                    <img class="game-logo" src="../img/onepiece.png" alt="One Piece">
+                    One Piece
+                </button>
+            </div>
             <button class="btn-open-pack" id="btn-open">
                 Abrir Sobre &mdash; 50 LJ
             </button>
             <div class="pack-cost">Equivale a &euro;50 &bull; 1 LJ = 1 &euro;</div>
         </div>
     </div>
-</div>
+</header>
 
 <!-- Pack envelope animation -->
 <div class="pack-arena">
@@ -358,7 +456,7 @@ if (!$isGuest) {
     <div class="bulk-actions" id="bulk-actions">
         <button class="btn-reveal-all" id="btn-reveal-all">Revelar todas</button>
         <button class="btn-sell-all" id="btn-sell-all">Vender todas &mdash; <span id="sell-all-total">0</span> LJ</button>
-        <div class="sell-all-hint">Solo vende las que aún no hayas guardado</div>
+        <div class="sell-all-hint">Solo vende las que a&uacute;n no hayas guardado</div>
     </div>
 </div>
 
@@ -370,7 +468,7 @@ if (!$isGuest) {
     </h2>
     <div class="history-grid" id="history-grid">
         <div id="history-empty" style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--text-secondary);font-size:.9rem;">
-            Aún no has abierto ningún sobre
+            A&uacute;n no has abierto ning&uacute;n sobre
         </div>
     </div>
 </div>
@@ -382,9 +480,9 @@ const CARD_BACK_IMAGES = {
     yugioh:   '../img/parteatrascartas/yugioh.webp',
     onepiece: '../img/parteatrascartas/onepiece.jpg',
 };
-const GAME_EMOJI = { pokemon:'⚡', magic:'✨', yugioh:'🎴', onepiece:'⚓' };
 const GAME_BADGE_CLASS = { 'Pokémon':'badge-pokemon', 'Magic':'badge-magic', 'Yu-Gi-Oh!':'badge-yugioh', 'One Piece':'badge-onepiece' };
 const RARITY_LABEL = { ultra:'Ultra Rare', rare:'Rare', common:'Common' };
+const CSRF_TOKEN = '<?php echo htmlspecialchars($csrfToken, ENT_QUOTES); ?>';
 
 let selectedGame = 'pokemon';
 let currentCards = [];
@@ -431,12 +529,12 @@ async function openPack() {
     try {
         const fd = new FormData();
         fd.append('game', selectedGame);
+        fd.append('csrf_token', CSRF_TOKEN);
         const res = await fetch('../api/pack_open.php', { method: 'POST', body: fd });
         const data = await res.json();
 
         if (!data.ok) {
-            const msg = data.message || 'Error al abrir sobre';
-            showToast(msg, 'error');
+            showToast(data.message || 'Error al abrir sobre', 'error');
             return;
         }
 
@@ -446,10 +544,7 @@ async function openPack() {
         revealedCount = 0;
         savePendingPack();
 
-        // Update balance
         document.getElementById('hero-balance').textContent = data.new_balance.toLocaleString('es-ES');
-
-        // Show pack envelope
         showPackEnvelope(selectedGame);
     } catch(e) {
         showToast('Error de red. Inténtalo de nuevo.', 'error');
@@ -467,13 +562,11 @@ function showPackEnvelope(game) {
     const reveal  = document.getElementById('cards-reveal');
     const bulk    = document.getElementById('bulk-actions');
 
-    // Reset
     reveal.style.display = 'none';
     bulk.style.display = 'none';
     document.getElementById('cards-row').innerHTML = '';
     if (revealInterval) clearInterval(revealInterval);
 
-    // CSS graphic fallback (always shown, image hidden by default)
     const PACK_STYLES = {
         pokemon:  { bg:'linear-gradient(135deg,#dc2626,#991b1b)', icon:'⚡', label:'Pokémon' },
         magic:    { bg:'linear-gradient(135deg,#5b21b6,#2e1065)', icon:'✨', label:'Magic' },
@@ -508,11 +601,6 @@ function showPackEnvelope(game) {
     };
 }
 
-function gameGradient(game) {
-    const g = { pokemon:'linear-gradient(135deg,#ef4444,#f97316)', magic:'linear-gradient(135deg,#7c3aed,#4f46e5)', yugioh:'linear-gradient(135deg,#d97706,#92400e)', onepiece:'linear-gradient(135deg,#db2777,#9d174d)' };
-    return g[game] || 'linear-gradient(135deg,#1e1b4b,#312e81)';
-}
-
 function startCardReveal() {
     const row = document.getElementById('cards-row');
     const reveal = document.getElementById('cards-reveal');
@@ -520,15 +608,9 @@ function startCardReveal() {
 
     reveal.style.display = 'flex';
     bulk.style.display = 'none';
-
-    // Build slots (face-down)
     row.innerHTML = '';
-    currentCards.forEach((card, i) => {
-        const slot = buildCardSlot(card, i);
-        row.appendChild(slot);
-    });
+    currentCards.forEach((card, i) => row.appendChild(buildCardSlot(card, i)));
 
-    // Reveal one by one with delay
     revealedCount = 0;
     revealInterval = setInterval(() => {
         if (revealedCount >= currentCards.length) {
@@ -551,13 +633,12 @@ function buildCardSlot(card, idx) {
 
     const ljVal = parseFloat(card.lujanitos_value);
     const ljText = ljVal >= 1 ? Math.round(ljVal).toLocaleString('es-ES') + ' LJ' : ljVal.toFixed(2) + ' LJ';
-    const gameKey = card.card_game.replace('é','e').replace('-','').replace('!','').trim();
     const badgeClass = GAME_BADGE_CLASS[card.card_game] || 'badge-pokemon';
 
     const backImg = CARD_BACK_IMAGES[selectedGame] || '';
     slot.innerHTML = `
         <div class="card-inner">
-            <div class="card-back"><img src="${escHtml(backImg)}" alt="reverso"><span class="card-back-logo">🃏</span></div>
+            <div class="card-back"><img src="${escHtml(backImg)}" alt="reverso"><span class="card-back-logo">🃏</span></div>
             <div class="card-face"><img src="${escHtml(card.card_image)}" alt="${escHtml(card.card_name)}" loading="lazy"></div>
         </div>
         <div class="card-info">
@@ -579,28 +660,20 @@ function buildCardSlot(card, idx) {
 function flipCard(slot, card) {
     if (!slot) return;
     slot.classList.add('flipped', `rarity-${card.card_rarity}`);
-    // Ultra rare: particle burst (simple glow pulse via CSS class)
-    if (card.card_rarity === 'ultra') {
-        setTimeout(() => slot.classList.add('glow-burst'), 100);
-    }
+    if (card.card_rarity === 'ultra') setTimeout(() => slot.classList.add('glow-burst'), 100);
 }
 
 function showBulkActions() {
     const bulk = document.getElementById('bulk-actions');
     bulk.style.display = 'flex';
-
-    // Reveal-all button (in case user hasn't clicked individual ones ─ here all are auto-flipped)
     document.getElementById('btn-reveal-all').style.display = 'none';
-
     updateSellAllTotal();
 }
 
 function updateSellAllTotal() {
     let total = 0;
-    currentCards.forEach((card, i) => {
-        if (!keptCards.has(card.pack_card_id)) {
-            total += parseFloat(card.lujanitos_value);
-        }
+    currentCards.forEach(card => {
+        if (!keptCards.has(card.pack_card_id)) total += parseFloat(card.lujanitos_value);
     });
     const totalText = total >= 1 ? Math.round(total).toLocaleString('es-ES') : total.toFixed(2);
     document.getElementById('sell-all-total').textContent = totalText;
@@ -642,7 +715,6 @@ async function sellCard(btn, packCardId, ljValue) {
 // ── Keep one card ──
 async function keepCard(btn, packCardId) {
     const isKept = keptCards.has(packCardId);
-    // Actualizar UI inmediatamente
     if (isKept) {
         keptCards.delete(packCardId);
         btn.textContent = 'Guardar';
@@ -651,11 +723,10 @@ async function keepCard(btn, packCardId) {
         keptCards.add(packCardId);
         btn.textContent = '✓ Guardada';
         btn.classList.add('kept');
-        showToast('Carta guardada en tu coleccion', 'success');
+        showToast('Carta guardada en tu colección', 'success');
     }
     savePendingPack();
     updateSellAllTotal();
-    // Persistir en DB
     const fd = new FormData();
     fd.append('pack_card_id', packCardId);
     fetch('../api/pack_keep.php', { method: 'POST', body: fd }).catch(()=>{});
@@ -678,7 +749,6 @@ document.getElementById('btn-sell-all').addEventListener('click', async () => {
             const totalText = total >= 1 ? Math.round(total).toLocaleString('es-ES') : total.toFixed(2);
             showToast(`+${totalText} LJ ingresados`, 'success');
             document.getElementById('hero-balance').textContent = data.new_balance.toLocaleString('es-ES');
-            // Disable sold card buttons
             toSell.forEach(card => {
                 soldCards.add(card.pack_card_id);
                 const row = document.getElementById('cards-row');
@@ -713,9 +783,7 @@ function restoreCardReveal() {
 
     currentCards.forEach((card, i) => {
         const slot = buildCardSlot(card, i);
-        // Mostrar todas las cartas ya volteadas (sin animación)
         slot.classList.add('flipped', `rarity-${card.card_rarity}`);
-
         if (soldCards.has(card.pack_card_id)) {
             const sb = slot.querySelector('.btn-sell-card');
             const kb = slot.querySelector('.btn-keep-card');
@@ -727,8 +795,6 @@ function restoreCardReveal() {
         }
         row.appendChild(slot);
     });
-
-    // Forzar opacidad de la info (bypass del delay de transición CSS)
     setTimeout(() => row.querySelectorAll('.card-info').forEach(el => el.style.opacity = '1'), 30);
     showBulkActions();
 }
@@ -739,7 +805,7 @@ async function loadHistory() {
         const res = await fetch('../api/pack_history.php');
         const data = await res.json();
         const grid = document.getElementById('history-grid');
-        if (!data.ok || !data.cards.length) { return; }
+        if (!data.ok || !data.cards.length) return;
         grid.innerHTML = '';
         data.cards.forEach(card => {
             const lj = parseFloat(card.lujanitos_value);
@@ -787,7 +853,6 @@ function escHtml(str) {
     }
 })();
 
-// Load history on page load
 loadHistory();
 </script>
 </body>

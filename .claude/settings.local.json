@@ -12,7 +12,9 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(git merge *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(\"C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe\" -u root -e \"SELECT id, card_name, card_game, LEFT\\(card_image,80\\) as card_image_preview FROM auctions LIMIT 15;\" loot_trading)",
+      "Bash(C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe *)"
     ]
   }
 }
