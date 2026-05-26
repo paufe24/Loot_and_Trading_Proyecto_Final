@@ -436,7 +436,7 @@ if (!$isGuest) {
             <button class="btn-open-pack" id="btn-open">
                 Abrir Sobre &mdash; 50 LJ
             </button>
-            <div class="pack-cost">Equivale a &euro;50 &bull; 1 LJ = 1 &euro;</div>
+            <div class="pack-cost">50 LJ &bull; 5 cartas aleatorias</div>
         </div>
     </div>
 </header>

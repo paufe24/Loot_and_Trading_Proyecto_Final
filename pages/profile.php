@@ -1086,6 +1086,8 @@ $conn->close();
                         </div>
                     </div>
 
+                    <button onclick="openReviewsModal()" style="margin-top:8px;background:none;border:none;color:#94a3b8;font-size:.74rem;text-decoration:underline;cursor:pointer;font-family:'Outfit',sans-serif;">ver valoraciones</button>
+
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $statsCartas; ?></div>
@@ -1358,7 +1360,7 @@ $conn->close();
                                     <div class="order-num"><?php echo htmlspecialchars($ord['order_number']); ?></div>
                                     <div class="order-meta">
                                         <?php echo date('d/m/Y H:i', strtotime($ord['created_at'])); ?> ·
-                                        $<?php echo number_format((float)$ord['total_amount'], 2); ?>
+                                        <?php echo number_format((float)$ord['total_amount'], 2); ?> LJ
                                     </div>
                                     <div class="order-items-chips">
                                         <?php foreach ($ord['items'] as $it): ?>
@@ -1839,5 +1841,46 @@ document.getElementById('review-modal')?.addEventListener('click', function(e) {
 </div>
 
 <?php include dirname(__DIR__) . '/includes/footer.php'; ?>
+<!-- Modal: ver valoraciones recibidas -->
+<div id="reviews-list-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:92%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);" id="reviews-list-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;font-weight:800;">⭐ Valoraciones</h3>
+      <button onclick="document.getElementById('reviews-list-modal').style.display='none'" style="border:none;background:none;font-size:1.5rem;cursor:pointer;color:#64748b;">&times;</button>
+    </div>
+    <div id="reviews-list-summary" style="font-weight:700;color:#f59e0b;margin-bottom:12px;"></div>
+    <div id="reviews-list-body"></div>
+  </div>
+</div>
+<script>
+async function openReviewsModal() {
+    const modal = document.getElementById('reviews-list-modal');
+    const body  = document.getElementById('reviews-list-body');
+    const sum   = document.getElementById('reviews-list-summary');
+    modal.style.display = 'flex';
+    body.innerHTML = '<p style="color:#64748b;">Cargando…</p>';
+    sum.textContent = '';
+    try {
+        const res = await fetch('../api/user_review.php?action=list&user_id=<?php echo (int)$_SESSION['user_id']; ?>');
+        const data = await res.json();
+        if (!data.ok) { body.innerHTML = '<p style="color:#64748b;">No se pudieron cargar.</p>'; return; }
+        if (data.total > 0) {
+            const r = Math.round(data.avg_rating);
+            sum.textContent = '★'.repeat(r) + '☆'.repeat(5-r) + '  ' + data.avg_rating + ' / 5  ·  ' + data.total + ' valoración(es)';
+        }
+        if (!data.reviews.length) { body.innerHTML = '<p style="color:#64748b;">Este usuario aún no tiene valoraciones.</p>'; return; }
+        body.innerHTML = data.reviews.map(function(rv){
+            var nm = (rv.name || rv.username || '').replace(/</g,'&lt;');
+            var cm = rv.comment ? '<p style="margin:6px 0 0;color:#475569;font-size:.9rem;">'+rv.comment.replace(/</g,'&lt;')+'</p>' : '';
+            return '<div style="border-top:1px solid #e2e8f0;padding:12px 0;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<strong>'+nm+'</strong>'
+                + '<span style="color:#f59e0b;">'+'★'.repeat(rv.rating)+'☆'.repeat(5-rv.rating)+'</span></div>'
+                + cm
+                + '<div style="color:#94a3b8;font-size:.75rem;margin-top:4px;">'+(rv.created_at||'').slice(0,10)+'</div></div>';
+        }).join('');
+    } catch(e) { body.innerHTML = '<p style="color:#ef4444;">Error de conexión.</p>'; }
+}
+</script>
 </body>
 </html>

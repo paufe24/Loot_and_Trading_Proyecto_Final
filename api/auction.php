@@ -509,7 +509,7 @@ function claimWin($conn) {
             "INSERT INTO user_activity (user_id, activity_type, title, description, ref_id, amount)
              VALUES (?, 'auction_claim', ?, ?, ?, ?)"
         );
-        $ins2->bind_param("issiid", $user_id, $act_title, $act_desc, $auction_id, $lujanitos_bonus);
+        $ins2->bind_param("issid", $user_id, $act_title, $act_desc, $auction_id, $lujanitos_bonus);
         $ins2->execute();
 
         $conn->commit();

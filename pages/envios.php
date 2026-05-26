@@ -191,7 +191,7 @@ $totalShipments = count($orders) + count($auctionShipments);
             <div class="card-meta">
                 <strong><?php echo htmlspecialchars($o['buyer']); ?></strong>
                 · <?php echo htmlspecialchars($o['email']); ?>
-                · Total: $<?php echo number_format((float)$o['total_amount'], 2); ?>
+                · Total: <?php echo number_format((float)$o['total_amount'], 2); ?> LJ
             </div>
             <?php $addr = $o['address'] ?? ''; ?>
             <div class="addr-line">📍 <?php echo htmlspecialchars($addr ?: 'Sin dirección registrada'); ?></div>

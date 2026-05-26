@@ -242,14 +242,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <!-- repeat -->
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/2_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh11/186_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/83764718.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                 </div>
                 <!-- Columna 3 ↑ -->
                 <div class="wall-column col-up">
@@ -287,14 +287,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                 <div class="wall-column col-up">
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
                     <!-- repeat -->
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/5_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/46986414.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/38033121.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
@@ -322,14 +322,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <!-- repeat -->
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/swsh7/215_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/33396948.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/15_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                 </div>
                 <!-- Columna 8 ↓ -->
                 <div class="wall-column col-down">
@@ -367,14 +367,14 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                 <div class="wall-column col-down">
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
                     <!-- repeat -->
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/4_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/4031928.jpg')"></div>
-                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/f/2/f2bc06cb-2f22-4313-82a2-a7e7b2564f4d.jpg')"></div>
+                    <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/7/0/70901356-3266-4bd9-aacc-f06c27271de5.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://images.pokemontcg.io/base1/9_hires.png')"></div>
                     <div class="wall-img" style="background-image: url('https://images.ygoprodeck.com/images/cards/10000020.jpg')"></div>
                     <div class="wall-img" style="background-image: url('https://cards.scryfall.io/large/front/2/3/2398892d-28e9-4009-81ec-0d544af79d2b.jpg')"></div>
@@ -400,7 +400,7 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
             <div class="hero-content" style="margin: 0 auto;">
                 <div class="hero-text">
                     <?php if ($nombre_usuario): ?>
-                        <p class="welcome-text">¡Hola de nuevo, <?php echo htmlspecialchars($nombre_usuario); ?>!</p>
+                        <p class="welcome-text"><span data-i18n="home.welcome_back">¡Hola de nuevo</span>, <?php echo htmlspecialchars($nombre_usuario); ?>!</p>
                     <?php endif; ?>
                     <h1>Loot&Trading<br><span>Marketplace.</span></h1>
                     <p data-i18n="home.subtitle">El mercado definitivo de TCGs con precios en tiempo real.</p>
@@ -419,20 +419,20 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                 <div class="fs-bg" style="background-image:url('../img/parteatrascartas/pokemon.jpg')"></div>
                 <div class="fs-overlay fs-overlay-left"></div>
                 <div class="fs-content">
-                    <div class="fs-eyebrow">&#127183; Nuevo</div>
-                    <h2 class="fs-title">Abre Sobres TCG</h2>
-                    <p class="fs-desc">5 cartas aleatorias reales por sobre &mdash; Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas al instante o gu&aacute;rdalas.</p>
-                    <span class="fs-btn">Abrir un sobre &mdash; 50 LJ &rarr;</span>
+                    <div class="fs-eyebrow" data-i18n="home.tag_new">&#127183; Nuevo</div>
+                    <h2 class="fs-title" data-i18n="home.packs_title">Abre Sobres TCG</h2>
+                    <p class="fs-desc" data-i18n="home.packs_desc">5 cartas aleatorias reales por sobre &mdash; Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas al instante o gu&aacute;rdalas.</p>
+                    <span class="fs-btn" data-i18n="home.packs_btn">Abrir un sobre &mdash; 50 LJ &rarr;</span>
                 </div>
             </a>
             <a href="apuestas.php" class="fs-panel fs-right">
                 <div class="fs-bg" style="background-image:url('../img/parteatrascartas/magic.webp')"></div>
                 <div class="fs-overlay fs-overlay-right"></div>
                 <div class="fs-content">
-                    <div class="fs-eyebrow">&#9889; En vivo</div>
-                    <h2 class="fs-title">Subastas</h2>
-                    <p class="fs-desc">Puja en tiempo real con Lujanitos en cartas TCG exclusivas. Gana la subasta y recibe la carta en casa.</p>
-                    <span class="fs-btn">Ver subastas activas &rarr;</span>
+                    <div class="fs-eyebrow" data-i18n="home.tag_live">&#9889; En vivo</div>
+                    <h2 class="fs-title" data-i18n="home.auctions_title">Subastas</h2>
+                    <p class="fs-desc" data-i18n="home.auctions_desc">Puja en tiempo real con Lujanitos en cartas TCG exclusivas. Gana la subasta y recibe la carta en casa.</p>
+                    <span class="fs-btn" data-i18n="home.view_auctions">Ver subastas activas &rarr;</span>
                 </div>
             </a>
         </section>
@@ -442,16 +442,16 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
         <section class="pack-promo-banner">
             <div class="pack-promo-inner">
                 <div class="pack-promo-left">
-                    <div class="pack-promo-eyebrow">&#10024; Nuevo en Loot &amp; Trading</div>
-                    <h2 class="pack-promo-title">&#127183; Abre Sobres TCG</h2>
-                    <p class="pack-promo-desc">5 cartas aleatorias reales por sobre. Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas por Lujanitos o gu&aacute;rdalas en tu colecci&oacute;n.</p>
+                    <div class="pack-promo-eyebrow" data-i18n="home.promo_eyebrow">&#10024; Nuevo en Loot &amp; Trading</div>
+                    <h2 class="pack-promo-title" data-i18n="home.promo_title">&#127183; Abre Sobres TCG</h2>
+                    <p class="pack-promo-desc" data-i18n="home.promo_desc">5 cartas aleatorias reales por sobre. Pok&eacute;mon, Magic, Yu-Gi-Oh! y One Piece. V&eacute;ndelas por Lujanitos o gu&aacute;rdalas en tu colecci&oacute;n.</p>
                     <div class="pack-promo-games">
                         <span>&#9889; Pok&eacute;mon</span>
                         <span>&#10024; Magic</span>
                         <span>&#128081; Yu-Gi-Oh!</span>
                         <span>&#9876; One Piece</span>
                     </div>
-                    <a href="sobres.php" class="pack-promo-btn">&#127183; Abrir un sobre &mdash; 50 LJ</a>
+                    <a href="sobres.php" class="pack-promo-btn" data-i18n="home.promo_btn">&#127183; Abrir un sobre &mdash; 50 LJ</a>
                 </div>
                 <div class="pack-promo-cards">
                     <div class="ppc ppc1"><img src="../img/parteatrascartas/pokemon.jpg" alt="Pokémon"></div>
@@ -509,8 +509,8 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
             <div class="events-inner">
                 <div class="events-header">
                     <div>
-                        <h2>📅 Próximos Eventos</h2>
-                        <p class="events-subtitle">Quedadas y torneos donde participamos</p>
+                        <h2 data-i18n="home.events_title">📅 Próximos Eventos</h2>
+                        <p class="events-subtitle" data-i18n="home.events_subtitle">Quedadas y torneos donde participamos</p>
                     </div>
                     <span class="events-we-badge">🎯 Participamos</span>
                 </div>
@@ -668,7 +668,7 @@ if ($evRes) while ($row = $evRes->fetch_assoc()) $events_db[] = $row;
                     const priceText = c.price >= 1000
                         ? (c.price/1000).toFixed(1).replace('.',',') + '.000'
                         : Math.round(c.price).toLocaleString('es-ES');
-                    const priceFmt = '$' + priceText;
+                    const priceFmt = parseFloat(c.price).toFixed(2);
                     const div = document.createElement('div');
                     div.className = 'trending-card';
                     div.style.cursor = 'pointer';

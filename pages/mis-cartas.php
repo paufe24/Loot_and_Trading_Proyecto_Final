@@ -12,7 +12,7 @@ $cartItems = [];
 $stC = $conn->prepare(
     "SELECT oi.id AS item_id, oi.card_name, oi.card_image, oi.card_game,
             oi.card_price, oi.quantity, o.order_number, o.id AS order_id,
-            o.shipping_status, o.created_at
+            o.shipment_status AS shipping_status, o.created_at
      FROM cart_order_items oi
      JOIN cart_orders o ON o.id = oi.order_id
      WHERE o.user_id = ?
@@ -41,9 +41,9 @@ $stP = $conn->prepare(
 );
 if ($stP) { $stP->bind_param("i",$uid); $stP->execute(); $packCards = $stP->get_result()->fetch_all(MYSQLI_ASSOC); }
 
-$statusLabels = ['pending'=>'Recibido','processing'=>'Preparando','shipped'=>'Enviado','delivered'=>'Entregado'];
-$statusColors = ['pending'=>'#f59e0b','processing'=>'#3b82f6','shipped'=>'#8b5cf6','delivered'=>'#10b981'];
-$statusSteps  = ['pending'=>1,'processing'=>2,'shipped'=>3,'delivered'=>4];
+$statusLabels = ['pending'=>'Recibido','processing'=>'Preparando','shipped'=>'Enviado','delivered'=>'Entregado','done'=>'Entregado'];
+$statusColors = ['pending'=>'#f59e0b','processing'=>'#3b82f6','shipped'=>'#8b5cf6','delivered'=>'#10b981','done'=>'#10b981'];
+$statusSteps  = ['pending'=>1,'processing'=>2,'shipped'=>3,'delivered'=>4,'done'=>4];
 $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
 ?>
 <!DOCTYPE html>
@@ -193,7 +193,7 @@ $trackerLabels = ['Recibido','Preparando','Enviado','Entregado'];
                     'name'     => $it['card_name'],
                     'image'    => $it['card_image'],
                     'game'     => $it['card_game'],
-                    'price'    => '$' . number_format((float)$it['card_price'], 2),
+                    'price'    => number_format((float)$it['card_price'], 2) . ' LJ',
                     'badge_color' => '#3b82f6',
                     'status'   => $st,
                     'order_id' => $it['order_id'],
@@ -355,9 +355,9 @@ document.querySelectorAll('.mc-status-btn').forEach(btn => {
 applyFilters();
 
 /* ── Auto-refresh de estado de envío cada 5 min ── */
-const STATUS_LABELS = {pending:'Recibido',processing:'Preparando',shipped:'Enviado',delivered:'Entregado'};
-const STATUS_COLORS = {pending:'#f59e0b',processing:'#3b82f6',shipped:'#8b5cf6',delivered:'#10b981'};
-const STATUS_STEPS  = {pending:1,processing:2,shipped:3,delivered:4};
+const STATUS_LABELS = {pending:'Recibido',processing:'Preparando',shipped:'Enviado',delivered:'Entregado',done:'Entregado'};
+const STATUS_COLORS = {pending:'#f59e0b',processing:'#3b82f6',shipped:'#8b5cf6',delivered:'#10b981',done:'#10b981'};
+const STATUS_STEPS  = {pending:1,processing:2,shipped:3,delivered:4,done:4};
 const TRACKER_LBLS  = ['Recibido','Preparando','Enviado','Entregado'];
 
 function rebuildTracker(key, newStatus) {
@@ -385,13 +385,13 @@ async function refreshShipments() {
         data.cart.forEach(r => {
             document.querySelectorAll(`[data-order-id="${r.order_id}"]`).forEach(card => {
                 const key = card.dataset.key;
-                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipping_status);
+                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipment_status);
             });
         });
         data.auctions.forEach(r => {
             document.querySelectorAll(`[data-auction-id="${r.auction_id}"]`).forEach(card => {
                 const key = card.dataset.key;
-                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipping_status);
+                if (key && !key.startsWith('pack-')) rebuildTracker(key, r.shipment_status);
             });
         });
         const note = document.getElementById('mc-refresh-note');

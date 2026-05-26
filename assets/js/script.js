@@ -273,7 +273,7 @@ function createCardHTML(data) {
         <div class="tcg-info">
             <span class="card-badge" style="background-color: ${data.color}">${data.badge}</span>
             <div class="card-name">${data.name}</div>
-            <div class="card-price">${(parseFloat(data.price) > 0) ? '€' + parseFloat(data.price).toFixed(2) : 'Sin precio'}</div>
+            <div class="card-price">${(parseFloat(data.price) > 0) ? parseFloat(data.price).toFixed(2) + ' LJ' : 'Sin precio'}</div>
         </div>
     `;
 
@@ -295,7 +295,7 @@ function openModal(data) {
     document.getElementById('modal-badge').textContent = data.badge;
     document.getElementById('modal-badge').style.backgroundColor = data.color;
     const _eur = parseFloat(data.price);
-    document.getElementById('modal-price').textContent = (_eur > 0) ? `€${_eur.toFixed(2)} · ${Math.round(_eur)} LJ` : 'Sin precio';
+    document.getElementById('modal-price').textContent = (_eur > 0) ? `${_eur.toFixed(2)} LJ` : 'Sin precio';
 
     refreshFavoriteStatus(MODAL_CARD.card_id);
 
@@ -344,7 +344,7 @@ function openModal(data) {
                         ${c.r}/10 ${c.label}
                     </span>
                 </td>
-                <td style="color:#16a34a;font-weight:800;">€${finalPrice} <span style="color:#6366f1;font-size:.8em;">${Math.round(finalPrice)} LJ</span></td>
+                <td style="color:#16a34a;font-weight:800;">${finalPrice} LJ</td>
                 <td>
                     <button class="btn-buy-small js-add-to-cart"
                         data-card-id="${encodeURIComponent(data.card_id || data.id || data.name)}"
@@ -440,11 +440,11 @@ function renderPriceChart(canvas, badge, prices, labels) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: {
-                callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) }
+                callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + ' LJ' }
             }},
             scales: {
                 x: { ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 9 }, maxTicksLimit: 7 }, grid: { display: false } },
-                y: { ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 9 }, callback: v => '$'+v }, grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' } }
+                y: { ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 9 }, callback: v => v+' LJ' }, grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' } }
             }
         }
     });
@@ -658,7 +658,7 @@ function renderFeaturedCard(containerId, data) {
             <div class="featured-card-body">
                 <span class="featured-card-badge" style="background:${data.color}">${data.badge}</span>
                 <div class="featured-card-name">${data.name}</div>
-                <div class="featured-card-price">${data.price ? '€' + parseFloat(data.price).toFixed(2) : 'Sin stock'}</div>
+                <div class="featured-card-price">${data.price ? parseFloat(data.price).toFixed(2) + ' LJ' : 'Sin stock'}</div>
             </div>
         `;
         container.style.cursor = 'pointer';
@@ -800,11 +800,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ===== BÚSQUEDA REAL EN EL CATÁLOGO (4 jocs, des de cards_pool) =====
+    let _mktSearchTimer = null;
+    window._mktSearched = false;
+    async function serverSearchCards(term) {
+        const grid = document.getElementById('mercado-grid');
+        if (!grid) return;
+        const title = document.getElementById('mercado-title');
+        grid.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#64748b;">Buscant…</div>';
+        try {
+            const res = await fetch('../api/market_search.php?q=' + encodeURIComponent(term) + (gameParam ? '&game=' + encodeURIComponent(gameParam) : ''));
+            const data = await res.json();
+            grid.innerHTML = '';
+            if (!data.ok || !data.cards || !data.cards.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#64748b;">No s\'ha trobat cap carta amb «' + term + '».</div>';
+            } else {
+                if (title) title.innerText = 'Resultats per a «' + term + '» (' + data.cards.length + ')';
+                data.cards.forEach(c => grid.appendChild(createCardHTML(c)));
+            }
+            window._mktSearched = true;
+            const loadBtn = document.getElementById('mercado-load-more');
+            if (loadBtn) loadBtn.style.display = 'none';
+            applyMercadoFilters(); // aplica preu/condició sobre els resultats
+        } catch (e) {
+            grid.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#ef4444;">Error en la cerca.</div>';
+        }
+    }
+
     const applyFiltersBtn = document.getElementById('apply-filters-btn');
     if (applyFiltersBtn) {
         const condParam3 = urlParams.get('cond');
         if (condParam3) { const cb = document.getElementById('cond-' + condParam3); if (cb) cb.checked = true; }
-        applyFiltersBtn.addEventListener('click', applyMercadoFilters);
+        applyFiltersBtn.addEventListener('click', () => {
+            const term = (document.getElementById('filter-search')?.value || '').trim();
+            if (term.length >= 1) serverSearchCards(term);
+            else applyMercadoFilters();
+        });
     }
 
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
@@ -814,16 +845,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const fs = document.getElementById('filter-search'); if (fs) fs.value = '';
             const mn = document.getElementById('filter-price-min'); if (mn) mn.value = '';
             const mx = document.getElementById('filter-price-max'); if (mx) mx.value = '';
-            document.querySelectorAll('#mercado-grid .tcg-item').forEach(c => c.style.display = '');
             window._selectedCondFilter = '';
+            if (window._mktSearched) { window.location.reload(); return; }
+            document.querySelectorAll('#mercado-grid .tcg-item').forEach(c => c.style.display = '');
         });
     }
 
     const filterSearch = document.getElementById('filter-search');
     if (filterSearch) {
         const qParam = urlParams.get('q');
-        if (qParam) { filterSearch.value = qParam; setTimeout(applyMercadoFilters, 1400); }
-        filterSearch.addEventListener('input', applyMercadoFilters);
+        if (qParam) { filterSearch.value = qParam; setTimeout(() => serverSearchCards(qParam), 300); }
+        filterSearch.addEventListener('input', () => {
+            const term = filterSearch.value.trim();
+            clearTimeout(_mktSearchTimer);
+            if (term.length >= 2) _mktSearchTimer = setTimeout(() => serverSearchCards(term), 400);
+        });
+        filterSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); clearTimeout(_mktSearchTimer); const t = filterSearch.value.trim(); if (t.length >= 1) serverSearchCards(t); }
+        });
     }
 
     const condParam = urlParams.get('cond');
@@ -890,7 +929,7 @@ function renderArenaGrid() {
                 <div class="bet-item-info">
                     <span class="card-badge" style="background-color: ${card.badgeColor}; width: fit-content; margin: 0 auto 10px; color: white;">${card.game}</span>
                     <div class="bet-item-title">${card.name}</div>
-                    <div class="bet-item-price">€${card.currentPrice.toFixed(2)} · ${Math.round(card.currentPrice)} LJ</div>
+                    <div class="bet-item-price">${card.currentPrice.toFixed(2)} LJ</div>
                     <div class="bet-buttons">
                         <button class="btn-bull" onclick="openBetModal('${card.id}', 'bull')">Sube 📈</button>
                         <button class="btn-bear" onclick="openBetModal('${card.id}', 'bear')">Baja 📉</button>
@@ -1094,10 +1133,13 @@ async function loadOnePieceCards(gridId) {
         items.forEach(card => {
             const img = card.image_large || card.image_small;
             if (!img) return;
+            // Supabase no devuelve precio para One Piece: generamos uno determinista por nombre
+            let _h = 0; for (const _c of card.name) _h = (_h * 31 + _c.charCodeAt(0)) | 0;
+            const _price = ((Math.abs(_h) % 11500) / 100 + 5).toFixed(2);
             grid.appendChild(createCardHTML({
                 badge: 'One Piece', color: '#f97316',
                 name: card.name, img: img,
-                price: null,
+                price: _price,
                 card_id: card.name.replace(/\s+/g, '-').toLowerCase()
             }));
         });
@@ -1252,7 +1294,7 @@ function codOpenModal() {
     imgEl.src = card.img;
     nameEl.textContent = card.name;
     const _p = parseFloat(card.price);
-    priceEl.textContent = _p > 0 ? `€${_p.toFixed(2)} · ${Math.round(_p)} LJ` : (card.price || 'Sin precio');
+    priceEl.textContent = _p > 0 ? `${_p.toFixed(2)} LJ` : (card.price || 'Sin precio');
     trendEl.textContent = (card.up ? '↑ ' : '↓ ') + card.trend + ' esta semana';
     trendEl.className = 'cod-trend ' + (card.up ? 'up' : 'down');
     descEl.textContent = card.desc;

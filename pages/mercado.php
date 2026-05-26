@@ -201,7 +201,7 @@ $game = $_GET['game'] ?? 'pokemon';
                     <input type="text" id="filter-search" placeholder="Ej. Charizard..." data-i18n-placeholder="market.search">
                 </div>
                 <div class="filter-group">
-                    <label data-i18n="market.price">Precio (€):</label>
+                    <label data-i18n="market.price">Precio (LJ):</label>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <input type="number" id="filter-price-min" min="0" step="0.01" placeholder="Mín" style="width:80px;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0;font-family:'Outfit',sans-serif;font-size:.85rem;">
                         <span style="color:#64748b;">—</span>

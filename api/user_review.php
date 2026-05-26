@@ -44,6 +44,35 @@ if ($action === 'get') {
     exit;
 }
 
+if ($action === 'list') {
+    $targetId = (int)($_GET['user_id'] ?? 0);
+    if (!$targetId) { echo json_encode(['ok'=>false]); exit; }
+
+    $st = $conn->prepare(
+        "SELECT r.rating, r.comment, r.created_at, u.username, u.name, u.avatar_url
+         FROM user_reviews r
+         JOIN users u ON u.id = r.reviewer_id
+         WHERE r.reviewed_user_id = ?
+         ORDER BY r.created_at DESC LIMIT 50"
+    );
+    $st->bind_param("i", $targetId);
+    $st->execute();
+    $reviews = $st->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    $st2 = $conn->prepare("SELECT AVG(rating) AS avg_r, COUNT(*) AS total FROM user_reviews WHERE reviewed_user_id = ?");
+    $st2->bind_param("i", $targetId);
+    $st2->execute();
+    $row = $st2->get_result()->fetch_assoc();
+
+    echo json_encode([
+        'ok'         => true,
+        'reviews'    => $reviews,
+        'avg_rating' => $row['avg_r'] ? round((float)$row['avg_r'], 1) : null,
+        'total'      => (int)$row['total'],
+    ]);
+    exit;
+}
+
 if ($action === 'submit') {
     $targetId = (int)($_POST['reviewed_user_id'] ?? 0);
     $rating   = (int)($_POST['rating'] ?? 0);

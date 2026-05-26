@@ -447,7 +447,7 @@ while ($row = $r->fetch_assoc()) $activity[] = $row;
             </div>
             <div class="stat-card">
                 <div class="stat-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></div>
-                <div class="stat-value">$<?php echo number_format($totalRevenue, 0); ?></div>
+                <div class="stat-value"><?php echo number_format($totalRevenue, 0); ?> LJ</div>
                 <div class="stat-label" data-i18n="admin.revenue">Ingresos mercado</div>
             </div>
             <div class="stat-card">
@@ -1154,7 +1154,7 @@ async function fetchStat(stat) {
                     pointBackgroundColor: '#10b981'
                 },
                 {
-                    label: 'Ingresos ($)',
+                    label: 'Ingresos (LJ)',
                     data: ordersMonth.map(r => +r.revenue),
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245,158,11,.1)',
@@ -1171,7 +1171,7 @@ async function fetchStat(stat) {
             interaction: { mode: 'index', intersect: false },
             scales: {
                 y: { beginAtZero: true, ticks: { precision: 0 }, position: 'left' },
-                y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { callback: v => '$' + v } }
+                y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { callback: v => v + ' LJ' } }
             }
         }
     });
@@ -1194,7 +1194,7 @@ async function fetchStat(stat) {
             cutout: '65%',
             plugins: {
                 legend: { position: 'bottom' },
-                tooltip: { callbacks: { label: ctx => ctx.label + ': $' + (+ctx.raw).toLocaleString() } }
+                tooltip: { callbacks: { label: ctx => ctx.label + ': ' + (+ctx.raw).toLocaleString() + ' LJ' } }
             }
         }
     });
@@ -1344,7 +1344,7 @@ async function fetchStat(stat) {
                 <td style="font-weight:700">${c.card_name}</td>
                 <td><span style="font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:20px;background:${gameColor}22;color:${gameColor}">${gameLabel}</span></td>
                 <td style="font-weight:700">${(+c.total_sold).toLocaleString()}</td>
-                <td style="font-weight:700;color:#10b981">$${(+c.total_revenue).toLocaleString()}</td>
+                <td style="font-weight:700;color:#10b981">${(+c.total_revenue).toLocaleString()} LJ</td>
             </tr>`;
         });
         html += '</tbody></table></div>';

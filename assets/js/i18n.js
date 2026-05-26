@@ -12,6 +12,7 @@
         es: {
             // ── Navbar ──
             'nav.auctions':        'Subastas',
+            'nav.packs':           'Sobres',
             'nav.cart':            'Carrito',
             'nav.notifications':   '🔔 Notificaciones',
             'nav.loading':         'Cargando…',
@@ -65,6 +66,21 @@
             'home.tcgs_supported':  'TCGs soportados',
             'home.prices_updated':  'Precios actualizados',
             'home.free_collectors': 'Gratis para coleccionistas',
+            'home.events_title':    '📅 Próximos Eventos',
+            'home.events_subtitle': 'Quedadas y torneos donde participamos',
+            'home.welcome_back':    '¡Hola de nuevo',
+            'home.tag_new':         '🃏 Nuevo',
+            'home.packs_title':     'Abre Sobres TCG',
+            'home.packs_desc':      '5 cartas aleatorias reales por sobre — Pokémon, Magic, Yu-Gi-Oh! y One Piece. Véndelas al instante o guárdalas.',
+            'home.packs_btn':       'Abrir un sobre — 50 LJ →',
+            'home.tag_live':        '⚡ En vivo',
+            'home.auctions_title':  'Subastas',
+            'home.auctions_desc':   'Puja en tiempo real con Lujanitos en cartas TCG exclusivas. Gana la subasta y recibe la carta en casa.',
+            'home.view_auctions':   'Ver subastas activas →',
+            'home.promo_eyebrow':   '✨ Nuevo en Loot & Trading',
+            'home.promo_title':     '🃏 Abre Sobres TCG',
+            'home.promo_desc':      '5 cartas aleatorias reales por sobre. Pokémon, Magic, Yu-Gi-Oh! y One Piece. Véndelas por Lujanitos o guárdalas en tu colección.',
+            'home.promo_btn':       '🃏 Abrir un sobre — 50 LJ',
 
             // ── Auth ──
             'auth.login_title':    '🔐 Iniciar Sesión',
@@ -85,7 +101,7 @@
             'market.search':       'Buscar carta por nombre...',
             'market.filters':      'Filtros',
             'market.sort':         'Ordenar',
-            'market.price':        'Precio',
+            'market.price':        'Precio (LJ)',
             'market.add_cart':     'Añadir al carrito',
             'market.view':        'Ver detalles',
             'market.no_results':   'No se encontraron resultados.',
@@ -308,7 +324,7 @@
             'cart.insufficient':   '⚠️ Saldo insuficiente.',
             'cart.get_lj':         'Conseguir Lujanitos →',
             'cart.finish':         'Finalizar compra',
-            'cart.note':           'Se descuentan Lujanitos de tu saldo. 1€ = 1 LJ.',
+            'cart.note':           'Se descuentan Lujanitos de tu saldo.',
 
             // ── Market extras ──
             'market.apply':        'Aplicar Filtros',
@@ -410,6 +426,7 @@
         en: {
             // ── Navbar ──
             'nav.auctions':        'Auctions',
+            'nav.packs':           'Packs',
             'nav.cart':            'Cart',
             'nav.notifications':   '🔔 Notifications',
             'nav.loading':         'Loading…',
@@ -463,6 +480,21 @@
             'home.tcgs_supported':  'TCGs supported',
             'home.prices_updated':  'Prices updated',
             'home.free_collectors': 'Free for collectors',
+            'home.events_title':    '📅 Upcoming Events',
+            'home.events_subtitle': 'Meetups and tournaments we attend',
+            'home.welcome_back':    'Welcome back',
+            'home.tag_new':         '🃏 New',
+            'home.packs_title':     'Open TCG Packs',
+            'home.packs_desc':      '5 real random cards per pack — Pokémon, Magic, Yu-Gi-Oh! and One Piece. Sell them instantly or keep them.',
+            'home.packs_btn':       'Open a pack — 50 LJ →',
+            'home.tag_live':        '⚡ Live',
+            'home.auctions_title':  'Auctions',
+            'home.auctions_desc':   'Bid in real time with Lujanitos on exclusive TCG cards. Win the auction and get the card at home.',
+            'home.view_auctions':   'View active auctions →',
+            'home.promo_eyebrow':   '✨ New on Loot & Trading',
+            'home.promo_title':     '🃏 Open TCG Packs',
+            'home.promo_desc':      '5 real random cards per pack. Pokémon, Magic, Yu-Gi-Oh! and One Piece. Sell them for Lujanitos or keep them in your collection.',
+            'home.promo_btn':       '🃏 Open a pack — 50 LJ',
 
             // ── Auth ──
             'auth.login_title':    '🔐 Log In',
@@ -483,7 +515,7 @@
             'market.search':       'Search card by name...',
             'market.filters':      'Filters',
             'market.sort':         'Sort',
-            'market.price':        'Price',
+            'market.price':        'Price (LJ)',
             'market.add_cart':     'Add to cart',
             'market.view':        'View details',
             'market.no_results':   'No results found.',
@@ -706,7 +738,7 @@
             'cart.insufficient':   '⚠️ Insufficient balance.',
             'cart.get_lj':         'Get Lujanitos →',
             'cart.finish':         'Complete purchase',
-            'cart.note':           'Lujanitos are deducted from your balance. 1€ = 1 LJ.',
+            'cart.note':           'Lujanitos are deducted from your balance.',
 
             // ── Market extras ──
             'market.apply':        'Apply Filters',

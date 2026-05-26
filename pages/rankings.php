@@ -12,7 +12,7 @@ try { $conn->query("ALTER TABLE users ADD COLUMN lootcoins INT NOT NULL DEFAULT 
 $topXp = $conn->query("
     SELECT id, username, avatar_url, xp
     FROM users
-    WHERE status = 'active' AND is_admin = 0
+    WHERE 1=1
     ORDER BY xp DESC
     LIMIT 10
 ")->fetch_all(MYSQLI_ASSOC);
@@ -21,7 +21,7 @@ $topXp = $conn->query("
 $topLC = $conn->query("
     SELECT id, username, avatar_url, lootcoins
     FROM users
-    WHERE status = 'active' AND is_admin = 0
+    WHERE 1=1
     ORDER BY lootcoins DESC
     LIMIT 10
 ")->fetch_all(MYSQLI_ASSOC);
@@ -34,10 +34,6 @@ $topCards = $conn->query("
         FROM cart_order_items coi
         JOIN cart_orders co ON coi.order_id = co.id
         WHERE co.status = 'paid'
-        UNION ALL
-        SELECT wl.card_name, wl.card_game, wl.image_url AS card_image, 1 AS qty
-        FROM wallapop_listings wl
-        WHERE wl.status = 'sold'
     ) combined
     GROUP BY card_name, card_game, card_image
     ORDER BY total_sold DESC

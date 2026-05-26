@@ -630,21 +630,21 @@ function buildFriendCard(f) {
     div.className = 'user-card';
     div.setAttribute('data-uid', f.id);
     const avHtml = f.avatar_url
-        ? `<img src=”${escHtml(fixUrl(f.avatar_url))}” alt=”” onerror=”this.style.display='none'”>`
+        ? `<img src="${escHtml(fixUrl(f.avatar_url))}" alt="" onerror="this.style.display='none'">`
         : (f.username||'?').charAt(0).toUpperCase();
     const ratingHtml = f.avg_rating
-        ? `<div class=”ucard-rating”>${'★'.repeat(Math.round(f.avg_rating))}${'☆'.repeat(5-Math.round(f.avg_rating))} ${f.avg_rating} (${f.review_count})</div>`
+        ? `<div class="ucard-rating">${'★'.repeat(Math.round(f.avg_rating))}${'☆'.repeat(5-Math.round(f.avg_rating))} ${f.avg_rating} (${f.review_count})</div>`
         : '';
     div.innerHTML = `
-        <div class=”ucard-av”>${avHtml}</div>
-        <div class=”ucard-info”>
-            <div class=”ucard-name”>${escHtml(f.name || f.username)}</div>
-            <div class=”ucard-user”>@${escHtml(f.username)}</div>
+        <div class="ucard-av">${avHtml}</div>
+        <div class="ucard-info">
+            <div class="ucard-name">${escHtml(f.name || f.username)}</div>
+            <div class="ucard-user">@${escHtml(f.username)}</div>
             ${ratingHtml}
         </div>
-        <div class=”ucard-actions”>
-            <button class=”btn-sm btn-profile” onclick=”openProfile(${f.id})”>Ver perfil</button>
-            <button class=”btn-sm btn-rate” onclick=”openRevModal(${f.id},'${escHtml(f.username)}')”>⭐ Valorar</button>
+        <div class="ucard-actions">
+            <button class="btn-sm btn-profile" onclick="openProfile(${f.id})">Ver perfil</button>
+            <button class="btn-sm btn-rate" onclick="openRevModal(${f.id},'${escHtml(f.username)}')">⭐ Valorar</button>
         </div>`;
     return div;
 }
@@ -654,17 +654,17 @@ function buildRequestCard(r) {
     div.className = 'user-card';
     div.id = `rrow-${r.id}`;
     const avHtml = r.avatar_url
-        ? `<img src=”${escHtml(fixUrl(r.avatar_url))}” alt=””>`
+        ? `<img src="${escHtml(fixUrl(r.avatar_url))}" alt="">`
         : (r.username||'?').charAt(0).toUpperCase();
     div.innerHTML = `
-        <div class=”ucard-av”>${avHtml}</div>
-        <div class=”ucard-info”>
-            <div class=”ucard-name”>${escHtml(r.name || r.username)}</div>
-            <div class=”ucard-user”>Quiere ser tu amigo</div>
+        <div class="ucard-av">${avHtml}</div>
+        <div class="ucard-info">
+            <div class="ucard-name">${escHtml(r.name || r.username)}</div>
+            <div class="ucard-user">Quiere ser tu amigo</div>
         </div>
-        <div class=”ucard-actions”>
-            <button class=”btn-sm btn-accept” onclick=”acceptReq(${r.friendship_id},this)”>✔ Aceptar</button>
-            <button class=”btn-sm btn-reject” onclick=”rejectReq(${r.friendship_id},this)”>✗</button>
+        <div class="ucard-actions">
+            <button class="btn-sm btn-accept" onclick="acceptReq(${r.friendship_id},this)">✔ Aceptar</button>
+            <button class="btn-sm btn-reject" onclick="rejectReq(${r.friendship_id},this)">✗</button>
         </div>`;
     return div;
 }
@@ -699,31 +699,31 @@ async function doSearch() {
         const req = parseInt(u.requester_id)||0;
         let actions = '';
         if (!st) {
-            actions = `<button class=”btn-sm btn-add” onclick=”sendReq(${u.id},this)”>+ Añadir</button>`;
+            actions = `<button class="btn-sm btn-add" onclick="sendReq(${u.id},this)">+ Añadir</button>`;
         } else if (st === 'pending' && req === MY_ID) {
-            actions = `<span class=”status-sent”>Solicitud enviada</span>`;
+            actions = `<span class="status-sent">Solicitud enviada</span>`;
         } else if (st === 'pending' && req !== MY_ID) {
             actions = `
-                <button class=”btn-sm btn-accept” onclick=”acceptReq(${u.friendship_id||0},this)”>✔</button>
-                <button class=”btn-sm btn-reject” onclick=”rejectReq(${u.friendship_id||0},this)”>✗</button>`;
+                <button class="btn-sm btn-accept" onclick="acceptReq(${u.friendship_id||0},this)">✔</button>
+                <button class="btn-sm btn-reject" onclick="rejectReq(${u.friendship_id||0},this)">✗</button>`;
         } else if (st === 'accepted') {
-            actions = `<button class=”btn-sm btn-profile” onclick=”openProfile(${u.id})”>Ver perfil</button>`;
+            actions = `<button class="btn-sm btn-profile" onclick="openProfile(${u.id})">Ver perfil</button>`;
         }
         const rateBtn = u.id !== MY_ID
-            ? `<button class=”btn-sm btn-rate” onclick=”openRevModal(${u.id},'${escHtml(u.username)}')”>⭐ Valorar</button>`
+            ? `<button class="btn-sm btn-rate" onclick="openRevModal(${u.id},'${escHtml(u.username)}')">⭐ Valorar</button>`
             : '';
         const ratingHtml = u.avg_rating
-            ? `<div class=”ucard-rating”>${'★'.repeat(Math.round(u.avg_rating))}${'☆'.repeat(5-Math.round(u.avg_rating))} ${u.avg_rating} (${u.review_count})</div>`
+            ? `<div class="ucard-rating">${'★'.repeat(Math.round(u.avg_rating))}${'☆'.repeat(5-Math.round(u.avg_rating))} ${u.avg_rating} (${u.review_count})</div>`
             : '';
         div.setAttribute('data-uid', u.id);
         div.innerHTML = `
-            <div class=”ucard-av”>${avHtml}</div>
-            <div class=”ucard-info”>
-                <div class=”ucard-name”>${escHtml(u.name||u.username)}</div>
-                <div class=”ucard-user”>@${escHtml(u.username)}</div>
+            <div class="ucard-av">${avHtml}</div>
+            <div class="ucard-info">
+                <div class="ucard-name">${escHtml(u.name||u.username)}</div>
+                <div class="ucard-user">@${escHtml(u.username)}</div>
                 ${ratingHtml}
             </div>
-            <div class=”ucard-actions”>${actions}${rateBtn}</div>`;
+            <div class="ucard-actions">${actions}${rateBtn}</div>`;
         box.appendChild(div);
     });
 }

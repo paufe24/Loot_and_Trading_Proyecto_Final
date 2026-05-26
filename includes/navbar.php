@@ -152,7 +152,7 @@ body.dark .nav-lang-option:hover { background:#334155; }
     <div class="spacer"></div>
 
     <a href="sobres.php" class="nav-item nav-pill">
-        <span>Sobres</span>
+        <span data-i18n="nav.packs">Sobres</span>
     </a>
 
     <a href="apuestas.php" class="nav-item nav-pill">

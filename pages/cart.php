@@ -428,6 +428,7 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                     <a class="btn-main" href="index.php" data-i18n="cart.continue">Seguir comprando</a>
                     <form method="post" action="cart.php" class="cart-inline-form">
                         <input type="hidden" name="action" value="clear">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                         <button class="btn-cart" type="submit" data-i18n="cart.clear">Vaciar</button>
                     </form>
                 </div>
@@ -495,9 +496,10 @@ $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
                         <?php endif; ?>
                         <form method="post" action="cart.php" class="cart-summary-actions">
                             <input type="hidden" name="action" value="checkout">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                             <button class="btn-main full-width" type="submit" <?php echo $userCoinsDisplay < $totalLJ ? 'disabled' : ''; ?> data-i18n="cart.finish">Finalizar compra</button>
                         </form>
-                        <div class="cart-summary-note" data-i18n="cart.note">Se descuentan Lujanitos de tu saldo. 1€ = 1 LJ.</div>
+                        <div class="cart-summary-note" data-i18n="cart.note">Se descuentan Lujanitos de tu saldo.</div>
                     </aside>
                 </div>
             <?php endif; ?>
